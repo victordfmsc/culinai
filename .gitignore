@@ -1,0 +1,7 @@
+# Deployment build directory (workaround for .replit publicDir)
+Chefai/
+
+# Node modules
+node_modules/
+
+# See recipe-app/.gitignore for Angular-specific ignores
