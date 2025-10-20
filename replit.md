@@ -11,6 +11,8 @@ This is a recipe management application built with Angular 19 that helps users m
 - ✅ Android project is now self-contained with plugins copied locally (no node_modules dependency)
 - ✅ capacitor.settings.gradle modified to use local plugin directories
 - ✅ Project ready for direct import into Android Studio without npm install
+- ✅ Added "X" button on login screen to allow guest mode (try app without authentication)
+- ✅ Guest mode signal implemented for non-authenticated app exploration
 
 # User Preferences
 
@@ -58,6 +60,10 @@ Preferred communication style: Simple, everyday language.
 - Maintains `currentUser` signal updated via `onAuthStateChanged` listener
 - Triggers Firestore data loading on successful authentication
 - Supports Google Sign-In popup and traditional email/password authentication
+- **Guest Mode**: Users can skip login via "X" button to explore app without authentication
+  - `guestMode` signal in AppComponent controls guest access
+  - Guest users can use all features but data is not persisted
+  - Logging out resets guest mode
 
 **Data Storage**:
 - `FirestoreService` manages all database operations

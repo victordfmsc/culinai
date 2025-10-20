@@ -30,6 +30,7 @@ export class TranslationService {
     login_password_placeholder: { en: 'Password', es: 'Contraseña', fr: 'Mot de passe', de: 'Passwort', it: 'Password' },
     login_signin_button: { en: 'Sign In', es: 'Iniciar sesión', fr: 'Se connecter', de: 'Anmelden', it: 'Accedi' },
     login_signup_button: { en: 'Sign Up', es: 'Registrarse', fr: "S'inscrire", de: 'Registrieren', it: 'Registrati' },
+    login_skip: { en: 'Skip login and try the app', es: 'Saltar login y probar la app', fr: "Ignorer la connexion et essayer l'app", de: 'Anmeldung überspringen und App ausprobieren', it: 'Salta il login e prova l\'app' },
     cancel: { en: 'Cancel', es: 'Cancelar', fr: 'Annuler', de: 'Abbrechen', it: 'Annulla' },
     cooked_button: { en: 'I Cooked This!', es: '¡Lo cociné!', fr: "J'ai cuisiné ça!", de: 'Ich habe das gekocht!', it: 'L\'ho cucinato!' },
     modal_plan_recipe_title: { en: 'Plan Recipe', es: 'Planificar Receta', fr: 'Planifier la recette', de: 'Rezept planen', it: 'Pianifica Ricetta' },
