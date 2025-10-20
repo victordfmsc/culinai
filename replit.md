@@ -6,6 +6,12 @@ This is a recipe management application built with Angular 19 that helps users m
 - **Web Application**: Deployed via Angular dev server on port 5000
 - **Mobile Application**: Android app via Capacitor framework (see Mobile Architecture section)
 
+**Recent Changes (Oct 20, 2025)**:
+- ✅ Environment variables now auto-injected on build via inject-env.js script
+- ✅ Android project is now self-contained with plugins copied locally (no node_modules dependency)
+- ✅ capacitor.settings.gradle modified to use local plugin directories
+- ✅ Project ready for direct import into Android Studio without npm install
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
