@@ -1,6 +1,10 @@
 # Overview
 
-This is a recipe management web application built with Angular 19 that helps users manage their fridge ingredients, discover recipes, plan meals, and create shopping lists. The application integrates with Google's Gemini AI for recipe generation and Firebase for authentication and data persistence. It features a gamification system with points and levels, multilingual support (English, Spanish, French, German, Italian), and a subscription-based premium model.
+This is a recipe management application built with Angular 19 that helps users manage their fridge ingredients, discover recipes, plan meals, and create shopping lists. The application integrates with Google's Gemini AI for recipe generation and Firebase for authentication and data persistence. It features a gamification system with points and levels, multilingual support (English, Spanish, French, German, Italian), and a subscription-based premium model.
+
+**Deployment Options**:
+- **Web Application**: Deployed via Angular dev server on port 5000
+- **Mobile Application**: Android app via Capacitor framework (see Mobile Architecture section)
 
 # User Preferences
 
@@ -112,3 +116,43 @@ Preferred communication style: Simple, everyday language.
 - `SubscriptionService` provides basic subscription state
 - Currently stubbed implementation (always returns subscribed state)
 - Designed for future integration with payment provider
+
+## Mobile Architecture
+
+**Capacitor Integration** (v7.4.3):
+- Capacitor CLI and Core for cross-platform mobile deployment
+- Android platform configured and ready for native app builds
+- Web assets compiled to `dist/recipe-app/browser` and synced to Android project
+
+**Android Configuration**:
+- **App ID**: `com.daiary.chefai`
+- **App Name**: Chef AI
+- **Target SDK**: Android API 34+
+- **Min SDK**: Android API 21 (Android 5.0)
+- **Version**: 1.0 (versionCode: 1)
+
+**Android Build Setup**:
+- Gradle 8.7.2 with Google Services plugin 4.4.4
+- Firebase BoM 34.4.0 managing SDK versions
+- Firebase dependencies: Analytics, Auth, Firestore
+- google-services.json configured in `android/app/` directory
+- Build files configured in `android/build.gradle` and `android/app/build.gradle`
+
+**Mobile Build Scripts** (package.json):
+- `build:mobile`: Builds Angular and syncs with Capacitor
+- `android:sync`: Syncs changes to Android platform
+- `android:open`: Opens project in Android Studio
+- `android:run`: Runs app on connected device/emulator
+- `mobile:build`: Complete build and sync workflow
+
+**Build Process**:
+1. Angular builds production web app to `dist/recipe-app/browser`
+2. Capacitor syncs web assets to `android/app/src/main/assets/public`
+3. Android Studio compiles native app with embedded web view
+4. Firebase SDK provides native authentication and data persistence
+5. APK/AAB generated for distribution
+
+**Documentation**:
+- Complete mobile build guide available in `MOBILE_BUILD.md`
+- Includes setup instructions, build commands, and troubleshooting
+- Covers APK generation for testing and signed releases for Google Play Store
