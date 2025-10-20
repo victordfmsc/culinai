@@ -146,16 +146,37 @@ O usa este comando para hacer todo automáticamente:
 npm run build && npm run android:sync && npm run android:run
 ```
 
-## ✅ Verificación de Firebase
+## ✅ Verificación de Configuración
 
-Tu app móvil ya tiene Firebase configurado con:
+Tu app móvil ya tiene todo configurado:
+
+### Firebase
 - ✅ `google-services.json` copiado en `android/app/`
 - ✅ Plugin de Google Services configurado en Gradle
 - ✅ Dependencias de Firebase agregadas (Auth, Firestore, Analytics)
-
-La configuración de Firebase es la misma que la web:
 - **Project ID**: `chef-ai-b08d8`
 - **Package Name**: `com.daiary.chefai`
+
+### RevenueCat (Suscripciones)
+- ✅ SDK de RevenueCat instalado (@revenuecat/purchases-capacitor)
+- ✅ Servicio de suscripciones configurado
+- ✅ Paywall automático para usuarios no suscritos
+- **Entitlement ID**: `premium`
+- **API Keys**: Configuradas en variables de entorno
+
+**Configuración necesaria en RevenueCat Dashboard**:
+1. Crea una cuenta en https://app.revenuecat.com
+2. Agrega tu app Android con package name: `com.daiary.chefai`
+3. Configura Google Play Console credentials
+4. Crea productos/suscripciones en Google Play Console
+5. Espeja los productos en RevenueCat
+6. Crea un entitlement llamado "premium"
+7. Crea offerings que incluyan tus productos
+
+### Gemini AI
+- ✅ SDK de Google Generative AI instalado
+- ✅ API key configurada desde variables de entorno
+- **Variable**: `GOOGLE_API_KEY`
 
 ## 🐛 Solución de Problemas
 
@@ -193,13 +214,46 @@ sdk.dir=C:\\Users\\TU_USUARIO\\AppData\\Local\\Android\\Sdk
 - **SDK Mínimo**: Android 5.0 (API 21)
 - **SDK Objetivo**: API 34+
 
-## 🎯 Próximos Pasos
+## 🎯 Checklist para Google Play Store
 
-1. Prueba la app en diferentes dispositivos/emuladores
-2. Configura los íconos de la app en `android/app/src/main/res/`
-3. Personaliza el splash screen si es necesario
-4. Genera un APK firmado para distribución
-5. Publica en Google Play Store
+Antes de publicar tu app en Google Play Console, asegúrate de:
+
+### Configuración Técnica
+- ✅ App compilada con API 35 (Android 15) - Ya configurado
+- ✅ Firebase configurado y funcionando
+- ✅ RevenueCat configurado con productos en Google Play
+- ⚠️ Cambiar íconos de la app (actualmente usa los de Capacitor por defecto)
+- ⚠️ Personalizar splash screen si lo deseas
+- ⚠️ Generar keystore para firma de releases
+- ⚠️ Crear AAB firmado (no APK)
+
+### Cuenta de Google Play
+- ⚠️ Crear cuenta de Google Play Developer ($25 USD único pago)
+- ⚠️ Habilitar autenticación de dos factores (2FA)
+- ⚠️ Completar verificación de identidad
+
+### Store Listing
+- ⚠️ Preparar capturas de pantalla (mínimo 2)
+- ⚠️ Ícono de alta resolución (512x512 px)
+- ⚠️ Feature graphic (1024x500 px)
+- ⚠️ Descripción de la app (corta y completa)
+- ⚠️ URL de política de privacidad
+- ⚠️ Completar cuestionario de clasificación de contenido
+- ⚠️ Email de soporte (obligatorio)
+
+### Políticas y Cumplimiento
+- ⚠️ Revisar políticas de Google Play
+- ⚠️ Configurar Play App Signing
+- ⚠️ Crear credenciales de prueba si la app requiere login
+- ⚠️ Declarar permisos y uso de datos personales
+
+### Siguientes Pasos
+1. Prueba exhaustivamente en diferentes dispositivos
+2. Configura RevenueCat completamente con tus suscripciones
+3. Personaliza íconos y splash screen
+4. Genera AAB firmado para release
+5. Sube a Google Play Console en modo "Internal Testing" primero
+6. Después pasa a "Production" cuando esté listo
 
 ## 📚 Recursos Adicionales
 

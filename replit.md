@@ -113,9 +113,12 @@ Preferred communication style: Simple, everyday language.
 - Development server configured for host `0.0.0.0:5000` with disabled host checking
 
 **Subscription Management**:
-- `SubscriptionService` provides basic subscription state
-- Currently stubbed implementation (always returns subscribed state)
-- Designed for future integration with payment provider
+- `SubscriptionService` integrates with RevenueCat for subscription management
+- RevenueCat SDK (@revenuecat/purchases-capacitor) handles cross-platform purchases
+- Supports Android (Google Play), Web (Stripe), and iOS (future)
+- Automatically shows paywall to non-subscribed users on login
+- Entitlement ID: "premium" - configured in RevenueCat dashboard
+- API keys managed via environment variables: REVENUECAT_ANDROID_API_KEY, REVENUECAT_WEB_API_KEY
 
 ## Mobile Architecture
 
