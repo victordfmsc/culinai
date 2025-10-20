@@ -18,11 +18,18 @@ export class GeminiService {
   private model: any = null;
 
   constructor() {
-    const apiKey = 'demo-key';
+    const apiKey = this.getApiKey();
     if (apiKey && apiKey !== 'demo-key') {
       this.genAI = new GoogleGenerativeAI(apiKey);
       this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
     }
+  }
+
+  private getApiKey(): string {
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env['GOOGLE_API_KEY'] || 'demo-key';
+    }
+    return 'demo-key';
   }
 
   async generateRecipes(ingredients: string): Promise<Recipe[]> {
