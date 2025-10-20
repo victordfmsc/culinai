@@ -58,7 +58,6 @@ export class HomeComponent {
   
   @Output() dayClicked = new EventEmitter<string>();
   @Output() recipeRemoved = new EventEmitter<{ day: string; recipeName: string }>();
-  @Output() recipeClicked = new EventEmitter<string>();
 
   daysOfWeek = DAYS_OF_WEEK_KEYS;
 

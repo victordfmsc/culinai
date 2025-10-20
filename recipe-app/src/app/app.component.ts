@@ -71,8 +71,7 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
                 [nextLevelPoints]="pointsForNextLevel()"
                 [mealPlan]="mealPlan()"
                 (dayClicked)="onCalendarDaySelected($event)"
-                (recipeRemoved)="onRemoveRecipeFromPlan($event)"
-                (recipeClicked)="onStartCooking($event)" />
+                (recipeRemoved)="onRemoveRecipeFromPlan($event)" />
             }
             @case ('fridge') {
               <app-fridge (findRecipes)="handleFindRecipesRequest($event)" />
