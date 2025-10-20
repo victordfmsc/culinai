@@ -11,12 +11,12 @@ import {
 import { UserData, EMPTY_MEAL_PLAN } from '../models/user.model';
 
 const firebaseConfig = {
-  apiKey: "demo-api-key",
-  authDomain: "demo-project.firebaseapp.com",
-  projectId: "demo-project",
-  storageBucket: "demo-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "demo-app-id"
+  apiKey: "AIzaSyBYcruBDN5mbfnqJ2HnAyH4MSosKRODwRg",
+  authDomain: "chef-ai-b08d8.firebaseapp.com",
+  projectId: "chef-ai-b08d8",
+  storageBucket: "chef-ai-b08d8.firebasestorage.app",
+  messagingSenderId: "204589480105",
+  appId: "1:204589480105:web:c4772a58aa9b2a30e211b8"
 };
 
 @Injectable({
