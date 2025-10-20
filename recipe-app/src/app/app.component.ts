@@ -344,6 +344,7 @@ export class AppComponent {
 
   constructor() {
     this.setupStateSynchronization();
+    this.setupSubscriptionCheck();
   }
 
   private setupStateSynchronization() {
@@ -379,6 +380,23 @@ export class AppComponent {
     });
   }
 
+  private setupSubscriptionCheck() {
+    effect(() => {
+      const user = this.authService.currentUser();
+      const isInitialized = this.subscriptionService.isInitialized();
+      const isSubscribed = this.subscriptionService.isSubscribed();
+      
+      if (user && isInitialized && !isSubscribed) {
+        this.subscriptionService.identifyUser(user.uid);
+        setTimeout(() => {
+          if (!this.subscriptionService.isSubscribed()) {
+            this.showPaywall.set(true);
+          }
+        }, 1000);
+      }
+    });
+  }
+
   loginWithGoogle() {
     this.authService.loginWithGoogle();
   }
@@ -391,7 +409,8 @@ export class AppComponent {
     this.authService.signUpWithEmail(this.loginEmail(), this.loginPassword());
   }
 
-  logout() {
+  async logout() {
+    await this.subscriptionService.logoutUser();
     this.authService.logout();
     this.currentView.set('home');
   }
@@ -513,19 +532,32 @@ export class AppComponent {
     });
   }
 
-  onStartTrial() {
-    this.subscriptionService.startTrial();
-    this.showPaywall.set(false);
+  async onStartTrial() {
+    await this.subscriptionService.startTrial();
     
-    const pending = this.pendingIngredients();
-    if (pending) {
-      this.onFindRecipes(pending);
-      this.pendingIngredients.set(null);
+    if (this.subscriptionService.isSubscribed()) {
+      this.showPaywall.set(false);
+      
+      const pending = this.pendingIngredients();
+      if (pending) {
+        this.onFindRecipes(pending);
+        this.pendingIngredients.set(null);
+      }
     }
   }
 
-  onRestorePurchases() {
-    this.subscriptionService.restorePurchases();
+  async onRestorePurchases() {
+    const restored = await this.subscriptionService.restorePurchases();
+    
+    if (restored) {
+      this.showPaywall.set(false);
+      
+      const pending = this.pendingIngredients();
+      if (pending) {
+        this.onFindRecipes(pending);
+        this.pendingIngredients.set(null);
+      }
+    }
   }
 
   private mergeShoppingItems(newItems: string[]) {
