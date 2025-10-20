@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { environment } from '../../environments/environment';
 
 export interface Recipe {
   title: string;
@@ -26,10 +27,7 @@ export class GeminiService {
   }
 
   private getApiKey(): string {
-    if (typeof process !== 'undefined' && process.env) {
-      return process.env['GOOGLE_API_KEY'] || 'demo-key';
-    }
-    return 'demo-key';
+    return environment.googleApiKey || 'demo-key';
   }
 
   async generateRecipes(ingredients: string): Promise<Recipe[]> {

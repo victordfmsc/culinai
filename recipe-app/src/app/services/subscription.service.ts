@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Purchases, LOG_LEVEL, CustomerInfo, PurchasesOfferings } from '@revenuecat/purchases-capacitor';
 import { Capacitor } from '@capacitor/core';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -45,19 +46,12 @@ export class SubscriptionService {
 
   private getApiKey(platform: string): string {
     if (platform === 'android') {
-      return this.getEnvVariable('REVENUECAT_ANDROID_API_KEY') || 'your_android_api_key';
+      return environment.revenuecatAndroidKey || 'your_android_api_key';
     } else if (platform === 'ios') {
-      return this.getEnvVariable('REVENUECAT_IOS_API_KEY') || 'your_ios_api_key';
+      return environment.revenuecatIosKey || 'your_ios_api_key';
     } else {
-      return this.getEnvVariable('REVENUECAT_WEB_API_KEY') || 'your_web_api_key';
+      return environment.revenuecatWebKey || 'your_web_api_key';
     }
-  }
-
-  private getEnvVariable(key: string): string {
-    if (typeof process !== 'undefined' && process.env) {
-      return process.env[key] || '';
-    }
-    return '';
   }
 
   async checkSubscriptionStatus(): Promise<void> {
