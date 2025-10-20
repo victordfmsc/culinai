@@ -19,9 +19,17 @@ export class SubscriptionService {
 
   private async initializeRevenueCat() {
     try {
+      const platform = Capacitor.getPlatform();
+      
+      if (platform === 'web') {
+        console.log('RevenueCat: Running in web browser (demo mode)');
+        this.isSubscribed.set(true);
+        this.isInitialized.set(true);
+        return;
+      }
+      
       await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
       
-      const platform = Capacitor.getPlatform();
       const apiKey = this.getApiKey(platform);
       
       if (!apiKey || apiKey.includes('your_')) {
