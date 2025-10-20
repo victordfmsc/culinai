@@ -34,10 +34,6 @@ externalPort = 80
 localPort = 35279
 externalPort = 3001
 
-[[ports]]
-localPort = 41955
-externalPort = 3000
-
 [deployment]
 deploymentTarget = "static"
 publicDir = "Chefai"
