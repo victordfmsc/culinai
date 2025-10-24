@@ -324,6 +324,8 @@ export class AppComponent {
   private translationService = inject(TranslationService);
 
   guestMode = signal(false);
+  guestPoints = signal(0);
+  guestLevel = signal(1);
   isAuthenticated = computed(() => !!this.authService.currentUser() || this.guestMode());
   loginEmail = signal('');
   loginPassword = signal('');
@@ -335,8 +337,14 @@ export class AppComponent {
   cookingRecipe = signal<Recipe | null>(null);
 
   userData = this.firestoreService.currentUserData;
-  points = computed(() => this.userData()?.points ?? 0);
-  level = computed(() => this.userData()?.level ?? 1);
+  points = computed(() => {
+    if (this.guestMode()) return this.guestPoints();
+    return this.userData()?.points ?? 0;
+  });
+  level = computed(() => {
+    if (this.guestMode()) return this.guestLevel();
+    return this.userData()?.level ?? 1;
+  });
   pointsForNextLevel = computed(() => this.level() * 500);
   levelProgress = computed(() => (this.points() % 500) / 5);
 
@@ -471,17 +479,25 @@ export class AppComponent {
   }
 
   onConfirmCooked(recipe: Recipe) {
-    const user = this.userData();
-    if (!user) return;
-
     const earnedPoints = 100;
-    const newPoints = user.points + earnedPoints;
-    const newLevel = Math.floor(newPoints / 500) + 1;
+    
+    if (this.guestMode()) {
+      const newPoints = this.guestPoints() + earnedPoints;
+      const newLevel = Math.floor(newPoints / 500) + 1;
+      this.guestPoints.set(newPoints);
+      this.guestLevel.set(newLevel);
+    } else {
+      const user = this.userData();
+      if (!user) return;
 
-    this.firestoreService.updateUser(user.uid, {
-      points: newPoints,
-      level: newLevel
-    });
+      const newPoints = user.points + earnedPoints;
+      const newLevel = Math.floor(newPoints / 500) + 1;
+
+      this.firestoreService.updateUser(user.uid, {
+        points: newPoints,
+        level: newLevel
+      });
+    }
 
     this.cookingRecipe.set(null);
   }
