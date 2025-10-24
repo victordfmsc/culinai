@@ -20,9 +20,18 @@ export class GeminiService {
 
   constructor() {
     const apiKey = this.getApiKey();
+    console.log('Gemini Service initializing with API key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'none');
     if (apiKey && apiKey !== 'demo-key') {
-      this.genAI = new GoogleGenerativeAI(apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+      try {
+        this.genAI = new GoogleGenerativeAI(apiKey);
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+        console.log('Gemini AI model initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize Gemini AI:', error);
+        this.model = null;
+      }
+    } else {
+      console.log('No valid API key found, will use mock recipes');
     }
   }
 
@@ -31,57 +40,76 @@ export class GeminiService {
   }
 
   async generateRecipes(ingredients: string): Promise<Recipe[]> {
+    console.log('generateRecipes called with ingredients:', ingredients);
+    
     if (!this.model) {
-      console.log('Using mock recipes (no API key configured)');
+      console.log('Model not initialized, using mock recipes');
       return this.getMockRecipes(ingredients);
     }
 
     try {
-      const prompt = `You are a professional chef. Create 3 delicious and practical recipes using PRIMARILY these ingredients: ${ingredients}. 
-      You can add common pantry items (oil, salt, pepper, spices, etc.) but the main ingredients should be the ones provided.
+      console.log('Attempting to generate recipes with Gemini AI...');
       
-      Each recipe should be:
-      - Different in style (e.g., one quick dish, one comfort food, one healthy option)
-      - Realistic and easy to follow
-      - Using mostly the provided ingredients
+      const prompt = `You are a professional chef. Create 3 unique, delicious recipes using PRIMARILY these ingredients: ${ingredients}. 
       
-      Return ONLY a valid JSON array with EXACTLY this structure, no text before or after:
+      IMPORTANT: Make each recipe DIFFERENT - vary the cooking methods, cuisines, and styles.
+      You can add common pantry items (oil, salt, pepper, spices, etc.) but the main ingredients should be from: ${ingredients}
+      
+      For variety, include:
+      1. One quick and easy recipe (under 20 minutes)
+      2. One comfort/hearty dish (30-45 minutes)
+      3. One healthy or creative option
+      
+      Return ONLY a valid JSON array with EXACTLY this structure, no markdown, no extra text:
       [
         {
-          "title": "Recipe Name",
-          "description": "Brief appetizing description in 1-2 sentences",
-          "ingredients": ["2 cups of ingredient 1", "1 lb ingredient 2", "specific measurements"],
-          "instructions": ["Detailed step 1", "Detailed step 2", "Clear cooking instructions"],
-          "prepTime": "X mins",
+          "title": "Specific Recipe Name (not generic)",
+          "description": "Appetizing 1-2 sentence description",
+          "ingredients": ["1 lb chicken", "2 cups rice", "exact measurements"],
+          "instructions": ["Step 1 with details", "Step 2 with temperature/time", "Step 3 clear instructions"],
+          "prepTime": "15 mins",
           "servings": 4
         }
-      ]
-      
-      Make sure to include proper measurements and cooking temperatures where relevant.`;
+      ]`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
       
+      console.log('Gemini AI raw response:', text.substring(0, 200) + '...');
+      
       // Try to extract JSON from the response
-      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      // Remove any markdown code blocks if present
+      const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      const jsonMatch = cleanedText.match(/\[[\s\S]*\]/);
+      
       if (jsonMatch) {
         try {
           const recipes = JSON.parse(jsonMatch[0]);
           // Validate that we have the expected structure
           if (Array.isArray(recipes) && recipes.length > 0 && recipes[0].title) {
-            console.log('Successfully generated recipes with AI');
+            console.log('✅ Successfully generated', recipes.length, 'recipes with AI');
+            console.log('Recipe titles:', recipes.map((r: any) => r.title).join(', '));
             return recipes.slice(0, 3); // Ensure we only return 3 recipes
+          } else {
+            console.error('Invalid recipe structure:', recipes);
           }
         } catch (parseError) {
-          console.error('Failed to parse AI response:', parseError);
+          console.error('Failed to parse AI response as JSON:', parseError);
+          console.log('Attempted to parse:', jsonMatch[0].substring(0, 100) + '...');
         }
+      } else {
+        console.error('No JSON array found in response');
       }
       
-      console.log('AI response invalid, using fallback recipes');
+      console.log('⚠️ AI response invalid, using fallback recipes');
       return this.getMockRecipes(ingredients);
-    } catch (error) {
-      console.error('Failed to generate recipes:', error);
+    } catch (error: any) {
+      console.error('❌ Failed to generate recipes with Gemini:', error);
+      console.error('Error details:', error.message || error);
+      if (error.response) {
+        console.error('API Response error:', error.response);
+      }
       return this.getMockRecipes(ingredients);
     }
   }
