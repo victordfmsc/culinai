@@ -23,7 +23,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
           </div>
         </div>
 
-        <h3 class="text-lg font-semibold text-gray-700 mb-3">Weekly Meal Plan</h3>
+        <h3 class="text-lg font-semibold text-gray-700 mb-3">{{ 'home_meal_plan' | translate }}</h3>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           @for (day of daysOfWeek; track day) {
             <div class="border border-gray-200 rounded-lg p-3 hover:border-indigo-300 transition-colors cursor-pointer" (click)="dayClicked.emit(day)">
@@ -38,7 +38,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
                   }
                 </div>
               } @else {
-                <div class="text-xs text-gray-400">No meals planned</div>
+                <div class="text-xs text-gray-400">{{ 'home_no_meals' | translate }}</div>
               }
             </div>
           }

@@ -11,11 +11,11 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
     <div class="space-y-6">
       <div class="bg-white rounded-xl shadow-md p-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ 'nav_fridge' | translate }}</h2>
-        <p class="text-gray-600 mb-6">What ingredients do you have?</p>
+        <p class="text-gray-600 mb-6">{{ 'fridge_question' | translate }}</p>
         
         <textarea
           [(ngModel)]="ingredients"
-          placeholder="e.g., chicken, tomatoes, onions, garlic..."
+          [placeholder]="'fridge_placeholder' | translate"
           class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
         ></textarea>
 
@@ -24,11 +24,11 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
           [disabled]="!ingredients().trim()"
           class="w-full mt-4 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors"
         >
-          Find Recipes
+          {{ 'fridge_find' | translate }}
         </button>
 
         <div class="mt-6 pt-6 border-t border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-700 mb-3">Common Ingredients</h3>
+          <h3 class="text-lg font-semibold text-gray-700 mb-3">{{ 'fridge_common' | translate }}</h3>
           <div class="flex flex-wrap gap-2">
             @for (ingredient of commonIngredients; track ingredient) {
               <button

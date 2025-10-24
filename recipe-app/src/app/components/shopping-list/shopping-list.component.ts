@@ -11,11 +11,11 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
   template: `
     <div class="space-y-6">
       <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Shopping List</h2>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ 'shopping_title' | translate }}</h2>
         
         @if (listItems.length === 0) {
           <div class="text-center py-12 text-gray-500">
-            <p>Your shopping list is empty</p>
+            <p>{{ 'shopping_empty' | translate }}</p>
           </div>
         } @else {
           <div class="space-y-2">
@@ -44,7 +44,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
             (click)="clearChecked()"
             class="w-full mt-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
           >
-            Clear Checked Items
+            {{ 'shopping_clear' | translate }}
           </button>
         }
       </div>

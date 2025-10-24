@@ -10,7 +10,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
   template: `
     <div class="space-y-6">
       <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Recipe Suggestions</h2>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ 'suggestions_title' | translate }}</h2>
         
         @if (isLoading) {
           <div class="flex justify-center items-center py-12">
@@ -18,7 +18,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
           </div>
         } @else if (recipes.length === 0) {
           <div class="text-center py-12 text-gray-500">
-            <p>No recipes yet. Go to your Fridge to find recipes!</p>
+            <p>{{ 'suggestions_empty' | translate }}</p>
           </div>
         } @else {
           <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -29,7 +29,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
                 
                 <div class="flex justify-between text-xs text-gray-500 mb-4">
                   <span>⏱️ {{ recipe.prepTime }}</span>
-                  <span>🍽️ {{ recipe.servings }} servings</span>
+                  <span>🍽️ {{ recipe.servings }} {{ 'suggestions_servings' | translate }}</span>
                 </div>
 
                 <div class="space-y-2">
@@ -37,19 +37,19 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
                     (click)="cookRecipe.emit(recipe)"
                     class="w-full py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    Cook Now
+                    {{ 'suggestions_cook' | translate }}
                   </button>
                   <button
                     (click)="planRecipeRequest.emit(recipe)"
                     class="w-full py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
                   >
-                    Plan for Later
+                    {{ 'suggestions_plan' | translate }}
                   </button>
                   <button
                     (click)="addToShoppingList.emit(recipe.ingredients)"
                     class="w-full py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors"
                   >
-                    Add to Shopping List
+                    {{ 'suggestions_add_shopping' | translate }}
                   </button>
                 </div>
               </div>
