@@ -47,7 +47,35 @@ export class TranslationService {
     day_thursday: { en: 'Thu', es: 'Jue', fr: 'Jeu', de: 'Do', it: 'Gio' },
     day_friday: { en: 'Fri', es: 'Vie', fr: 'Ven', de: 'Fr', it: 'Ven' },
     day_saturday: { en: 'Sat', es: 'Sáb', fr: 'Sam', de: 'Sa', it: 'Sab' },
-    day_sunday: { en: 'Sun', es: 'Dom', fr: 'Dim', de: 'So', it: 'Dom' }
+    day_sunday: { en: 'Sun', es: 'Dom', fr: 'Dim', de: 'So', it: 'Dom' },
+    
+    // Shopping List
+    shopping_title: { en: 'Shopping List', es: 'Lista de Compras', fr: 'Liste de Courses', de: 'Einkaufsliste', it: 'Lista della Spesa' },
+    shopping_empty: { en: 'Your shopping list is empty', es: 'Tu lista de compras está vacía', fr: 'Votre liste de courses est vide', de: 'Ihre Einkaufsliste ist leer', it: 'La tua lista della spesa è vuota' },
+    shopping_clear: { en: 'Clear Checked Items', es: 'Eliminar Marcados', fr: 'Effacer les éléments cochés', de: 'Markierte löschen', it: 'Cancella Selezionati' },
+    
+    // Home
+    home_meal_plan: { en: 'Weekly Meal Plan', es: 'Plan Semanal de Comidas', fr: 'Plan de Repas Hebdomadaire', de: 'Wöchentlicher Essensplan', it: 'Piano Pasti Settimanale' },
+    home_no_meals: { en: 'No meals planned', es: 'Sin comidas planeadas', fr: 'Aucun repas prévu', de: 'Keine Mahlzeiten geplant', it: 'Nessun pasto pianificato' },
+    
+    // Fridge
+    fridge_question: { en: 'What ingredients do you have?', es: '¿Qué ingredientes tienes?', fr: 'Quels ingrédients avez-vous?', de: 'Welche Zutaten haben Sie?', it: 'Quali ingredienti hai?' },
+    fridge_placeholder: { en: 'e.g., chicken, tomatoes, onions, garlic...', es: 'ej., pollo, tomates, cebollas, ajo...', fr: 'ex., poulet, tomates, oignons, ail...', de: 'z.B. Hühnchen, Tomaten, Zwiebeln, Knoblauch...', it: 'es., pollo, pomodori, cipolle, aglio...' },
+    fridge_find: { en: 'Find Recipes', es: 'Buscar Recetas', fr: 'Trouver des Recettes', de: 'Rezepte finden', it: 'Trova Ricette' },
+    fridge_common: { en: 'Common Ingredients', es: 'Ingredientes Comunes', fr: 'Ingrédients Courants', de: 'Häufige Zutaten', it: 'Ingredienti Comuni' },
+    
+    // Suggestions
+    suggestions_title: { en: 'Recipe Suggestions', es: 'Sugerencias de Recetas', fr: 'Suggestions de Recettes', de: 'Rezeptvorschläge', it: 'Suggerimenti Ricette' },
+    suggestions_empty: { en: 'No recipes yet. Go to your Fridge to find recipes!', es: '¡Aún no hay recetas. Ve a tu Nevera para buscar recetas!', fr: 'Pas encore de recettes. Allez à votre Frigo pour trouver des recettes!', de: 'Noch keine Rezepte. Gehen Sie zu Ihrem Kühlschrank, um Rezepte zu finden!', it: 'Ancora nessuna ricetta. Vai al tuo Frigo per trovare ricette!' },
+    suggestions_servings: { en: 'servings', es: 'porciones', fr: 'portions', de: 'Portionen', it: 'porzioni' },
+    suggestions_cook: { en: 'Cook Now', es: 'Cocinar Ahora', fr: 'Cuisiner Maintenant', de: 'Jetzt Kochen', it: 'Cucina Ora' },
+    suggestions_plan: { en: 'Plan for Later', es: 'Planificar', fr: 'Planifier', de: 'Planen', it: 'Pianifica' },
+    suggestions_add_shopping: { en: 'Add to Shopping List', es: 'Agregar a Compras', fr: 'Ajouter à la Liste', de: 'Zur Einkaufsliste', it: 'Aggiungi alla Spesa' },
+    
+    // Recipe Details
+    recipe_time: { en: 'Time', es: 'Tiempo', fr: 'Temps', de: 'Zeit', it: 'Tempo' },
+    recipe_servings: { en: 'Servings', es: 'Porciones', fr: 'Portions', de: 'Portionen', it: 'Porzioni' },
+    recipe_start_cooking: { en: 'Start Cooking', es: 'Empezar a Cocinar', fr: 'Commencer à Cuisiner', de: 'Mit Kochen beginnen', it: 'Inizia a Cucinare' }
   };
 
   translate(key: string, params?: Record<string, any>): string {
