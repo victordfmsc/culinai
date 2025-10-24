@@ -23,7 +23,7 @@ This is a recipe management application built with Angular 19 that helps users m
 - ✅ **Translation Cache System**: localStorage-based caching to reduce API calls and improve performance
 - ✅ **Expanded Common Ingredients**: Increased from 18 to 52 common ingredients across categories (proteins, dairy, vegetables, grains, spices, herbs)
 - ✅ **Auto-Translated Ingredients**: Common ingredients now translate automatically when language changes using high-quality manual translations for Spanish, French, German, and Italian
-- ✅ **Deployment Fix**: Simplified deployment to use direct Angular output directory (recipe-app/dist/recipe-app/browser) instead of copying to intermediate Chefai folder
+- ✅ **Deployment Fix**: Build process now creates symlink from Chefai → recipe-app/dist/recipe-app/browser to ensure compatibility with deployment configuration
 - ✅ Environment variables now auto-injected on build via inject-env.js script
 - ✅ **Security Enhancement**: API keys removed from source control, environment.ts now git-ignored and auto-generated from secrets
 - ✅ **SSR Compatibility**: AutoTranslateService now includes platform guards for server-side rendering support
