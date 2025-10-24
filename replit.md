@@ -64,8 +64,10 @@ Preferred communication style: Simple, everyday language.
 - Supports Google Sign-In popup and traditional email/password authentication
 - **Guest Mode**: Users can skip login via "X" button to explore app without authentication
   - `guestMode` signal in AppComponent controls guest access
-  - Guest users can use all features but data is not persisted
-  - Logging out resets guest mode
+  - Guest users can use all features with in-memory data storage
+  - Guest data (points, level, meal plans, shopping lists) stored in signals, not persisted to database
+  - "I Cooked This!" button awards points to guest users via `guestPoints` and `guestLevel` signals
+  - Logging out resets guest mode and clears all guest data
 
 **Data Storage**:
 - `FirestoreService` manages all database operations
