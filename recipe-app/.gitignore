@@ -45,3 +45,6 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# Generated environment file (contains real API keys from environment variables)
+src/environments/environment.ts

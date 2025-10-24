@@ -178,7 +178,13 @@ export class TranslationService {
     // Try auto-translate with cache
     const cacheKey = `${text}|${lang}`;
     if (!this.translationCache.has(cacheKey)) {
-      this.translationCache.set(cacheKey, this.autoTranslate.translate(text, lang, 'en'));
+      const translationPromise = this.autoTranslate.translate(text, lang, 'en')
+        .catch(error => {
+          console.warn('Auto-translation failed, clearing cache and using original text:', error);
+          this.translationCache.delete(cacheKey);
+          throw error;
+        });
+      this.translationCache.set(cacheKey, translationPromise);
     }
 
     try {

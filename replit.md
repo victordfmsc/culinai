@@ -14,6 +14,8 @@ This is a recipe management application built with Angular 19 that helps users m
 - ✅ **Translation Cache System**: localStorage-based caching to reduce API calls and improve performance
 - ✅ **Deployment Fix**: Simplified deployment to use direct Angular output directory (recipe-app/dist/recipe-app/browser) instead of copying to intermediate Chefai folder
 - ✅ Environment variables now auto-injected on build via inject-env.js script
+- ✅ **Security Enhancement**: API keys removed from source control, environment.ts now git-ignored and auto-generated from secrets
+- ✅ **SSR Compatibility**: AutoTranslateService now includes platform guards for server-side rendering support
 - ✅ Android project is now self-contained with plugins copied locally (no node_modules dependency)
 - ✅ capacitor.settings.gradle modified to use local plugin directories
 - ✅ Project ready for direct import into Android Studio without npm install
