@@ -1,0 +1,3092 @@
+index.tsx
+code
+TypeScript
+import '@angular/compiler';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideHttpClient } from '@angular/common/http';
+import { provideZonelessChangeDetection } from '@angular/core';
+import { AppComponent } from './src/app.component';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideZonelessChangeDetection(),
+    provideHttpClient(),
+  ],
+}).catch(err => console.error(err));
+
+// AI Studio always uses an `index.tsx` file for all project types.
+metadata.json
+code
+JSON
+{
+  "name": "AI Travel Planner",
+  "description": "An AI-powered travel planning and itinerary app to discover, plan, and manage your trips. Generate custom itineraries with Gemini and keep all your travel documents in one place.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
+index.html
+code
+Html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AI Travel Planner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Leaflet CSS for maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    body {
+      font-family: 'Raleway', sans-serif;
+    }
+    :root {
+      --bg-color: #f9fafb; /* gray-50 */
+      --body-bg-color: #f3f4f6; /* gray-100 */
+      --text-color-primary: #1f2937; /* gray-800 */
+      --text-color-secondary: #4b5563; /* gray-600 */
+      --card-bg-color: #ffffff;
+      --card-border-color: #f3f4f6; /* gray-100 */
+    }
+    .dark {
+      --bg-color: #111827; /* gray-900 */
+      --body-bg-color: #030712; /* gray-950 */
+      --text-color-primary: #f9fafb; /* gray-50 */
+      --text-color-secondary: #9ca3af; /* gray-400 */
+      --card-bg-color: #1f2937; /* gray-800 */
+      --card-border-color: #374151; /* gray-700 */
+    }
+    body {
+      background-color: var(--body-bg-color);
+      color: var(--text-color-primary);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slide-in-down {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in-scale {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slide-in-up {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(20px) scale(0.95); }
+    }
+    @keyframes slide-in-from-right {
+      from { transform: translateX(100%); opacity: 0.8; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slide-out-to-left {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(-100%); opacity: 0.8; }
+    }
+    @keyframes slide-in-from-left {
+      from { transform: translateX(-100%); opacity: 0.8; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slide-out-to-right {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0.8; }
+    }
+
+    .animate-slide-in-right { animation: slide-in-from-right 0.3s ease-out forwards; }
+    .animate-slide-out-left { animation: slide-out-to-left 0.3s ease-out forwards; }
+    .animate-slide-in-left { animation: slide-in-from-left 0.3s ease-out forwards; }
+    .animate-slide-out-right { animation: slide-out-to-right 0.3s ease-out forwards; }
+    
+    .animate-toast-in { animation: toast-in 0.3s ease-out forwards; }
+    .animate-toast-out { animation: toast-out 0.3s ease-out forwards; }
+    .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+    .animate-fade-in-up { animation: fade-in-up 0.5s ease-out forwards; }
+    .animate-slide-in-down { animation: slide-in-down 0.3s ease-out forwards; }
+    .animate-slide-in-up { animation: slide-in-up 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+    [style*="--stagger-delay"] { animation-delay: var(--stagger-delay); }
+    .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); animation: fade-in 0.3s ease-out forwards; }
+    .modal-content { animation: fade-in-up 0.3s ease-out forwards; }
+    .document-viewer-content { animation: fade-in-scale 0.3s ease-out forwards; }
+    .bottom-sheet-content { animation: slide-in-up 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+    
+    /* New styles for tabbed interface */
+    .tabs-container {
+      position: relative;
+    }
+    .tab-underline {
+      position: absolute;
+      bottom: 0;
+      height: 3px;
+      background-color: #2563eb; /* blue-600 */
+      border-radius: 9999px;
+      transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^20.3.6?external=rxjs",
+    "@google/genai": "https://next.esm.sh/@google/genai@^1.25.0?external=rxjs",
+    "process": "https://next.esm.sh/process@^0.11.10?external=rxjs",
+    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^20.3.6?external=rxjs",
+    "@angular/common/http": "https://next.esm.sh/@angular/common@^20.3.6/http?external=rxjs",
+    "@angular/core": "https://next.esm.sh/@angular/core@^20.3.6?external=rxjs",
+    "@angular/forms": "https://next.esm.sh/@angular/forms@^20.3.6?external=rxjs",
+    "vite": "https://next.esm.sh/vite@^7.1.11?external=rxjs",
+    "@angular/common": "https://next.esm.sh/@angular/common@^20.3.6?external=rxjs"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-950">
+  <app-root></app-root>
+  <!-- Leaflet JS for maps -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
+src/app.component.ts
+code
+TypeScript
+import { Component, ChangeDetectionStrategy, inject, signal, effect } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { BottomNavComponent } from './components/bottom-nav.component';
+import { HomeDiscoveryComponent } from './components/home-discovery.component';
+import { TripPlanningComponent } from './components/trip-planning.component';
+import { MyTripsComponent } from './components/my-trips.component';
+import { TripService } from './services/trip.service';
+import { ToastComponent } from './components/toast.component';
+import { ThemeService } from './services/theme.service';
+import { UserService } from './services/user.service';
+import { OnlineStatusService } from './services/online-status.service';
+import { ToastService } from './services/toast.service';
+
+export type View = 'home' | 'planner' | 'trips';
+export type AnimationDirection = 'forward' | 'backward' | 'none';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    BottomNavComponent,
+    HomeDiscoveryComponent,
+    TripPlanningComponent,
+    MyTripsComponent,
+    ToastComponent,
+  ],
+})
+export class AppComponent {
+  private tripService = inject(TripService);
+  private onlineStatusService = inject(OnlineStatusService);
+  private toastService = inject(ToastService);
+  
+  // Initialize services to apply theme and user settings on startup
+  private themeService = inject(ThemeService);
+  private userService = inject(UserService);
+
+  activeView = this.tripService.activeView;
+  animationDirection = signal<AnimationDirection>('none');
+
+  private viewOrder: View[] = ['home', 'planner', 'trips'];
+
+  constructor() {
+    // Effect for view transition animations.
+    let previousIndex = this.viewOrder.indexOf(this.activeView());
+    effect(() => {
+      const currentIndex = this.viewOrder.indexOf(this.activeView());
+      if (currentIndex > previousIndex) {
+        this.animationDirection.set('forward');
+      } else if (currentIndex < previousIndex) {
+        this.animationDirection.set('backward');
+      } else {
+        this.animationDirection.set('none');
+      }
+      previousIndex = currentIndex;
+    }, { allowSignalWrites: true });
+
+    // Effect for online/offline status notifications
+    let isFirstRun = true;
+    effect(() => {
+      const isOnline = this.onlineStatusService.isOnline();
+      if (isFirstRun) {
+        isFirstRun = false;
+        return;
+      }
+
+      if (isOnline) {
+        this.toastService.show('You are back online');
+      } else {
+        this.toastService.show('You are currently offline');
+      }
+    });
+  }
+}
+src/app.component.html
+code
+Html
+<main class="w-full max-w-sm mx-auto bg-gray-50 dark:bg-gray-900 grid grid-rows-[1fr_auto] overflow-hidden" style="height: 100vh; height: 100dvh;">
+  <div class="relative w-full h-full">
+    @for (view of ['home', 'planner', 'trips']; track view) {
+      @if (activeView() === view) {
+        <div 
+            class="absolute inset-0 overflow-y-auto overscroll-contain"
+            [class.animate-slide-in-right]="animationDirection() === 'forward'"
+            [class.animate-slide-in-left]="animationDirection() === 'backward'"
+            [class.animate-fade-in]="animationDirection() === 'none'">
+          @switch (view) {
+            @case ('home') { <app-home-discovery /> }
+            @case ('planner') { <app-trip-planning /> }
+            @case ('trips') { <app-my-trips /> }
+          }
+        </div>
+      }
+    }
+  </div>
+  <app-bottom-nav />
+</main>
+<app-toast-notifications />
+src/components/bottom-nav.component.ts
+code
+TypeScript
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { View } from '../app.component';
+import { TripService } from '../services/trip.service';
+import { HapticService } from '../services/haptic.service';
+
+@Component({
+  selector: 'app-bottom-nav',
+  template: `
+    <nav class="bg-white border-t border-gray-200 shadow-lg z-10">
+      <div class="flex justify-around items-center h-16">
+        @for (item of navItems; track item.id) {
+          <button
+            (click)="selectView(item.id)"
+            class="flex flex-col items-center justify-center w-full transition-colors duration-200"
+            [class]="activeView() === item.id ? 'text-blue-600' : 'text-gray-500 hover:text-blue-500'">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mb-1">
+              <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="item.iconPath" />
+            </svg>
+            <span class="text-xs font-medium">{{ item.label }}</span>
+          </button>
+        }
+      </div>
+    </nav>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
+})
+export class BottomNavComponent {
+  private tripService = inject(TripService);
+  // FIX: Corrected service injection from `Haptic.service` to `HapticService`.
+  private hapticService = inject(HapticService);
+  activeView = this.tripService.activeView;
+
+  navItems: { id: View; label: string; iconPath: string }[] = [
+    { id: 'home', label: 'Discover', iconPath: 'M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5' },
+    { id: 'planner', label: 'Planner', iconPath: 'M9 6.75V15m6-6v8.25m.503-6.938l-4.006-4.006a1.125 1.125 0 00-1.591 0L3.75 12.156M12 21.75a2.25 2.25 0 01-2.25-2.25v-3.839a2.25 2.25 0 01.659-1.591l4.006-4.006a2.25 2.25 0 013.182 0l4.006 4.006a2.25 2.25 0 01.659 1.591v3.839a2.25 2.25 0 01-2.25 2.25H12z' },
+    { id: 'trips', label: 'My Trips', iconPath: 'M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-1.5h5.25m-5.25 3h5.25M3 4.5h15a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25-2.25H3a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 013 4.5z' },
+  ];
+
+  selectView(view: View): void {
+    this.hapticService.vibrate();
+    if (this.activeView() === 'planner' && view !== 'planner') {
+      this.tripService.activeItinerary.set(null);
+    }
+    this.tripService.changeView(view);
+  }
+}
+src/components/home-discovery.component.ts
+code
+TypeScript
+import { Component, ChangeDetectionStrategy, inject, signal, computed, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TripService } from '../services/trip.service';
+import { GeminiService } from '../services/gemini.service';
+import { FormsModule } from '@angular/forms';
+import { HapticService } from '../services/haptic.service';
+import { Itinerary } from '../models/itinerary.model';
+import { OnlineStatusService } from '../services/online-status.service';
+
+@Component({
+  selector: 'app-home-discovery',
+  templateUrl: './home-discovery.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, FormsModule],
+  host: {
+    '(document:click)': 'onDocumentClick($event)',
+  },
+})
+export class HomeDiscoveryComponent {
+  private tripService = inject(TripService);
+  private geminiService = inject(GeminiService);
+  private hapticService = inject(HapticService);
+  private elementRef = inject(ElementRef);
+  onlineStatusService = inject(OnlineStatusService);
+
+  savedTrips = this.tripService.savedTrips;
+  // New computed signal for all saved trips, newest first
+  allTripsReversed = computed(() => 
+    [...this.savedTrips()].reverse()
+  );
+
+  // Search and autocomplete state
+  searchQuery = signal('');
+  suggestions = signal<string[]>([]);
+  isLoadingSuggestions = signal(false);
+  showSuggestions = signal(false);
+  private debounceTimer?: number;
+
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.showSuggestions.set(false);
+    }
+  }
+  
+  onQueryChange(query: string): void {
+    this.searchQuery.set(query);
+    window.clearTimeout(this.debounceTimer);
+
+    if (!query.trim() || !this.onlineStatusService.isOnline()) {
+      this.showSuggestions.set(false);
+      this.suggestions.set([]);
+      return;
+    }
+
+    this.isLoadingSuggestions.set(true);
+    this.showSuggestions.set(true);
+    
+    this.debounceTimer = window.setTimeout(() => {
+      this.geminiService.getDestinationSuggestions(query)
+        .then(sugs => this.suggestions.set(sugs))
+        .catch(() => this.suggestions.set([]))
+        .finally(() => this.isLoadingSuggestions.set(false));
+    }, 300);
+  }
+
+  selectSuggestion(suggestion: string): void {
+    this.searchQuery.set(suggestion);
+    this.showSuggestions.set(false);
+    this.tripService.planningDestination.set(suggestion);
+    this.tripService.changeView('planner');
+  }
+
+  onSearchSubmit(): void {
+    const query = this.searchQuery().trim();
+    if (query) {
+      this.selectSuggestion(query);
+    }
+  }
+
+  onViewSavedTrip(trip: Itinerary): void {
+    this.hapticService.vibrate();
+    this.tripService.viewTripDetails(trip);
+  }
+}
+src/components/home-discovery.component.html
+code
+Html
+<div>
+  <!-- Header Section -->
+  <header class="p-6 pb-24 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-b-3xl relative">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h1 class="text-3xl font-bold">Discover</h1>
+        <p class="text-blue-200">Your next adventure awaits</p>
+      </div>
+    </div>
+
+    <!-- Search Bar with Autocomplete -->
+    <div class="absolute -bottom-7 left-6 right-6">
+      <form class="relative" (ngSubmit)="onSearchSubmit()">
+        <input 
+          type="text" 
+          placeholder="Where do you want to go?" 
+          class="w-full pl-12 pr-4 py-4 rounded-xl shadow-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 disabled:opacity-70 disabled:cursor-not-allowed"
+          name="searchQuery"
+          autocomplete="off"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onQueryChange($event)"
+          [disabled]="!onlineStatusService.isOnline()">
+
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+
+        <!-- Autocomplete Suggestions Dropdown -->
+        @if(showSuggestions() && searchQuery()) {
+          <div class="absolute top-full mt-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg z-20 overflow-hidden border border-gray-100 dark:border-gray-700 animate-fade-in-up" style="animation-duration: 0.2s;">
+            @if(isLoadingSuggestions()) {
+              <div class="p-4 text-center text-gray-500 dark:text-gray-400 flex items-center justify-center">
+                <svg class="animate-spin h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="ml-2">Searching...</span>
+              </div>
+            } @else if (suggestions().length > 0) {
+              <ul>
+                @for(suggestion of suggestions(); track suggestion) {
+                  <li>
+                    <button type="button" (click)="selectSuggestion(suggestion)" class="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
+                      {{ suggestion }}
+                    </button>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="p-4 text-center text-gray-500 dark:text-gray-400">No destinations found.</div>
+            }
+          </div>
+        }
+      </form>
+    </div>
+  </header>
+
+  <!-- All Saved Trips Section -->
+  <section class="p-6 mt-10">
+    @if (savedTrips().length > 0) {
+      <div>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">Your Adventures</h2>
+        </div>
+
+        <!-- Trip Cards -->
+        <div class="space-y-5">
+          @for (trip of allTripsReversed(); track trip.id; let i = $index) {
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-transform duration-300 opacity-0 animate-fade-in-up"
+                 [style.--stagger-delay]="i * 100 + 'ms'">
+              <div class="relative">
+                <img [src]="'data:image/jpeg;base64,'+trip.heroImage" [alt]="trip.tripTitle" width="400" height="160" class="w-full h-40 object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                <div class="absolute bottom-3 left-4 text-white">
+                  <h3 class="text-lg font-bold drop-shadow-md">{{ trip.tripTitle }}</h3>
+                </div>
+              </div>
+              <div class="p-4">
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-1 truncate">{{ trip.destination }} &middot; {{ trip.duration }} days</p>
+                <div class="flex justify-end items-center mt-4">
+                  <button (click)="onViewSavedTrip(trip)" class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-sm hover:bg-blue-700 transition-transform active:scale-95 dark:hover:bg-blue-500">View Trip</button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- Empty State -->
+      <div class="text-center py-10 px-6 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+        <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-1.5h5.25m-5.25 3h5.25M3 4.5h15a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25-2.25H3a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 013 4.5z" />
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mt-4">No Adventures Yet</h3>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">Your planned trips will appear here. Start by searching for a destination!</p>
+      </div>
+    }
+  </section>
+
+</div>
+src/components/my-trips.component.ts
+code
+TypeScript
+import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TripService } from '../services/trip.service';
+import { Itinerary, TravelStyle } from '../models/itinerary.model';
+import { HapticService } from '../services/haptic.service';
+import { ToastService } from '../services/toast.service';
+import { ToggleComponent } from './toggle.component';
+import { ThemeService } from '../services/theme.service';
+import { UserService } from '../services/user.service';
+
+@Component({
+  selector: 'app-my-trips',
+  templateUrl: './my-trips.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ToggleComponent],
+})
+export class MyTripsComponent {
+  private tripService = inject(TripService);
+  private hapticService = inject(HapticService);
+  private toastService = inject(ToastService);
+  themeService = inject(ThemeService);
+  userService = inject(UserService);
+
+  trips = this.tripService.savedTrips;
+  swipedTripTitle = signal<string | null>(null);
+  showSettings = signal(false);
+  showDeleteConfirmation = signal(false);
+
+  travelStyles: TravelStyle[] = ['Balanced', 'Relaxed', 'Action-Packed'];
+
+  stats = computed(() => {
+    const savedTrips = this.trips();
+    const totalDays = savedTrips.reduce((acc, trip) => acc + trip.duration, 0);
+    const destinations = new Set(savedTrips.map(trip => trip.destination.split(',')[0]));
+    return [
+      { label: 'Trips', value: savedTrips.length },
+      { label: 'Places', value: destinations.size },
+      { label: 'Days', value: totalDays },
+    ];
+  });
+
+  onSettingsClick(): void {
+    this.hapticService.vibrate();
+    this.showSettings.update(v => !v);
+  }
+
+  onClearAllTrips(): void {
+    if (this.trips().length === 0) return;
+    this.hapticService.vibrate();
+    this.showDeleteConfirmation.set(true);
+  }
+  
+  confirmDeleteAll(): void {
+    const deletedTrips = this.tripService.clearAllTrips();
+    if (deletedTrips.length > 0) {
+      this.toastService.show(`${deletedTrips.length} trips deleted`, {
+        actionText: 'Undo',
+        action: () => this.tripService.undoLastDelete(),
+      });
+    }
+    this.showDeleteConfirmation.set(false);
+  }
+
+  cancelDeleteAll(): void {
+    this.showDeleteConfirmation.set(false);
+  }
+
+  onViewDetails(trip: Itinerary): void {
+    this.hapticService.vibrate();
+    this.tripService.viewTripDetails(trip);
+  }
+
+  handleSwipe(trip: Itinerary, event: MouseEvent): void {
+    event.stopPropagation();
+    this.hapticService.vibrate();
+    this.swipedTripTitle.set(trip.tripTitle);
+  }
+
+  clearSwipe(event: MouseEvent): void {
+    if (this.swipedTripTitle()) {
+      event.stopPropagation();
+      this.swipedTripTitle.set(null);
+    }
+  }
+
+  onDeleteTrip(trip: Itinerary, event: MouseEvent): void {
+    event.stopPropagation();
+    this.hapticService.vibrate();
+    this.tripService.deleteTrip(trip);
+    this.swipedTripTitle.set(null);
+    this.toastService.show('Trip deleted', {
+      actionText: 'Undo',
+      action: () => this.tripService.undoLastDelete(),
+    });
+  }
+
+  setTravelStyle(style: TravelStyle): void {
+    this.hapticService.vibrate();
+    this.userService.setTravelStyle(style);
+  }
+
+  goToPlanner(): void {
+    this.hapticService.vibrate();
+    this.tripService.changeView('planner');
+  }
+}
+src/components/my-trips.component.html
+code
+Html
+<div (click)="clearSwipe($event)" class="dark:text-gray-50">
+  <!-- Header Section -->
+  <header class="p-6 pb-8 bg-gradient-to-br from-pink-500 to-purple-600 text-white rounded-b-3xl relative">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h1 class="text-3xl font-bold">My Trips</h1>
+        <p class="text-pink-200">Your travel memories & plans</p>
+      </div>
+      <button (click)="onSettingsClick()" aria-label="Open settings" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm transition-transform active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l.547.947a1.125 1.125 0 01-.242 1.411l-1.028.937c-.28.255-.434.629-.434 1.009v.192c0 .38.154.754.434 1.009l1.028.937a1.125 1.125 0 01.242 1.411l-.547.947a1.125 1.125 0 01-1.37.49l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-1.094c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.063-.374-.313-.686-.645-.87a6.52 6.52 0 01-.22-.127c-.324-.196-.72-.257-1.075-.124l-1.217.456a1.125 1.125 0 01-1.37-.49l-.547-.947a1.125 1.125 0 01.242-1.411l1.028-.937c.28-.255.434.629.434-1.009v-.192c0-.38-.154-.754.434-1.009l-1.028-.937a1.125 1.125 0 01-.242-1.411l.547-.947a1.125 1.125 0 011.37.49l1.217.456c.355.133.75.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.213-1.28zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Stats Section -->
+    <div class="grid grid-cols-3 gap-4 text-center">
+      @for (stat of stats(); track stat.label) {
+        <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm">
+          <p class="text-2xl font-bold">{{ stat.value }}</p>
+          <p class="text-sm text-pink-200">{{ stat.label }}</p>
+        </div>
+      }
+    </div>
+  </header>
+
+  <div class="p-6 space-y-6">
+    <!-- Settings Section -->
+    @if(showSettings()) {
+      <section class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 animate-slide-in-down" style="animation-duration: 0.3s">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Settings</h2>
+        <div class="space-y-4">
+          
+          <div>
+             <label class="font-medium text-gray-700 dark:text-gray-200">Travel Style</label>
+             <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">The AI will tailor new itineraries to this preference.</p>
+             <div class="flex w-full bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+               @for(style of travelStyles; track style) {
+                 <button (click)="setTravelStyle(style)" class="flex-1 text-sm font-semibold py-1.5 rounded-md transition-colors duration-200" [class]="userService.travelStyle() === style ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow' : 'text-gray-600 dark:text-gray-300'">
+                   {{ style }}
+                 </button>
+               }
+             </div>
+          </div>
+          
+          <div class="border-t border-gray-200 dark:border-gray-700 !my-3"></div>
+
+          <div class="flex justify-between items-center">
+            <label for="darkModeToggle" class="font-medium text-gray-700 dark:text-gray-200">Dark Mode</label>
+            <app-toggle 
+              id="darkModeToggle"
+              [checked]="themeService.isDarkMode()"
+              (checkedChange)="themeService.setDarkMode($event)" />
+          </div>
+
+          <div class="border-t border-gray-200 dark:border-gray-700 !my-3"></div>
+          
+          <button (click)="onClearAllTrips()" [disabled]="trips().length === 0" class="w-full text-left text-red-600 dark:text-red-500 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+            Delete All Trips
+          </button>
+        </div>
+      </section>
+    }
+
+    <!-- Saved Trips Section -->
+    <section>
+      <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Saved Trips</h2>
+      @if (trips().length > 0) {
+        <div class="space-y-4">
+          @for (trip of trips(); track trip.tripTitle; let i = $index) {
+            <div class="relative w-full opacity-0 animate-fade-in-up" 
+                 [style.--stagger-delay]="i * 100 + 'ms'"
+                 (click)="handleSwipe(trip, $event)">
+              <!-- Delete Button (Revealed on Swipe) -->
+              <div class="absolute inset-y-0 right-0 flex items-center">
+                <button (click)="onDeleteTrip(trip, $event)" aria-label="Delete trip" class="w-20 h-full flex items-center justify-center bg-red-500 text-white rounded-r-2xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                    <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193v-.443A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Trip Card Content -->
+              <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden cursor-pointer transition-transform duration-300 ease-out"
+                   [class.translate-x-[-80px]]="swipedTripTitle() === trip.tripTitle">
+                <div class="relative">
+                  <img [src]="'data:image/jpeg;base64,'+trip.heroImage" [alt]="trip.destination" class="w-full h-32 object-cover" width="400" height="128" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div class="absolute bottom-3 left-4">
+                    <h3 class="text-lg font-bold text-white">{{ trip.tripTitle }}</h3>
+                    <p class="text-sm text-white/90">{{ trip.destination }} &middot; {{ trip.duration }} days</p>
+                  </div>
+                </div>
+                <div class="p-4 flex justify-end items-center bg-gray-50 dark:bg-gray-800/50">
+                   <button (click)="onViewDetails(trip)" aria-label="View trip details" class="flex-shrink-0 text-sm font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 px-4 py-2 rounded-lg shadow-sm hover:bg-blue-200 dark:hover:bg-blue-900/80 transition-colors active:scale-95">View Details</button>
+                </div>
+              </div>
+
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="text-center py-10 px-6 bg-gray-100 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+           <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-1.5h5.25m-5.25 3h5.25M3 4.5h15a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25-2.25H3a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 013 4.5z" />
+          </svg>
+          <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mt-4">No Saved Trips Yet</h3>
+          <p class="text-gray-500 dark:text-gray-400 mt-1">Generate a plan with AI to see it here!</p>
+          <button (click)="goToPlanner()" class="mt-4 px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-sm hover:bg-blue-700 transition-transform active:scale-95 dark:hover:bg-blue-500">
+            Plan Your First Trip
+          </button>
+        </div>
+      }
+    </section>
+  </div>
+
+  <!-- Confirmation Modal for Deleting All Trips -->
+  @if(showDeleteConfirmation()) {
+    <div class="fixed inset-0 z-40 flex items-center justify-center p-4">
+      <div class="absolute inset-0 modal-backdrop" (click)="cancelDeleteAll()"></div>
+      <div class="relative w-full max-w-sm bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 document-viewer-content">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Delete All Trips?</h3>
+        <p class="text-gray-600 dark:text-gray-300 mt-2">Are you sure you want to delete all your saved trips? This action can be undone from the notification after deleting.</p>
+        <div class="flex justify-end items-center mt-6 space-x-3">
+          <button (click)="cancelDeleteAll()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg shadow-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors active:scale-95">
+            Cancel
+          </button>
+          <button (click)="confirmDeleteAll()" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-sm hover:bg-red-700 transition-colors active:scale-95">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+src/components/trip-planning.component.ts
+code
+TypeScript
+import { Component, ChangeDetectionStrategy, signal, inject, computed, ViewChild, ElementRef, effect } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { GeminiService } from '../services/gemini.service';
+import { Itinerary, PackingList, Document, LocalGems, BudgetEstimate, CommonPhrase, SafetyTip, WeatherForecast, BudgetStyle, Activity, PackingItem } from '../models/itinerary.model';
+import { FormsModule } from '@angular/forms';
+import { TripService } from '../services/trip.service';
+import { MapViewComponent } from './map-view.component';
+import { HapticService } from '../services/haptic.service';
+import { ToastService } from '../services/toast.service';
+import { OnlineStatusService } from '../services/online-status.service';
+import { DocumentViewerComponent } from './document-viewer.component';
+import { UserService } from '../services/user.service';
+
+type PlannerTab = 'itinerary' | 'documents' | 'tools';
+type AiTool = 'customize' | 'packing' | 'gems' | 'budget' | 'phrases' | 'safety' | 'weather';
+
+interface AiToolContent {
+  title: string;
+  description: string;
+  icon: string;
+  data: any;
+  loading: boolean;
+}
+
+@Component({
+  selector: 'app-trip-planning',
+  templateUrl: './trip-planning.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, FormsModule, MapViewComponent, DocumentViewerComponent],
+})
+export class TripPlanningComponent {
+  private geminiService = inject(GeminiService);
+  private tripService = inject(TripService);
+  private hapticService = inject(HapticService);
+  private toastService = inject(ToastService);
+  private userService = inject(UserService);
+  onlineStatusService = inject(OnlineStatusService);
+  
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('docFileInput') docFileInput!: ElementRef<HTMLInputElement>;
+
+  itinerary = this.tripService.activeItinerary;
+  destination = signal(this.tripService.activeItinerary()?.destination ?? this.tripService.planningDestination());
+  duration = signal<number | null>(this.tripService.activeItinerary()?.duration ?? 7);
+  budgetStyle = signal<BudgetStyle>('Smart');
+  budgetStyles: BudgetStyle[] = ['Backpacker', 'Smart', 'Premium'];
+
+  loading = signal(false);
+  error = signal<string | null>(null);
+  
+  showGenerator = signal(!this.tripService.activeItinerary());
+
+  // New state for tabbed UI
+  activeTab = signal<PlannerTab>('itinerary');
+  
+  // Signal to control map focus
+  focusedActivityIdentifier = signal<string | null>(null);
+
+  // Unified AI Tool Modal State
+  activeAiTool = signal<AiTool | null>(null);
+  aiToolContent = signal<AiToolContent | null>(null);
+  
+  // Document management state
+  selectedDocument = signal<Document | null>(null);
+  isUploadingDoc = signal(false);
+
+  // AI Customization state
+  customizationQuery = signal('');
+
+  constructor() {
+    effect(() => {
+        const trip = this.itinerary();
+        if (trip?.budgetStyle) {
+            this.budgetStyle.set(trip.budgetStyle);
+        } else if (!trip) {
+            // When we clear the itinerary to show the generator, reset to default
+            this.budgetStyle.set('Smart');
+        }
+    }, { allowSignalWrites: true });
+  }
+
+  isTripSaved = computed(() => {
+    const currentTrip = this.itinerary();
+    if (!currentTrip) return false;
+    return this.tripService.savedTrips().some(t => t.id === currentTrip.id);
+  });
+
+  dailyProgress = computed(() => {
+    const trip = this.itinerary();
+    if (!trip) return new Map<number, number>();
+
+    const progressMap = new Map<number, number>();
+    trip.itinerary.forEach(day => {
+        const total = day.activities.length;
+        if (total === 0) {
+            progressMap.set(day.day, 0);
+            return;
+        }
+        const completed = day.activities.filter(a => a.completed).length;
+        progressMap.set(day.day, (completed / total) * 100);
+    });
+    return progressMap;
+  });
+
+  async generateTripPlan(): Promise<void> {
+    this.hapticService.vibrate();
+    const dest = this.destination();
+    const dur = this.duration();
+    const travelStyle = this.userService.travelStyle();
+    const budget = this.budgetStyle();
+
+    if (!dest || !dur || dur <= 0) {
+      this.error.set('Please enter a valid destination and duration.');
+      return;
+    }
+    this.loading.set(true);
+    this.error.set(null);
+    this.itinerary.set(null); // Clear previous itinerary for skeleton loader
+
+    try {
+      const newItinerary = await this.geminiService.generateItinerary(dest, dur, travelStyle, budget);
+      this.itinerary.set(newItinerary);
+      this.showGenerator.set(false);
+
+    } catch (e) {
+      this.error.set('Failed to generate trip plan. Please try again.');
+      this.itinerary.set(this.tripService.activeItinerary()); // Restore if failed
+      console.error(e);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  saveTrip(): void {
+    this.hapticService.vibrate();
+    const tripToSave = this.itinerary();
+    if (tripToSave) {
+      this.tripService.saveOrUpdateTrip(tripToSave);
+      this.toastService.show('Trip saved successfully!');
+    }
+  }
+
+  toggleGenerator(): void {
+    this.hapticService.vibrate();
+    this.showGenerator.update(val => !val);
+    if (this.showGenerator()) {
+        this.itinerary.set(null);
+        this.tripService.activeItinerary.set(null);
+    }
+  }
+
+  goBack(): void {
+    this.tripService.activeItinerary.set(null);
+    this.tripService.changeView('home');
+  }
+
+  onPlanWithPhotoClick(): void {
+    this.hapticService.vibrate();
+    this.fileInput.nativeElement.click();
+  }
+
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+    this.itinerary.set(null);
+    this.showGenerator.set(true);
+    this.destination.set('Identifying...');
+    this.activeTab.set('itinerary');
+
+    try {
+      const base64Image = await this.fileToBase64(file);
+      const identifiedDestination = await this.geminiService.identifyDestinationFromImage(base64Image, file.type);
+      
+      if (identifiedDestination) {
+        this.destination.set(identifiedDestination);
+        this.toastService.show(`Destination identified: ${identifiedDestination}`);
+      } else {
+        this.destination.set('');
+        this.error.set('Could not identify the destination. Please try another image.');
+      }
+    } catch (e) {
+      console.error(e);
+      this.error.set('Failed to process image. Please try again.');
+      this.destination.set('');
+    } finally {
+      this.loading.set(false);
+      input.value = '';
+    }
+  }
+
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(',')[1]);
+      };
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  async openAiTool(tool: AiTool): Promise<void> {
+    const trip = this.itinerary();
+    if (!trip) return;
+
+    this.hapticService.vibrate();
+    this.activeAiTool.set(tool);
+    
+    let content: AiToolContent = { title: '', description: '', icon: '', data: null, loading: true };
+    const tripContextDesc = `AI-generated for your trip to ${trip.destination}`;
+
+    try {
+      switch (tool) {
+        case 'customize':
+          content = { title: 'Customize with AI', description: "Tell the AI what you'd like to change.", icon: 'M10 3a.75.75 0 01.75.75v1.5h1.5a.75.75 0 010 1.5h-1.5v1.5a.75.75 0 01-1.5 0v-1.5h-1.5a.75.75 0 010-1.5h1.5v-1.5A.75.75 0 0110 3zM3.05 6.49a.75.75 0 010 1.06l-1.77 1.77a.75.75 0 01-1.06-1.06l1.77-1.77a.75.75 0 011.06 0zM17.69 9.31a.75.75 0 10-1.06 1.06l1.77 1.77a.75.75 0 101.06-1.06l-1.77-1.77zM10 18a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 0110 18zM6.49 16.95a.75.75 0 00-1.06 1.06l1.77 1.77a.75.75 0 101.06-1.06l-1.77-1.77zM18.75 10a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM4.25 10a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM13.51 3.05a.75.75 0 011.06 0l1.77 1.77a.75.75 0 01-1.06 1.06l-1.77-1.77a.75.75 0 010-1.06z', data: null, loading: false };
+          this.aiToolContent.set(content);
+          break;
+        case 'packing':
+          content = { title: 'Packing List', description: tripContextDesc, icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z', data: null, loading: true };
+          this.aiToolContent.set(content);
+          if (trip.packingList) {
+            this.aiToolContent.update(c => c ? { ...c, loading: false } : null);
+          } else {
+            const packingData = await this.geminiService.generatePackingList(trip.destination, trip.duration, trip.travelStyle, trip.budgetStyle);
+            const transformedPackingList: PackingList = {
+              categories: packingData.categories.map(cat => ({
+                ...cat,
+                items: cat.items.map((itemStr): PackingItem => ({ description: itemStr, checked: false }))
+              }))
+            };
+            this.itinerary.update(currentTrip => {
+              if (!currentTrip) return null;
+              const updatedTrip = { ...currentTrip, packingList: transformedPackingList };
+              this.tripService.saveOrUpdateTrip(updatedTrip);
+              return updatedTrip;
+            });
+            this.aiToolContent.update(c => c ? { ...c, loading: false } : null);
+          }
+          break;
+        case 'gems':
+          content = { title: 'Local Gems', description: tripContextDesc, icon: 'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z', data: null, loading: true };
+          this.aiToolContent.set(content);
+          const gemsData = await this.geminiService.findLocalGems(trip.destination);
+          this.aiToolContent.update(c => c ? { ...c, data: gemsData, loading: false } : null);
+          break;
+        case 'budget':
+           content = { title: 'Budget Estimate', description: tripContextDesc, icon: 'M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6A.75.75 0 012.25 5.25v-.75A.75.75 0 013 4.5A.75.75 0 013.75 4.5zM3 9.75A.75.75 0 013.75 9h.75a.75.75 0 010 1.5h-.75A.75.75 0 013 9.75zM3 12.75A.75.75 0 013.75 12h.75a.75.75 0 010 1.5h-.75A.75.75 0 013 12.75zM3.75 15A.75.75 0 013 15.75v.75a.75.75 0 01-.75-.75v-.75A.75.75 0 013.75 15zM6 6.75A.75.75 0 016.75 6h.75a.75.75 0 010 1.5h-.75A.75.75 0 016 6.75zM6.75 9A.75.75 0 016 9.75v.75a.75.75 0 01-.75-.75V9.75A.75.75 0 016.75 9zM6 12.75A.75.75 0 016.75 12h.75a.75.75 0 010 1.5h-.75A.75.75 0 016 12.75zM6.75 15A.75.75 0 016 15.75v.75a.75.75 0 01-.75-.75v-.75A.75.75 0 016.75 15zM9 6.75A.75.75 0 019.75 6h.75a.75.75 0 010 1.5h-.75A.75.75 0 019 6.75zM9.75 9A.75.75 0 019 9.75v.75a.75.75 0 01-.75-.75V9.75A.75.75 0 019.75 9zM9 12.75A.75.75 0 019.75 12h.75a.75.75 0 010 1.5h-.75A.75.75 0 019 12.75zM9.75 15A.75.75 0 019 15.75v.75a.75.75 0 01-.75-.75v-.75A.75.75 0 019.75 15zM12 6.75A.75.75 0 0112.75 6h.75a.75.75 0 010 1.5h-.75A.75.75 0 0112 6.75zM12.75 9A.75.75 0 0112 9.75v.75a.75.75 0 01-.75-.75V9.75A.75.75 0 0112.75 9zM12 12.75A.75.75 0 0112.75 12h.75a.75.75 0 010 1.5h-.75A.75.75 0 0112 12.75zM12.75 15A.75.75 0 0112 15.75v.75a.75.75 0 01-.75-.75v-.75A.75.75 0 0112.75 15z', data: null, loading: true };
+           this.aiToolContent.set(content);
+           const budgetData = await this.geminiService.estimateBudget(trip.destination, trip.duration);
+           this.aiToolContent.update(c => c ? { ...c, data: budgetData, loading: false } : null);
+           break;
+        case 'phrases':
+          content = { title: 'Common Phrases', description: tripContextDesc, icon: 'M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502', data: null, loading: true };
+          this.aiToolContent.set(content);
+          const phrasesData = await this.geminiService.getCommonPhrases(trip.destination);
+          this.aiToolContent.update(c => c ? { ...c, data: phrasesData, loading: false } : null);
+          break;
+        case 'safety':
+          content = { title: 'Safety Tips', description: tripContextDesc, icon: 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z', data: null, loading: true };
+          this.aiToolContent.set(content);
+          const safetyData = await this.geminiService.getSafetyTips(trip.destination);
+          this.aiToolContent.update(c => c ? { ...c, data: safetyData, loading: false } : null);
+          break;
+        case 'weather':
+          content = { title: 'Weather Forecast', description: `For the next ${trip.duration} days`, icon: 'M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-2.666-2.886 3 3 0 00-2.867 4.534A4.5 4.5 0 0012 15H2.25z', data: null, loading: true };
+          this.aiToolContent.set(content);
+          const weatherData = await this.geminiService.getWeatherForecast(trip.destination, trip.duration);
+          this.aiToolContent.update(c => c ? { ...c, data: weatherData, loading: false } : null);
+          break;
+      }
+    } catch (error) {
+      console.error(`Failed to generate ${tool}`, error);
+      this.toastService.show(`Could not generate ${tool}.`);
+      this.activeAiTool.set(null); // Close modal on error
+    }
+  }
+
+  async submitCustomization(): Promise<void> {
+    const trip = this.itinerary();
+    const query = this.customizationQuery().trim();
+    if (!trip || !query) return;
+
+    this.hapticService.vibrate();
+    this.aiToolContent.update(c => c ? { ...c, loading: true } : null);
+    
+    try {
+      const updatedItinerary = await this.geminiService.customizeItinerary(trip, query);
+      // Preserve existing documents and hero image
+      updatedItinerary.documents = trip.documents; 
+      updatedItinerary.heroImage = trip.heroImage;
+      
+      this.itinerary.set(updatedItinerary);
+      this.tripService.saveOrUpdateTrip(updatedItinerary); // Update in storage
+      this.toastService.show('Itinerary updated!');
+      this.customizationQuery.set('');
+      this.activeAiTool.set(null);
+    } catch (error) {
+      console.error('Failed to customize itinerary:', error);
+      this.toastService.show('Could not update the itinerary.');
+      this.aiToolContent.update(c => c ? { ...c, loading: false } : null);
+    }
+  }
+
+  onUploadDocumentClick(): void {
+    this.hapticService.vibrate();
+    this.docFileInput.nativeElement.click();
+  }
+
+  async onDocumentSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    const trip = this.itinerary();
+    if (!file || !trip) return;
+
+    this.isUploadingDoc.set(true);
+
+    try {
+      const base64Data = await this.fileToBase64(file);
+      const newDocument: Document = {
+        id: `${Date.now()}-${file.name}`,
+        name: file.name,
+        type: file.type,
+        data: base64Data,
+      };
+      
+      this.tripService.addDocumentToTrip(trip.id, newDocument);
+
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      this.toastService.show('Failed to upload document.');
+    } finally {
+      this.isUploadingDoc.set(false);
+      input.value = '';
+    }
+  }
+
+  viewDocument(doc: Document): void {
+    this.hapticService.vibrate();
+    this.selectedDocument.set(doc);
+  }
+
+  deleteDocument(doc: Document): void {
+    const trip = this.itinerary();
+    if (!trip) return;
+
+    this.hapticService.vibrate();
+    this.tripService.deleteDocumentFromTrip(trip.id, doc.id);
+    this.toastService.show('Document deleted.');
+  }
+
+  setTab(tab: PlannerTab): void {
+    this.hapticService.vibrate();
+    this.activeTab.set(tab);
+  }
+
+  setBudgetStyle(style: BudgetStyle): void {
+    this.hapticService.vibrate();
+    this.budgetStyle.set(style);
+  }
+
+  handleActivityInteraction(tripId: string, dayIndex: number, activityIndex: number): void {
+    // 1. Vibrate and toggle completion state via the service
+    this.hapticService.vibrate(2);
+    this.tripService.toggleActivityCompletion(tripId, dayIndex, activityIndex);
+    
+    // 2. Set identifier to focus the map on the clicked activity
+    const identifier = `day-${dayIndex}-activity-${activityIndex}`;
+    this.focusedActivityIdentifier.set(null); // Reset to ensure change detection
+    setTimeout(() => this.focusedActivityIdentifier.set(identifier), 0);
+
+    // 3. Scroll map into view for better user experience
+    const mapViewEl = document.querySelector('app-map-view');
+    mapViewEl?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  togglePackingItem(catIndex: number, itemIndex: number): void {
+    this.hapticService.vibrate();
+    this.itinerary.update(trip => {
+      if (!trip?.packingList) return trip;
+
+      // Create a deep copy to work with
+      const updatedTrip = JSON.parse(JSON.stringify(trip));
+      const item = updatedTrip.packingList.categories[catIndex]?.items[itemIndex];
+
+      if (item) {
+        item.checked = !item.checked;
+      }
+      
+      this.tripService.saveOrUpdateTrip(updatedTrip);
+      return updatedTrip;
+    });
+  }
+}
+src/components/trip-planning.component.html
+code
+Html
+<div class="pb-6 dark:text-gray-50">
+  <!-- Header Section -->
+  <header class="p-6 bg-gradient-to-br from-blue-600 to-purple-700 text-white rounded-b-3xl">
+    <div class="flex justify-between items-center">
+      <button (click)="goBack()" aria-label="Go back" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm transition-transform active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+      <h1 class="text-xl font-bold">Plan Your Trip</h1>
+       <button (click)="toggleGenerator()" aria-label="Create new trip" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm transition-transform active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+          <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="mt-4 bg-white/20 p-4 rounded-xl backdrop-blur-sm flex justify-between items-center">
+      <div>
+        <h2 class="text-2xl font-bold">{{ itinerary()?.tripTitle ?? destination() + ' Adventure' }}</h2>
+        <p class="text-sm opacity-80">{{ itinerary()?.duration ?? duration() }} day trip</p>
+      </div>
+      <div class="bg-white/90 text-blue-700 font-bold px-3 py-1 rounded-full text-sm">{{itinerary()?.destination ?? destination()}}</div>
+    </div>
+  </header>
+
+  <!-- AI Generator Form (Collapsible) -->
+  @if(showGenerator()) {
+    <div class="p-6">
+      <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 opacity-0 animate-fade-in-up">
+        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3">Create New Itinerary</h3>
+        <div class="space-y-4">
+          <div class="relative">
+            <label for="destination" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Destination</label>
+            <input type="text" id="destination" [ngModel]="destination()" (ngModelChange)="destination.set($event)" class="mt-1 block w-full px-3 py-2 pr-12 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="e.g., Paris, France">
+              <button (click)="onPlanWithPhotoClick()" aria-label="Plan trip from a photo" [disabled]="!onlineStatusService.isOnline()" class="absolute right-1 top-7 p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M.5 3.75A1.75 1.75 0 012.25 2h12.5A1.75 1.75 0 0116.5 3.75v8.5A1.75 1.75 0 0114.75 14H2.25A1.75 1.75 0 01.5 12.25v-8.5zm1.75-.25a.25.25 0 00-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 00.25-.25v-8.5a.25.25 0 00-.25-.25H2.25z"/><path d="M5 6.25a.75.75 0 01.75-.75h3.5a.75.75 0 010 1.5h-3.5A.75.75 0 015 6.25zM5 8.75a.75.75 0 01.75-.75h6.5a.75.75 0 010 1.5h-6.5A.75.75 0 015 8.75zM12.5 6h-1.5a.5.5 0 000 1h1.5a.5.5 0 000-1z"/></svg>
+            </button>
+            <input type="file" #fileInput class="hidden" accept="image/*" (change)="onFileSelected($event)">
+          </div>
+          <div>
+            <label for="duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Duration (days)</label>
+            <input type="number" id="duration" [ngModel]="duration()" (ngModelChange)="duration.set($event)" class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="e.g., 7">
+          </div>
+          <div>
+            <label for="budgetStyle" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Trip Style</label>
+            <div class="mt-1 flex w-full bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+              @for(style of budgetStyles; track style) {
+                <button 
+                  type="button"
+                  (click)="setBudgetStyle(style)" 
+                  class="flex-1 text-sm font-semibold py-1.5 rounded-md transition-colors duration-200"
+                  [class]="budgetStyle() === style ? 'bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow' : 'text-gray-600 dark:text-gray-300'">
+                  {{ style === 'Smart' ? 'Smart Travel' : style }}
+                </button>
+              }
+            </div>
+          </div>
+          <button (click)="generateTripPlan()" [disabled]="loading() || !destination() || !duration() || !onlineStatusService.isOnline()" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 transition-all active:scale-95">
+            @if(loading()) {
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Generating...</span>
+            } @else {
+              <span>✨ Generate Trip Plan</span>
+            }
+          </button>
+        </div>
+        @if(error()) {
+          <p class="text-red-500 text-sm mt-2">{{ error() }}</p>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- UNIFIED MAP VIEW -->
+  @if (itinerary() || (!showGenerator() && destination())) {
+    <div class="px-6 mt-6">
+       <app-map-view 
+          [itinerary]="itinerary()" 
+          [destination]="itinerary()?.destination ?? destination()"
+          [focusedActivityIdentifier]="focusedActivityIdentifier()">
+      </app-map-view>
+    </div>
+  }
+
+  <!-- Tab Navigation -->
+  @if(itinerary() || loading()) {
+    <div class="px-6 mt-6">
+      <div class="relative flex border-b border-gray-200 dark:border-gray-700 tabs-container">
+        <button #itineraryTab (click)="setTab('itinerary')" class="flex-1 py-3 text-center font-semibold transition-colors" [class.text-blue-600]="activeTab() === 'itinerary'" [class.text-gray-500]="activeTab() !== 'itinerary'">Itinerary</button>
+        <button #documentsTab (click)="setTab('documents')" class="flex-1 py-3 text-center font-semibold transition-colors disabled:opacity-50" [disabled]="!isTripSaved()" [class.text-blue-600]="activeTab() === 'documents'" [class.text-gray-500]="activeTab() !== 'documents'">Documents</button>
+        <button #toolsTab (click)="setTab('tools')" class="flex-1 py-3 text-center font-semibold transition-colors" [class.text-blue-600]="activeTab() === 'tools'" [class.text-gray-500]="activeTab() !== 'tools'">AI Tools</button>
+        <div class="tab-underline" [style.left.px]="activeTab() === 'itinerary' ? itineraryTab.offsetLeft : (activeTab() === 'documents' ? documentsTab.offsetLeft : toolsTab.offsetLeft)" [style.width.px]="activeTab() === 'itinerary' ? itineraryTab.offsetWidth : (activeTab() === 'documents' ? documentsTab.offsetWidth : toolsTab.offsetWidth)"></div>
+      </div>
+    </div>
+  }
+
+  <!-- Tab Content -->
+  <div class="px-6 py-6 space-y-6">
+    @if(loading()) {
+      <div class="flex justify-center items-center py-20">
+        <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    } @else if(itinerary(); as trip) {
+      @switch (activeTab()) {
+        @case ('itinerary') {
+          <div class="animate-fade-in">
+            @if(trip.groundingChunks && trip.groundingChunks.length > 0) {
+              <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
+                <h4 class="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mr-2 text-gray-400">
+                    <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                  </svg>
+                  Sourced from the web
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                  @for(chunk of trip.groundingChunks; track chunk.web.uri) {
+                    <a [href]="chunk.web.uri" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-600 dark:text-blue-400 hover:underline truncate flex items-center space-x-1.5 py-0.5">
+                       <span class="truncate" [title]="chunk.web.title || chunk.web.uri">{{ chunk.web.title || chunk.web.uri }}</span>
+                    </a>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="mt-6 space-y-4">
+              @for(day of trip.itinerary; track day.day; let dayIndex = $index) {
+                <div class="relative pl-8 opacity-0 animate-fade-in-up" [style.--stagger-delay]="dayIndex * 100 + 'ms'">
+                  <div class="absolute left-0 top-1 flex items-center justify-center w-6 h-6 bg-teal-500 text-white font-bold rounded-full z-10">{{ day.day }}</div>
+                  <div class="absolute left-3 top-1 h-full border-l-2 border-dashed border-gray-300 dark:border-gray-600"></div>
+                  <div class="ml-4">
+                    <div class="flex justify-between items-center mb-2">
+                      <h4 class="font-bold text-gray-800 dark:text-gray-100">{{ day.title }}</h4>
+                      <div class="w-1/4 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-teal-500 rounded-full transition-all duration-500" [style.width.%]="dailyProgress().get(day.day) || 0"></div>
+                      </div>
+                    </div>
+                    <div class="mt-2 space-y-3">
+                      @for(activity of day.activities; track activity.description; let activityIndex = $index) {
+                        <div (click)="handleActivityInteraction(trip.id, dayIndex, activityIndex)" class="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 transition-shadow hover:shadow-md flex items-start space-x-3 cursor-pointer">
+                          <div class="flex-shrink-0 pt-0.5">
+                            <div class="w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200" [class]="activity.completed ? 'bg-teal-500 border-teal-500' : 'bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-500'">
+                              @if(activity.completed) {
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 text-white"><path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 01.208 1.04l-5 7.5a.75.75 0 01-1.154.114l-3-3a.75.75 0 011.06-1.06l2.35 2.35 4.493-6.74a.75.75 0 011.04-.208z" clip-rule="evenodd" /></svg>
+                              }
+                            </div>
+                          </div>
+                          <div class="flex-grow">
+                             <p class="font-semibold transition-colors" [class]="activity.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-700 dark:text-gray-200'">{{ activity.description }}</p>
+                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                              <span>{{ activity.time }}</span><span class="mx-2">·</span>
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+                              <span class="truncate">{{ activity.location }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="mt-6 flex justify-end">
+              <button (click)="saveTrip()" aria-label="Save trip" class="px-5 py-2.5 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-2 active:scale-95" [class]="isTripSaved() ? 'bg-teal-500' : 'bg-green-600 hover:bg-green-700'">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+                <span>{{ isTripSaved() ? 'Trip Saved' : 'Save Trip' }}</span>
+              </button>
+            </div>
+          </div>
+        }
+        @case ('documents') {
+          <div class="space-y-4 animate-fade-in">
+             @if (trip.documents && trip.documents.length > 0) {
+                @for(doc of trip.documents; track doc.id) {
+                  <div class="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <button (click)="viewDocument(doc)" class="flex items-center space-x-3 text-left w-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-gray-400 flex-shrink-0"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm5.75 2.75a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z" clip-rule="evenodd" /></svg>
+                        <span class="font-medium text-gray-700 dark:text-gray-200 truncate">{{ doc.name }}</span>
+                    </button>
+                    <button (click)="deleteDocument(doc)" aria-label="Delete document" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-full transition-colors flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193v-.443A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" /></svg>
+                    </button>
+                  </div>
+                }
+             } @else {
+                <div class="text-center py-10 px-6 bg-gray-100 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                  <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                  </svg>
+                  <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mt-4">No Documents Yet</h3>
+                  <p class="text-gray-500 dark:text-gray-400 mt-1">Upload tickets, reservations, and other important files.</p>
+                </div>
+             }
+            <input type="file" #docFileInput class="hidden" (change)="onDocumentSelected($event)">
+            <button (click)="onUploadDocumentClick()" [disabled]="isUploadingDoc()" class="w-full flex items-center justify-center p-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:border-gray-400 dark:hover:border-gray-500 transition-colors disabled:opacity-50">
+              @if(isUploadingDoc()) {
+                <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span>Uploading...</span>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 mr-2"><path d="M9.25 3.5a.75.75 0 00-1.5 0V7H4.25a.75.75 0 000 1.5H7.75v3.5a.75.75 0 001.5 0V8.5h3.5a.75.75 0 000-1.5H9.25V3.5z" /><path fill-rule="evenodd" d="M2 5a3 3 0 013-3h10a3 3 0 013 3v10a3 3 0 01-3-3H5a3 3 0 01-3-3V5zm2.5 10a1.5 1.5 0 01-1.5-1.5V6.707l.646.647a.75.75 0 001.06-1.06L3.854 5.44a.75.75 0 00-1.06 0L1.94 6.293a.75.75 0 001.06 1.06L3.646 6.707V15a1.5 1.5 0 01-1.146.002zM15 16.5a1.5 1.5 0 001.5-1.5V5a1.5 1.5 0 00-1.5-1.5h- procedimentos.5a.75.75 0 000 1.5H15V15a.75.75 0 01-1.5 0v-2.293l-.646.647a.75.75 0 01-1.06-1.06l.853-.853a.75.75 0 011.06 0l.854.853a.75.75 0 01-1.06 1.06l-.646-.647V15a1.5 1.5 0 001.5 1.5z" clip-rule="evenodd" /></svg>
+                <span>Add Document</span>
+              }
+            </button>
+          </div>
+        }
+        @case ('tools') {
+          <div class="grid grid-cols-2 gap-4 animate-fade-in">
+            <!-- Customize Itinerary -->
+            <button (click)="openAiTool('customize')" [disabled]="!onlineStatusService.isOnline()" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 text-left hover:shadow-lg hover:-translate-y-1 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+              <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg w-fit mb-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-indigo-600 dark:text-indigo-300"><path d="M10 3a.75.75 0 01.75.75v1.5h1.5a.75.75 0 010 1.5h-1.5v1.5a.75.75 0 01-1.5 0v-1.5h-1.5a.75.75 0 010-1.5h1.5v-1.5A.75.75 0 0110 3zM3.05 6.49a.75.75 0 010 1.06l-1.77 1.77a.75.75 0 01-1.06-1.06l1.77-1.77a.75.75 0 011.06 0zM17.69 9.31a.75.75 0 10-1.06 1.06l1.77 1.77a.75.75 0 101.06-1.06l-1.77-1.77zM10 18a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 0110 18zM6.49 16.95a.75.75 0 00-1.06 1.06l1.77 1.77a.75.75 0 101.06-1.06l-1.77-1.77zM18.75 10a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM4.25 10a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM13.51 3.05a.75.75 0 011.06 0l1.77 1.77a.75.75 0 01-1.06 1.06l-1.77-1.77a.75.75 0 010-1.06z" /></svg></div>
+              <h4 class="font-bold text-gray-800 dark:text-gray-100">Customize Plan</h4><p class="text-sm text-gray-500 dark:text-gray-400">Refine with AI chat.</p>
+            </button>
+             <!-- Packing List -->
+            <button (click)="openAiTool('packing')" [disabled]="!onlineStatusService.isOnline()" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 text-left hover:shadow-lg hover:-translate-y-1 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+              <div class="p-2 bg-teal-100 dark:bg-teal-900 rounded-lg w-fit mb-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-teal-600 dark:text-teal-300"><path fill-rule="evenodd" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" clip-rule="evenodd" /></svg></div>
+              <h4 class="font-bold text-gray-800 dark:text-gray-100">Packing List</h4><p class="text-sm text-gray-500 dark:text-gray-400">Get a smart list.</p>
+            </button>
+             <!-- Weather Forecast -->
+            <button (click)="openAiTool('weather')" [disabled]="!onlineStatusService.isOnline()" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 text-left hover:shadow-lg hover:-translate-y-1 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+              <div class="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg w-fit mb-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-blue-600 dark:text-blue-300"><path d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-2.666-2.886 3 3 0 00-2.867 4.534A4.5 4.5 0 0012 15H2.25z" /></svg></div>
+              <h4 class="font-bold text-gray-800 dark:text-gray-100">Weather Forecast</h4><p class="text-sm text-gray-500 dark:text-gray-400">See the outlook.</p>
+            </button>
+            <!-- Local Gems -->
+            <button (click)="openAiTool('gems')" [disabled]="!onlineStatusService.isOnline()" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 text-left hover:shadow-lg hover:-translate-y-1 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+              <div class="p-2 bg-pink-100 dark:bg-pink-900 rounded-lg w-fit mb-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-pink-600 dark:text-pink-300"><path fill-rule="evenodd" d="M9.653 16.96a.75.75 0 01-1.306 0l-1.764-3.573a.75.75 0 01.36-1.003l3.05-1.531a.75.75 0 011.004.361l3.572 1.764a.75.75 0 010 1.306l-1.531 3.05a.75.75 0 01-1.003.36L9.653 16.96z" clip-rule="evenodd" /><path d="M6.75 7.5a.75.75 0 01.75-.75h.01a.75.75 0 01.75.75v.01a.75.75 0 01-.75.75h-.01a.75.75 0 01-.75-.75V7.5zM3 11.25a.75.75 0 01.75-.75h.01a.75.75 0 01.75.75v.01a.75.75 0 01-.75.75h-.01A.75.75 0 013 11.25v-.01zM7.5 3a.75.75 0 01.75-.75h.01a.75.75 0 01.75.75v.01a.75.75 0 01-.75.75h-.01A.75.75 0 017.5 3V3z" /></svg></div>
+              <h4 class="font-bold text-gray-800 dark:text-gray-100">Find Local Gems</h4><p class="text-sm text-gray-500 dark:text-gray-400">Discover hidden spots.</p>
+            </button>
+            <!-- Budget Estimate -->
+            <button (click)="openAiTool('budget')" [disabled]="!onlineStatusService.isOnline()" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 text-left hover:shadow-lg hover:-translate-y-1 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+              <div class="p-2 bg-green-100 dark:bg-green-900 rounded-lg w-fit mb-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-green-600 dark:text-green-300"><path d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6A.75.75 0 012.25 5.25v-.75A.75.75 0 013 4.5A.75.75 0 013.75 4.5zM3 9.75A.75.75 0 013.75 9h.75a.75.75 0 010 1.5h-.75A.75.75 0 013 9.75zM3 12.75A.75.75 0 013.75 12h.75a.75.75 0 010 1.5h-.75A.75.75 0 013 12.75zM3.75 15A.75.75 0 013 15.75v.75a.75.75 0 01-.75-.75v-.75A.75.75 0 013.75 15zM6 6.75A.75.75 0 016.75 6h.75a.75.75 0 010 1.5h-.75A.75.75 0 016 6.75zM6.75 9A.75.75 0 016 9.75v.75a.75.75 0 01-.75-.75V9.75A.75.75 0 016.75 9zM6 12.75A.75.75 0 016.75 12h.75a.75.75 0 010 1.5h-.75A.75.75 0 016 12.75zM6.75 15A.75.75 0 016 15.75v.75a.75.75 0 01-.75-.75v-.75A.75.75 0 016.75 15zM9 6.75A.75.75 0 019.75 6h.75a.75.75 0 010 1.5h-.75A.75.75 0 019 6.75zM9.75 9A.75.75 0 019 9.75v.75a.75.75 0 01-.75-.75V9.75A.75.75 0 019.75 9zM9 12.75A.75.75 0 019.75 12h.75a.75.75 0 010 1.5h-.75A.75.75 0 019 12.75zM9.75 15A.75.75 0 019 15.75v.75a.75.75 0 01-.75-.75v-.75A.75.75 0 019.75 15zM12 6.75A.75.75 0 0112.75 6h.75a.75.75 0 010 1.5h-.75A.75.75 0 0112 6.75zM12.75 9A.75.75 0 0112 9.75v.75a.75.75 0 01-.75-.75V9.75A.75.75 0 0112.75 9zM12 12.75A.75.75 0 0112.75 12h.75a.75.75 0 010 1.5h-.75A.75.75 0 0112 12.75zM12.75 15A.75.75 0 0112 15.75v.75a.75.75 0 01-.75-.75v-.75A.75.75 0 0112.75 15z" /></svg></div>
+              <h4 class="font-bold text-gray-800 dark:text-gray-100">Estimate Budget</h4><p class="text-sm text-gray-500 dark:text-gray-400">Get a cost breakdown.</p>
+            </button>
+            <!-- Common Phrases -->
+            <button (click)="openAiTool('phrases')" [disabled]="!onlineStatusService.isOnline()" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 text-left hover:shadow-lg hover:-translate-y-1 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+              <div class="p-2 bg-sky-100 dark:bg-sky-900 rounded-lg w-fit mb-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-sky-600 dark:text-sky-300"><path d="M10.09 2.228a.75.75 0 00-1.018-.521l-7.151 3.065a.75.75 0 000 1.352L9.07 9.29a.75.75 0 00.954-.182 2.25 2.25 0 013.337 3.337.75.75 0 00.182.954l3.164 7.087a.75.75 0 001.352 0l3.065-7.151a.75.75 0 00-.521-1.018l-7.447-3.191a2.25 2.25 0 01-2.09-.23zM10.835 12.5a.75.75 0 00-1.06 1.06l.163.163a.75.75 0 001.06-1.06l-.162-.163z" /><path d="M4.5 2.5a.75.75 0 01.75.75v.5a.75.75 0 01-1.5 0v-.5a.75.75 0 01.75-.75zM2.5 4.5a.75.75 0 00-.75.75v.5a.75.75 0 001.5 0v-.5a.75.75 0 00-.75-.75z" /></svg></div>
+              <h4 class="font-bold text-gray-800 dark:text-gray-100">Common Phrases</h4><p class="text-sm text-gray-500 dark:text-gray-400">Learn the local lingo.</p>
+            </button>
+            <!-- Safety Tips -->
+            <button (click)="openAiTool('safety')" [disabled]="!onlineStatusService.isOnline()" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 text-left hover:shadow-lg hover:-translate-y-1 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+              <div class="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg w-fit mb-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-yellow-600 dark:text-yellow-300"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5A3 3 0 107 5.5V9h6z" clip-rule="evenodd" /></svg></div>
+              <h4 class="font-bold text-gray-800 dark:text-gray-100">Safety Tips</h4><p class="text-sm text-gray-500 dark:text-gray-400">Travel with confidence.</p>
+            </button>
+          </div>
+        }
+      }
+    } @else if (!showGenerator()) {
+      <div class="text-center py-10 px-6 bg-gray-100 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+        <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503-6.938l-4.006-4.006a1.125 1.125 0 00-1.591 0L3.75 12.156M12 21.75a2.25 2.25 0 01-2.25-2.25v-3.839a2.25 2.25 0 01.659-1.591l4.006-4.006a2.25 2.25 0 013.182 0l4.006 4.006a2.25 2.25 0 01.659 1.591v3.839a2.25 2.25 0 01-2.25 2.25H12z" /></svg>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mt-4">No Itinerary to Display</h3>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">Generate a new plan with AI or view one from "My Trips".</p>
+      </div>
+    }
+  </div>
+
+</div>
+
+<!-- Unified AI Tool Modal -->
+@if(activeAiTool(); as tool) {
+  <div class="fixed inset-0 z-30 flex flex-col justify-end">
+    <div class="absolute inset-0 modal-backdrop" (click)="activeAiTool.set(null)"></div>
+    <div class="relative w-full bg-white dark:bg-gray-800 rounded-t-2xl shadow-xl bottom-sheet-content" style="max-height: 80vh;">
+      @if (aiToolContent(); as content) {
+        <div class="p-6 pb-2">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+              <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6 text-gray-600 dark:text-gray-300"><path [attr.d]="content.icon" /></svg></div>
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ content.title }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ content.description }}</p>
+              </div>
+            </div>
+            <button (click)="activeAiTool.set(null)" aria-label="Close tool" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-500 dark:text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+        <div class="p-6 pt-4 overflow-y-auto" style="max-height: calc(80vh - 80px);">
+          @if (content.loading) {
+            <div class="flex justify-center items-center py-16">
+              <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          } @else if (!content.data && tool !== 'customize' && tool !== 'packing') {
+             <p class="text-gray-500 dark:text-gray-400 text-center py-8">Could not generate content.</p>
+          } @else {
+            @switch (tool) {
+              @case ('customize') {
+                <div class="space-y-4">
+                  <textarea [ngModel]="customizationQuery()" (ngModelChange)="customizationQuery.set($event)" rows="3" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="e.g., 'Add more museums' or 'Make day 3 more relaxing'"></textarea>
+                  <button (click)="submitCustomization()" [disabled]="content.loading || !customizationQuery()" class="w-full flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-colors active:scale-95">
+                    @if(content.loading) { <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Updating...</span> }
+                    @else { <span>Update Itinerary</span> }
+                  </button>
+                </div>
+              }
+              @case ('packing') {
+                @if (itinerary()?.packingList; as packingList) {
+                  <div class="space-y-5">
+                    @for(category of packingList.categories; track category.categoryName; let catIndex = $index) {
+                      <div>
+                        <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">{{ category.categoryName }}</h4>
+                        <ul class="space-y-1">
+                          @for(item of category.items; track item.description; let itemIndex = $index) {
+                            <li (click)="togglePackingItem(catIndex, itemIndex)" class="flex items-center space-x-3 cursor-pointer p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors">
+                              <div class="w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200" [class]="item.checked ? 'bg-teal-500 border-teal-500' : 'bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-500'">
+                                @if(item.checked) {
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 text-white"><path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 01.208 1.04l-5 7.5a.75.75 0 01-1.154.114l-3-3a.75.75 0 011.06-1.06l2.35 2.35 4.493-6.74a.75.75 0 011.04-.208z" clip-rule="evenodd" /></svg>
+                                }
+                              </div>
+                              <span class="flex-grow transition-colors text-gray-700 dark:text-gray-200" [class]="item.checked ? 'text-gray-400 dark:text-gray-500 line-through' : ''">{{ item.description }}</span>
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p class="text-gray-500 dark:text-gray-400 text-center py-8">No packing list generated yet.</p>
+                }
+              }
+               @case ('weather') {
+                <div class="space-y-2">
+                  @for(day of content.data.forecast; track day.day) {
+                    <div class="flex justify-between items-center p-3 border-b border-gray-100 dark:border-gray-700/50">
+                      <div>
+                        <p class="font-semibold text-gray-800 dark:text-gray-100">Day {{ day.day }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ day.conditions }}</p>
+                      </div>
+                      <p class="font-bold text-lg text-gray-700 dark:text-gray-200">{{ day.high }} / {{ day.low }}</p>
+                    </div>
+                  }
+                </div>
+              }
+              @case ('gems') {
+                <div class="space-y-4">
+                  @for(gem of content.data.gems; track gem.name) {
+                    <div class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-gray-800 dark:text-gray-100">{{ gem.name }}</h4>
+                        <span class="text-xs font-semibold bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300 px-2 py-1 rounded-full">{{ gem.type }}</span>
+                      </div>
+                      <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ gem.description }}</p>
+                    </div>
+                  }
+                </div>
+              }
+              @case ('budget') {
+                <div class="space-y-2">
+                  <div class="flex justify-between font-semibold text-lg text-gray-800 dark:text-gray-100 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
+                    <span>Total Estimated Cost</span>
+                    <span>{{ content.data.totalEstimate }}</span>
+                  </div>
+                  @for(cat of content.data.categories; track cat.category) {
+                    <div class="flex justify-between items-center p-3 border-b border-gray-100 dark:border-gray-700/50">
+                      <span class="text-gray-700 dark:text-gray-200">{{ cat.category }}</span>
+                      <span class="font-medium text-gray-600 dark:text-gray-300">{{ cat.estimatedCost }}</span>
+                    </div>
+                  }
+                </div>
+              }
+              @case ('phrases') {
+                <div class="space-y-2">
+                  @for(phrase of content.data; track phrase.phrase) {
+                    <div class="p-3 border-b border-gray-100 dark:border-gray-700/50">
+                      <p class="font-semibold text-gray-800 dark:text-gray-100">{{ phrase.phrase }}</p>
+                      <p class="text-sky-600 dark:text-sky-400">{{ phrase.translation }}</p>
+                    </div>
+                  }
+                </div>
+              }
+              @case ('safety') {
+                 <div class="space-y-4">
+                  @for(tip of content.data; track tip.tip) {
+                    <div class="bg-yellow-50 dark:bg-yellow-900/30 p-3 rounded-lg border border-yellow-200 dark:border-yellow-900/50">
+                      <h4 class="font-bold text-yellow-800 dark:text-yellow-200">{{ tip.tip }}</h4>
+                      <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">{{ tip.explanation }}</p>
+                    </div>
+                  }
+                </div>
+              }
+            }
+          }
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<app-document-viewer 
+  [document]="selectedDocument()" 
+  (close)="selectedDocument.set(null)" />
+src/services/gemini.service.ts
+code
+TypeScript
+import { Injectable } from '@angular/core';
+import { GoogleGenAI, Type } from '@google/genai';
+import { Itinerary, PackingList, LocalGems, BudgetEstimate, CommonPhrase, SafetyTip, TravelStyle, WeatherForecast, BudgetStyle, PackingCategory, GroundingChunk, WeatherDay } from '../models/itinerary.model';
+
+// Declare process to avoid TypeScript errors for Vite's `define` replacement.
+declare const process: any;
+
+@Injectable({
+  providedIn: 'root',
+})
+export class GeminiService {
+  private ai: GoogleGenAI;
+
+  constructor() {
+    // IMPORTANT: This relies on `process.env.API_KEY`.
+    // In Replit, this should be set as a "Secret".
+    // Vite's config makes this environment variable available to the client-side code.
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      console.warn("API_KEY environment variable not found. Using a mock response.");
+      // Fallback or error handling if the API key isn't available
+      this.ai = null!; 
+    } else {
+      this.ai = new GoogleGenAI({ apiKey });
+    }
+  }
+  
+  private extractJsonFromText(text: string): any {
+    // Look for a JSON code block
+    const jsonRegex = /```json\s*([\s\S]*?)\s*```/;
+    const match = text.trim().match(jsonRegex);
+
+    if (match && match[1]) {
+      try {
+        return JSON.parse(match[1]);
+      } catch (e) {
+        console.error('Failed to parse JSON from code block, falling back to full text.', e);
+      }
+    }
+
+    // If no code block or parsing failed, try parsing the whole string
+    try {
+      return JSON.parse(text.trim());
+    } catch (e) {
+      console.error('Failed to parse text as JSON', e);
+      throw new Error('Could not parse valid JSON from the model response.');
+    }
+  }
+
+  async getDestinationSuggestions(query: string): Promise<string[]> {
+    if (!this.ai) {
+      return this.getMockSuggestions(query);
+    }
+
+    const prompt = `Based on the user query "${query}", suggest up to 5 popular travel destinations. The query might be a city, country, or a concept like "beach vacation". Respond ONLY with a JSON array of strings. For example: ["Paris, France", "Bora Bora, French Polynesia"]. If the query is ambiguous or nonsensical, return an empty array.`;
+
+    const responseSchema = {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+    };
+
+    try {
+      const response = await this.ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+        },
+      });
+
+      const jsonString = response.text.trim();
+      const suggestions = JSON.parse(jsonString);
+
+      if (Array.isArray(suggestions) && suggestions.every(s => typeof s === 'string')) {
+        return suggestions;
+      } else {
+        console.warn('Received malformed suggestions from API');
+        return [];
+      }
+    } catch (error) {
+      console.error('Error getting destination suggestions:', error);
+      return []; // Return empty array on error
+    }
+  }
+
+  async identifyDestinationFromImage(base64Image: string, mimeType: string): Promise<string> {
+    if (!this.ai) {
+      return "Mock Destination from Image";
+    }
+    const prompt = "Identify the city and country in this image. Respond with ONLY the 'City, Country'. If you cannot identify a specific travel destination, respond with an empty string.";
+    const imagePart = {
+      inlineData: {
+        mimeType: mimeType,
+        data: base64Image,
+      },
+    };
+
+    try {
+      const response = await this.ai.models.generateContent({
+        model: 'gemini-2.5-flash', // Use a model that supports multimodal input
+        contents: { parts: [imagePart, { text: prompt }] },
+      });
+      return response.text.trim();
+    } catch (error) {
+      console.error('Error identifying destination from image:', error);
+      throw new Error('Could not identify destination.');
+    }
+  }
+
+  private getItinerarySchema(destination: string, duration: number) {
+    return {
+      type: Type.OBJECT,
+      properties: {
+        tripTitle: {
+          type: Type.STRING,
+          description: `A creative and exciting title for the trip to ${destination}.`,
+        },
+        itinerary: {
+          type: Type.ARRAY,
+          description: `An array of daily plans for the ${duration}-day trip.`,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              day: { type: Type.INTEGER, description: 'The day number of the itinerary (e.g., 1).' },
+              title: { type: Type.STRING, description: 'A short, catchy title for the day\'s theme (e.g., "Ancient Ruins & Sandy Beaches").' },
+              activities: {
+                type: Type.ARRAY,
+                description: 'An array of activities for the day.',
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    time: { type: Type.STRING, description: 'Suggested time for the activity (e.g., "9:00 AM").' },
+                    description: { type: Type.STRING, description: 'A brief description of the activity.' },
+                    location: { type: Type.STRING, description: 'The location of the activity.' },
+                  },
+                  required: ['time', 'description', 'location'],
+                },
+              },
+            },
+            required: ['day', 'title', 'activities'],
+          },
+        },
+      },
+      required: ['tripTitle', 'itinerary'],
+    };
+  }
+
+  async generateItinerary(destination: string, duration: number, travelStyle: TravelStyle, budgetStyle: BudgetStyle): Promise<Itinerary> {
+    if (!this.ai) {
+      const mockItinerary = await this.getMockItinerary(destination, duration, travelStyle, budgetStyle);
+      const mockImage = await this.generateDestinationImage(`Mock image for ${destination}`);
+      mockItinerary.heroImage = mockImage;
+      return mockItinerary;
+    }
+
+    const imagePrompt = `A breathtaking, vibrant, 4K ultra-realistic travel photograph of ${destination}. Sunny day, iconic landmarks, cinematic quality.`;
+    const schemaString = JSON.stringify(this.getItinerarySchema(destination, duration), null, 2);
+    const itineraryPrompt = `
+      Create a detailed ${duration}-day travel itinerary for a trip to ${destination}.
+      The user's preferred pace is "${travelStyle}" and their budget style is "${budgetStyle}".
+      
+      IMPORTANT: Use Google Search to find specific, real-world places. For all recommended attractions, restaurants, and points of interest, you MUST prioritize locations with a Google rating of 4.3 stars or higher and more than 100 reviews.
+      
+      - For "Pace" (${travelStyle}):
+        - If "Relaxed", suggest fewer activities per day with more leisure time and later start times.
+        - If "Action-Packed", fill the day with many diverse activities from morning to night.
+        - If "Balanced", create a mix of activities and free time.
+
+      - For "Budget Style" (${budgetStyle}):
+        - If "Backpacker", focus on hostels, free activities, street food, and public transport.
+        - If "Smart", suggest a mix of affordable hotels, some nice dining, and popular attractions.
+        - If "Premium", focus on luxury hotels, fine dining restaurants, private tours, and exclusive events.
+        
+      You MUST respond with ONLY a valid JSON object that conforms to the following schema. Do not include any other text, markdown, or explanations before or after the JSON.
+      Schema:
+      ${schemaString}
+    `;
+    
+    try {
+      // Run both AI requests in parallel for a faster experience
+      const [itineraryResponse, imageResponse] = await Promise.all([
+        this.ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: itineraryPrompt,
+          config: {
+            tools: [{googleSearch: {}}],
+          },
+        }),
+        this.ai.models.generateImages({
+          model: 'imagen-3.0-generate-002',
+          prompt: imagePrompt,
+          config: {
+            numberOfImages: 1,
+            outputMimeType: 'image/jpeg',
+            aspectRatio: '16:9',
+          },
+        })
+      ]);
+
+      const parsedJson = this.extractJsonFromText(itineraryResponse.text);
+      const heroImage = imageResponse.generatedImages[0].image.imageBytes;
+      const groundingChunks = (itineraryResponse.candidates?.[0]?.groundingMetadata?.groundingChunks as GroundingChunk[]) || [];
+      
+      if (parsedJson && parsedJson.tripTitle && Array.isArray(parsedJson.itinerary) && heroImage) {
+        // Initialize all activities with completed: false
+        parsedJson.itinerary.forEach((day: any) => {
+          day.activities.forEach((activity: any) => {
+            activity.completed = false;
+          });
+        });
+
+        const itinerary: Itinerary = {
+          id: Date.now().toString(),
+          ...parsedJson,
+          destination,
+          duration,
+          budgetStyle,
+          travelStyle,
+          heroImage,
+          documents: [],
+          groundingChunks: groundingChunks,
+        };
+        return itinerary;
+      } else {
+        throw new Error('Received malformed JSON or no image from API');
+      }
+
+    } catch (error) {
+      console.error('Error generating itinerary with Gemini:', error);
+      throw new Error('Could not generate itinerary. The model may have returned an invalid response.');
+    }
+  }
+
+  async customizeItinerary(currentItinerary: Itinerary, userRequest: string): Promise<Itinerary> {
+    if (!this.ai) {
+      // Mock customization
+      const updatedItinerary = { ...currentItinerary };
+      updatedItinerary.itinerary[0].activities.push({
+        time: "8:00 PM",
+        description: `Mock customization: ${userRequest}`,
+        location: "Mock Location",
+        completed: false
+      });
+      return new Promise(resolve => setTimeout(() => resolve(updatedItinerary), 1000));
+    }
+  
+    const itineraryContext = JSON.stringify({
+      tripTitle: currentItinerary.tripTitle,
+      itinerary: currentItinerary.itinerary
+    }, null, 2);
+  
+    const prompt = `
+      You are an expert travel agent AI. A user wants to modify their existing travel plan.
+      
+      This is their current itinerary JSON:
+      ${itineraryContext}
+  
+      This is their request for a change:
+      "${userRequest}"
+  
+      Please revise the itinerary based on their request. When adding new places, please prioritize locations with a Google Maps rating of 4.3 or higher and at least 100 reviews. You MUST return the FULL, updated itinerary object as a single JSON response that conforms to the provided schema. Do not omit any part of the original itinerary unless the request implies it. For example, if they ask to add a museum, find a logical day and time to add it, but keep all other existing activities. Preserve the original "tripTitle".
+    `;
+    
+    const responseSchema = this.getItinerarySchema(currentItinerary.destination, currentItinerary.duration);
+  
+    try {
+      const response = await this.ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+        },
+      });
+  
+      const jsonString = response.text.trim();
+      const parsedJson = JSON.parse(jsonString);
+  
+      if (parsedJson && parsedJson.tripTitle && Array.isArray(parsedJson.itinerary)) {
+        // Ensure new activities also have the 'completed' field
+        parsedJson.itinerary.forEach((day: any) => {
+            day.activities.forEach((activity: any) => {
+                if (activity.completed === undefined) {
+                    activity.completed = false;
+                }
+            });
+        });
+
+        return {
+          ...currentItinerary,
+          ...parsedJson,
+          id: currentItinerary.id, // IMPORTANT: Preserve original ID
+          destination: currentItinerary.destination,
+          duration: currentItinerary.duration,
+          budgetStyle: currentItinerary.budgetStyle,
+          travelStyle: currentItinerary.travelStyle,
+          groundingChunks: currentItinerary.groundingChunks,
+        };
+      } else {
+        throw new Error('Received malformed JSON from customization API');
+      }
+    } catch (error) {
+      console.error('Error customizing itinerary with Gemini:', error);
+      throw new Error('Could not customize itinerary.');
+    }
+  }
+
+  async generatePackingList(destination: string, duration: number, travelStyle: TravelStyle, budgetStyle: BudgetStyle): Promise<{ categories: { categoryName: string; items: string[] }[] }> {
+    if (!this.ai) {
+      return this.getMockPackingList();
+    }
+  
+    const prompt = `Create a comprehensive packing list for a ${duration}-day trip to ${destination}. The user's travel style is "${travelStyle}" and their budget is "${budgetStyle}". Consider the typical climate and activities. Categorize the items logically (e.g., Clothing, Toiletries, Documents, Electronics, Miscellaneous).`;
+  
+    const responseSchema = {
+      type: Type.OBJECT,
+      properties: {
+        categories: {
+          type: Type.ARRAY,
+          description: 'An array of packing categories.',
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              categoryName: { type: Type.STRING, description: 'Name of the category (e.g., "Clothing").' },
+              items: {
+                type: Type.ARRAY,
+                description: 'An array of items in this category.',
+                items: { type: Type.STRING }
+              }
+            },
+            required: ['categoryName', 'items']
+          }
+        }
+      },
+      required: ['categories']
+    };
+  
+    try {
+      const response = await this.ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: responseSchema,
+        },
+      });
+  
+      const jsonString = response.text.trim();
+      const parsedJson = JSON.parse(jsonString);
+  
+      if (parsedJson && Array.isArray(parsedJson.categories)) {
+        return parsedJson;
+      } else {
+        throw new Error('Received malformed JSON for packing list from API');
+      }
+    } catch (error) {
+      console.error('Error generating packing list with Gemini:', error);
+      throw new Error('Could not generate packing list.');
+    }
+  }
+
+  async findLocalGems(destination: string): Promise<LocalGems> {
+    if (!this.ai) {
+      return this.getMockLocalGems(destination);
+    }
+    const prompt = `Find 5 "local gems" for a tourist visiting ${destination}. These should be non-touristy, authentic places like cafes, markets, viewpoints, or small shops. For each gem, provide its name, a type (e.g., "Cafe", "Market"), and a short, compelling description.`;
+    const responseSchema = {
+      type: Type.OBJECT,
+      properties: {
+        gems: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING },
+              type: { type: Type.STRING },
+              description: { type: Type.STRING },
+            },
+            required: ['name', 'type', 'description']
+          }
+        }
+      },
+      required: ['gems']
+    };
+    const response = await this.generateJson(prompt, responseSchema);
+    return response as LocalGems;
+  }
+
+  async estimateBudget(destination: string, duration: number): Promise<BudgetEstimate> {
+    if (!this.ai) {
+      return this.getMockBudget(destination);
+    }
+    const prompt = `Provide a rough budget estimate for a ${duration}-day trip to ${destination} for one person, assuming mid-range travel style. Break down the costs into categories: Accommodation, Food & Drinks, Transportation, and Activities. Provide a total estimate as well.`;
+    const responseSchema = {
+      type: Type.OBJECT,
+      properties: {
+        totalEstimate: { type: Type.STRING, description: "e.g., '$1500 - $2000 USD'" },
+        categories: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              category: { type: Type.STRING },
+              estimatedCost: { type: Type.STRING, description: "e.g., '$50 - $80 per day'" },
+            },
+            required: ['category', 'estimatedCost']
+          }
+        }
+      },
+      required: ['totalEstimate', 'categories']
+    };
+    const response = await this.generateJson(prompt, responseSchema);
+    return response as BudgetEstimate;
+  }
+  
+  async getCommonPhrases(destination: string): Promise<CommonPhrase[]> {
+    if (!this.ai) {
+        return this.getMockPhrases(destination);
+    }
+    const prompt = `List 5-7 essential phrases for a tourist in ${destination}. For each phrase, provide the English version and its translation into the primary local language.`;
+    const responseSchema = {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          phrase: { type: Type.STRING, description: "The phrase in English." },
+          translation: { type: Type.STRING, description: "The translated phrase." },
+        },
+        required: ['phrase', 'translation']
+      }
+    };
+    const response = await this.generateJson(prompt, responseSchema);
+    return response as CommonPhrase[];
+  }
+
+  async getSafetyTips(destination: string): Promise<SafetyTip[]> {
+    if (!this.ai) {
+        return this.getMockSafetyTips(destination);
+    }
+    const prompt = `Provide 3-5 crucial safety tips for a tourist visiting ${destination}. Each tip should be concise and practical, with a brief explanation.`;
+    const responseSchema = {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          tip: { type: Type.STRING, description: "A short title for the safety tip." },
+          explanation: { type: Type.STRING, description: "A brief explanation of the tip." },
+        },
+        required: ['tip', 'explanation']
+      }
+    };
+    const response = await this.generateJson(prompt, responseSchema);
+    return response as SafetyTip[];
+  }
+
+  async getWeatherForecast(destination: string, duration: number): Promise<WeatherForecast> {
+    if (!this.ai) {
+        return this.getMockWeather(duration);
+    }
+    const prompt = `Provide a daily weather forecast for a ${duration}-day trip to ${destination}. Include the expected conditions (e.g., "Sunny with some clouds"), and high and low temperatures in Celsius.`;
+    const responseSchema = {
+      type: Type.OBJECT,
+      properties: {
+        forecast: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              day: { type: Type.INTEGER },
+              conditions: { type: Type.STRING },
+              high: { type: Type.STRING, description: "e.g., 25°C" },
+              low: { type: Type.STRING, description: "e.g., 15°C" },
+            },
+            required: ['day', 'conditions', 'high', 'low']
+          }
+        }
+      },
+      required: ['forecast']
+    };
+    const response = await this.generateJson(prompt, responseSchema);
+    return response as WeatherForecast;
+  }
+  
+  private async generateJson(prompt: string, schema: any): Promise<any> {
+    if (!this.ai) throw new Error("AI not initialized");
+    try {
+      const response = await this.ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: schema,
+        },
+      });
+      return JSON.parse(response.text.trim());
+    } catch (error) {
+      console.error('Error generating JSON with Gemini:', error);
+      throw error;
+    }
+  }
+
+  // This is now a private helper, as the public method handles both itinerary and image
+  private async generateDestinationImage(prompt: string): Promise<string> {
+    if (!this.ai) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    }
+
+    try {
+      const response = await this.ai.models.generateImages({
+        model: 'imagen-3.0-generate-002',
+        prompt: prompt,
+        config: {
+          numberOfImages: 1,
+          outputMimeType: 'image/jpeg',
+          aspectRatio: '16:9',
+        },
+      });
+      
+      if (response.generatedImages && response.generatedImages.length > 0) {
+        return response.generatedImages[0].image.imageBytes;
+      } else {
+        throw new Error('No image was generated by the API.');
+      }
+
+    } catch (error) {
+      console.error('Error generating image with Gemini:', error);
+      throw new Error('Could not generate destination image.');
+    }
+  }
+
+  private getMockSuggestions(query: string): Promise<string[]> {
+    console.log("Using mock suggestions for", query);
+    const mockData = [
+      `Mock ${query} Suggestion 1`,
+      `Mock ${query} Suggestion 2`,
+      `Mock ${query} Suggestion 3`,
+    ].filter(s => s.toLowerCase().includes(query.toLowerCase()));
+    return new Promise(resolve => setTimeout(() => resolve(mockData), 500));
+  }
+
+  private getMockItinerary(destination: string, duration: number, travelStyle: TravelStyle, budgetStyle: BudgetStyle): Promise<Itinerary> {
+    console.log("Using mock itinerary for", destination);
+    const mockData: Itinerary = {
+      id: Date.now().toString(),
+      tripTitle: `Mock Adventure in ${destination}`,
+      destination: destination,
+      duration: duration,
+      budgetStyle: budgetStyle,
+      travelStyle: travelStyle,
+      documents: [],
+      groundingChunks: [],
+      itinerary: [
+        {
+          day: 1,
+          title: "Arrival and Exploration",
+          activities: [
+            { time: "2:00 PM", description: "Check into hotel and relax", location: "City Center", completed: false },
+            { time: "5:00 PM", description: "Evening walk through the old town", location: "Old Town", completed: false },
+          ],
+        },
+        {
+          day: 2,
+          title: "Museums and Culture",
+          activities: [
+            { time: "10:00 AM", description: "Visit the National Museum", location: "Museum District", completed: false },
+            { time: "1:00 PM", description: "Lunch at a traditional restaurant", location: "Local Eatery", completed: false },
+          ],
+        },
+      ],
+    };
+    return new Promise(resolve => setTimeout(() => resolve(mockData), 1500));
+  }
+  
+  private getMockPackingList(): Promise<{ categories: { categoryName: string; items: string[] }[] }> {
+    const mockData = {
+      categories: [
+        { categoryName: 'Clothing', items: ['2 T-shirts', '1 pair of jeans', '3 pairs of socks'] },
+        { categoryName: 'Documents', items: ['Passport', 'Boarding Pass', 'Hotel Confirmation'] },
+        { categoryName: 'Electronics', items: ['Phone charger', 'Power bank'] },
+      ]
+    };
+     return new Promise(resolve => setTimeout(() => resolve(mockData), 500));
+  }
+
+  private getMockLocalGems(destination: string): Promise<LocalGems> {
+    const mockData: LocalGems = {
+      gems: [
+        { name: 'Mock Hidden Cafe', type: 'Cafe', description: `A cozy spot in ${destination} loved by locals.` },
+        { name: 'Riverside Art Market', type: 'Market', description: 'Find unique handmade crafts and art.' },
+        { name: 'Sunset Point Park', type: 'Viewpoint', description: 'The best view of the city skyline.' }
+      ]
+    };
+    return new Promise(resolve => setTimeout(() => resolve(mockData), 500));
+  }
+
+  private getMockBudget(destination: string): Promise<BudgetEstimate> {
+    const mockData: BudgetEstimate = {
+      totalEstimate: "$1,200 - $1,800 USD",
+      categories: [
+        { category: "Accommodation", estimatedCost: "$60 - $100 per night" },
+        { category: "Food & Drinks", estimatedCost: "$40 - $70 per day" },
+        { category: "Transportation", estimatedCost: "$10 - $20 per day" },
+        { category: "Activities", estimatedCost: "$20 - $50 per day" }
+      ]
+    };
+    return new Promise(resolve => setTimeout(() => resolve(mockData), 500));
+  }
+
+  private getMockPhrases(destination: string): Promise<CommonPhrase[]> {
+    const mockData: CommonPhrase[] = [
+        { phrase: "Hello", translation: "Mock-Hello" },
+        { phrase: "Thank you", translation: "Mock-Thank you" },
+        { phrase: "How much is this?", translation: "Mock-How much?" }
+    ];
+    return new Promise(resolve => setTimeout(() => resolve(mockData), 500));
+  }
+
+  private getMockSafetyTips(destination: string): Promise<SafetyTip[]> {
+    const mockData: SafetyTip[] = [
+        { tip: "Be Aware of Surroundings", explanation: "Especially in crowded areas and public transport." },
+        { tip: "Keep Valuables Secure", explanation: "Use a money belt or hotel safe." },
+        { tip: "Share Your Itinerary", explanation: "Let someone at home know your plans." }
+    ];
+    return new Promise(resolve => setTimeout(() => resolve(mockData), 500));
+  }
+
+  private getMockWeather(duration: number): Promise<WeatherForecast> {
+    const forecast: WeatherDay[] = [];
+    for (let i = 1; i <= duration; i++) {
+        forecast.push({
+            day: i,
+            conditions: "Mostly Sunny",
+            high: "25°C",
+            low: "16°C"
+        });
+    }
+    return new Promise(resolve => setTimeout(() => resolve({ forecast }), 500));
+  }
+}
+src/models/itinerary.model.ts
+code
+TypeScript
+export interface Activity {
+  time: string;
+  description: string;
+  location: string;
+  completed?: boolean;
+}
+
+export interface ItineraryDay {
+  day: number;
+  title: string;
+  activities: Activity[];
+}
+
+export interface Document {
+  id: string; // e.g., timestamp-filename
+  name: string;
+  type: string; // mime type
+  data: string; // base64 encoded data
+}
+
+export interface GroundingChunk {
+  web: {
+    uri: string;
+    title: string;
+  };
+}
+
+export interface Itinerary {
+  id: string;
+  tripTitle: string;
+  destination: string;
+  duration: number;
+  itinerary: ItineraryDay[];
+  heroImage?: string; // base64 image string
+  documents?: Document[];
+  budgetStyle: BudgetStyle;
+  travelStyle: TravelStyle;
+  packingList?: PackingList;
+  groundingChunks?: GroundingChunk[];
+}
+
+export interface PackingItem {
+  description: string;
+  checked: boolean;
+}
+
+export interface PackingCategory {
+  categoryName: string;
+  items: PackingItem[];
+}
+
+export interface PackingList {
+  categories: PackingCategory[];
+}
+
+export interface LocalGem {
+  name: string;
+  type: string;
+  description: string;
+}
+
+export interface LocalGems {
+  gems: LocalGem[];
+}
+
+export interface BudgetCategory {
+  category: string;
+  estimatedCost: string;
+}
+
+export interface BudgetEstimate {
+  totalEstimate: string;
+  categories: BudgetCategory[];
+}
+
+export interface CommonPhrase {
+  phrase: string;
+  translation: string;
+}
+
+export interface SafetyTip {
+  tip: string;
+  explanation: string;
+}
+
+export interface WeatherDay {
+  day: number;
+  conditions: string;
+  high: string; // e.g., "25°C"
+  low: string; // e.g., "15°C"
+}
+
+export interface WeatherForecast {
+  forecast: WeatherDay[];
+}
+
+export type TravelStyle = 'Balanced' | 'Relaxed' | 'Action-Packed';
+export type BudgetStyle = 'Backpacker' | 'Smart' | 'Premium';
+src/services/trip.service.ts
+code
+TypeScript
+import { Injectable, signal } from '@angular/core';
+import { View } from '../app.component';
+import { Itinerary, Document, TravelStyle } from '../models/itinerary.model';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class TripService {
+  activeView = signal<View>('home');
+  planningDestination = signal<string>('Bali');
+  
+  activeItinerary = signal<Itinerary | null>(null);
+  savedTrips = signal<Itinerary[]>([]);
+
+  // For "Undo" functionality
+  private lastDeletedTrips: Itinerary[] | null = null;
+  private lastDeletedTrip: Itinerary | null = null;
+
+  constructor() {
+    this.loadTrips();
+  }
+
+  changeView(view: View): void {
+    this.activeView.set(view);
+  }
+
+  saveOrUpdateTrip(tripToSave: Itinerary): void {
+    this.savedTrips.update(currentTrips => {
+      const index = currentTrips.findIndex(t => t.id === tripToSave.id);
+      let updatedTrips;
+      if (index > -1) {
+        // Update existing trip
+        updatedTrips = [...currentTrips];
+        updatedTrips[index] = tripToSave;
+      } else {
+        // Add new trip
+        updatedTrips = [...currentTrips, tripToSave];
+      }
+      this.persistTrips(updatedTrips);
+      return updatedTrips;
+    });
+  }
+
+  deleteTrip(tripToDelete: Itinerary): void {
+    this.lastDeletedTrip = tripToDelete;
+    this.lastDeletedTrips = null;
+    this.savedTrips.update(trips => {
+      const updatedTrips = trips.filter(t => t.id !== tripToDelete.id);
+      this.persistTrips(updatedTrips);
+      return updatedTrips;
+    });
+  }
+
+  clearAllTrips(): Itinerary[] {
+    const tripsToDelete = this.savedTrips();
+    this.lastDeletedTrips = tripsToDelete;
+    this.lastDeletedTrip = null;
+    this.savedTrips.set([]);
+    this.persistTrips([]);
+    return tripsToDelete;
+  }
+
+  undoLastDelete(): void {
+    if (this.lastDeletedTrip) {
+      this.saveOrUpdateTrip(this.lastDeletedTrip);
+      this.lastDeletedTrip = null;
+    } else if (this.lastDeletedTrips) {
+      this.savedTrips.set(this.lastDeletedTrips);
+      this.persistTrips(this.lastDeletedTrips);
+      this.lastDeletedTrips = null;
+    }
+  }
+
+  viewTripDetails(trip: Itinerary): void {
+    this.activeItinerary.set(trip);
+    this.changeView('planner');
+  }
+
+  addDocumentToTrip(tripId: string, doc: Document): void {
+    const tripToUpdate = this.savedTrips().find(t => t.id === tripId);
+    if (!tripToUpdate) return;
+    const updatedTrip = {
+      ...tripToUpdate,
+      documents: [...(tripToUpdate.documents || []), doc]
+    };
+    this.saveOrUpdateTrip(updatedTrip);
+    if (this.activeItinerary()?.id === tripId) {
+        this.activeItinerary.set(updatedTrip);
+    }
+  }
+  
+  deleteDocumentFromTrip(tripId: string, docId: string): void {
+    const tripToUpdate = this.savedTrips().find(t => t.id === tripId);
+    if (!tripToUpdate) return;
+    const updatedTrip = {
+        ...tripToUpdate,
+        documents: (tripToUpdate.documents || []).filter(d => d.id !== docId)
+    };
+    this.saveOrUpdateTrip(updatedTrip);
+    if (this.activeItinerary()?.id === tripId) {
+        this.activeItinerary.set(updatedTrip);
+    }
+  }
+
+  toggleActivityCompletion(tripId: string, dayIndex: number, activityIndex: number): void {
+    const tripToUpdate = this.savedTrips().find(t => t.id === tripId);
+    if (!tripToUpdate) return;
+  
+    // Create a deep copy to avoid direct mutation issues with signals
+    const updatedTrip: Itinerary = JSON.parse(JSON.stringify(tripToUpdate));
+  
+    const activity = updatedTrip.itinerary[dayIndex]?.activities[activityIndex];
+    if (activity) {
+      activity.completed = !activity.completed;
+    }
+  
+    // Use the existing save method to update state and persist
+    this.saveOrUpdateTrip(updatedTrip);
+  
+    // If the modified trip is the one currently being viewed, update the activeItinerary signal
+    if (this.activeItinerary()?.id === tripId) {
+      this.activeItinerary.set(updatedTrip);
+    }
+  }
+
+  private persistTrips(trips: Itinerary[]): void {
+    try {
+      localStorage.setItem('savedTrips', JSON.stringify(trips));
+    } catch (e) {
+      console.error('Failed to save trips to localStorage', e);
+    }
+  }
+
+  private loadTrips(): void {
+    try {
+      const storedTrips = localStorage.getItem('savedTrips');
+      if (storedTrips) {
+        this.savedTrips.set(JSON.parse(storedTrips));
+      } else {
+        // Initialize with one mock trip if nothing is stored
+        this.savedTrips.set([]);
+      }
+    } catch (e) {
+      console.error('Failed to load trips from localStorage', e);
+      this.savedTrips.set([]);
+    }
+  }
+}
+src/components/map-view.component.ts
+code
+TypeScript
+import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, AfterViewInit, inject, signal, input, effect } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Itinerary, Activity } from '../models/itinerary.model';
+import { OnlineStatusService } from '../services/online-status.service';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+
+// Declare Leaflet's 'L' to avoid TypeScript errors
+declare var L: any;
+
+interface NominatimResponse {
+  lat: string;
+  lon: string;
+  display_name: string;
+}
+
+@Component({
+  selector: 'app-map-view',
+  template: `<div #mapContainer class="w-full h-64 rounded-2xl shadow-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-center p-4">
+    @if(!onlineStatusService.isOnline()) {
+      <p class="text-gray-500 dark:text-gray-400">Map is unavailable offline.</p>
+    } @else if (loading()) {
+      <div class="flex items-center text-gray-500 dark:text-gray-400">
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Loading map...</span>
+      </div>
+    }
+  </div>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
+})
+export class MapViewComponent implements AfterViewInit {
+  itinerary = input<Itinerary | null>(null);
+  destination = input<string | null>(null);
+  focusedActivityIdentifier = input<string | null>(null);
+  @ViewChild('mapContainer') mapContainer!: ElementRef;
+  
+  onlineStatusService = inject(OnlineStatusService);
+  private http = inject(HttpClient);
+
+  private map: any;
+  private markers = new Map<string, any>();
+  isMapInitialized = signal(false);
+  loading = signal(true);
+
+  constructor() {
+    // Main reactive effect to update map content
+    effect(() => {
+      if (!this.isMapInitialized()) return;
+
+      const currentItinerary = this.itinerary();
+      // Use itinerary's destination if available, otherwise use destination input
+      const currentDestination = this.destination();
+
+      if (currentItinerary && currentItinerary.itinerary.some(d => d.activities.length > 0)) {
+        this.updateMarkersForItinerary(currentItinerary);
+      } else if (currentDestination) {
+        this.updateMarkerForDestination(currentDestination);
+      } else {
+        // No itinerary or destination, reset map
+        this.clearMarkers();
+        this.map.setView([20, 0], 2);
+        this.loading.set(false);
+      }
+    });
+
+    // Effect to handle focusing on a specific marker
+    effect(() => {
+      const identifier = this.focusedActivityIdentifier();
+      if (identifier && this.isMapInitialized()) {
+        this.focusOnMarker(identifier);
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.onlineStatusService.isOnline()) {
+      // Small delay to ensure container is ready
+      setTimeout(() => this.initMap(), 0);
+    } else {
+      this.loading.set(false);
+    }
+  }
+
+  private initMap(): void {
+    if (typeof L === 'undefined') {
+      console.error('Leaflet script not loaded. Make sure it is included in index.html.');
+      this.loading.set(false);
+      return;
+    }
+    
+    if (!this.mapContainer?.nativeElement || this.isMapInitialized()) return;
+
+    try {
+      this.map = L.map(this.mapContainer.nativeElement).setView([20, 0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(this.map);
+
+      this.isMapInitialized.set(true);
+
+      if (!this.itinerary() && !this.destination()) {
+        this.loading.set(false);
+      }
+    } catch (e) {
+        console.error("Could not initialize Leaflet map", e);
+        this.loading.set(false);
+    }
+  }
+
+  private clearMarkers(): void {
+    this.markers.forEach(marker => this.map.removeLayer(marker));
+    this.markers.clear();
+  }
+  
+  private focusOnMarker(identifier: string): void {
+    const marker = this.markers.get(identifier);
+    if (marker) {
+      this.map.setView(marker.getLatLng(), 15, { animate: true });
+      marker.openPopup();
+    }
+  }
+
+  private async updateMarkerForDestination(destination: string): Promise<void> {
+    if (!this.isMapInitialized()) return;
+    this.loading.set(true);
+    this.clearMarkers();
+
+    const locations = await this.geocodeActivities([{activity: {location: destination, description: '', time: ''}, identifier: 'destination'}]);
+    
+    if (locations.length > 0) {
+      const { lat, lon } = locations[0];
+      const marker = L.marker([lat, lon]);
+      const popupContent = `<div style="font-family: Raleway, sans-serif; font-weight: 700; font-size: 1rem; color: #1f2937;">${destination}</div>`;
+      marker.bindPopup(popupContent).openPopup();
+      this.markers.set('destination', marker);
+      marker.addTo(this.map);
+      this.map.setView([lat, lon], 10, { animate: true });
+    } else {
+      this.map.setView([20, 0], 2); // Reset if geocoding fails
+    }
+    this.loading.set(false);
+  }
+
+  private async updateMarkersForItinerary(currentItinerary: Itinerary): Promise<void> {
+    if (!this.isMapInitialized()) return;
+    this.loading.set(true);
+    this.clearMarkers();
+
+    const activitiesWithIds: { activity: Activity; identifier: string }[] = [];
+    currentItinerary.itinerary.forEach((day, dayIndex) => {
+      day.activities.forEach((activity, activityIndex) => {
+        activitiesWithIds.push({
+          activity,
+          identifier: `day-${dayIndex}-activity-${activityIndex}`,
+        });
+      });
+    });
+
+    const locations = await this.geocodeActivities(activitiesWithIds);
+    
+    if (locations.length > 0) {
+      const markerGroup = L.featureGroup();
+
+      locations.forEach(loc => {
+        const marker = L.marker([loc.lat, loc.lon]);
+        const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lon}`;
+        const popupContent = `
+          <div style="font-family: Raleway, sans-serif; padding: 4px; max-width: 200px;">
+            <div style="font-weight: 700; font-size: 1rem; margin-bottom: 4px; white-space: normal; color: #1f2937;">${loc.activity.description}</div>
+            <div style="font-size: 0.875rem; color: #4B5563; margin-bottom: 8px;">${loc.activity.time} - ${loc.activity.location}</div>
+            <a href="${directionsUrl}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; text-align: center; background-color: #3b82f6; color: white; padding: 6px 0; border-radius: 6px; font-weight: 600; text-decoration: none; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#2563eb'" onmouseout="this.style.backgroundColor='#3b82f6'">
+              Get Directions
+            </a>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+        this.markers.set(loc.identifier, marker);
+        markerGroup.addLayer(marker);
+      });
+
+      markerGroup.addTo(this.map);
+      this.map.fitBounds(markerGroup.getBounds().pad(0.2));
+    } else {
+      // Fallback to main destination if no activities can be geocoded
+      this.updateMarkerForDestination(currentItinerary.destination);
+    }
+
+    this.loading.set(false);
+  }
+
+  private async geocodeActivities(activitiesWithIds: {activity: Activity, identifier: string}[]): Promise<{lat: number, lon: number, activity: Activity, identifier: string}[]> {
+    const locations: {lat: number, lon: number, activity: Activity, identifier: string}[] = [];
+    const locationCache = new Map<string, {lat: number, lon: number}>();
+
+    for (const item of activitiesWithIds) {
+      const { activity, identifier } = item;
+      try {
+        if (locationCache.has(activity.location)) {
+            const cached = locationCache.get(activity.location)!;
+            locations.push({ ...cached, activity, identifier });
+            continue;
+        }
+        
+        // Wait 1 second between API calls to respect Nominatim's usage policy
+        if (locationCache.size > 0) {
+             await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(activity.location)}&format=json&limit=1`;
+        const results = await firstValueFrom(this.http.get<NominatimResponse[]>(url));
+        
+        if (results && results.length > 0) {
+          const newLoc = {
+            lat: parseFloat(results[0].lat),
+            lon: parseFloat(results[0].lon),
+          };
+          locationCache.set(activity.location, newLoc);
+          locations.push({ ...newLoc, activity, identifier });
+        } else {
+          console.warn(`Geocode was not successful for '${activity.location}'`);
+        }
+      } catch (error) {
+        console.error(`Error geocoding '${activity.location}':`, error);
+      }
+    }
+    return locations;
+  }
+}
+package.json
+code
+JSON
+{
+  "name": "ai-travel-planner",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@angular/common": "^20.3.6",
+    "@angular/compiler": "^20.3.6",
+    "@angular/core": "^20.3.6",
+    "@angular/forms": "^20.3.6",
+    "@angular/platform-browser": "^20.3.6",
+    "@google/genai": "^1.25.0",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-angular": "^1.1.0",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3"
+  }
+}
+vite.config.ts
+code
+TypeScript
+import { defineConfig, loadEnv } from 'vite';
+import angular from '@vitejs/plugin-angular';
+import { cwd } from 'process';
+
+export default defineConfig(({ mode }) => {
+  // Load env file based on `mode` in the current working directory.
+  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
+  const env = loadEnv(mode, cwd(), '');
+
+  return {
+    plugins: [
+      angular({
+        jit: true, // This project uses JIT compilation
+      }),
+    ],
+    define: {
+      // Expose environment variables to the client-side code
+      // This makes `process.env.API_KEY` available in the browser
+      'process.env.API_KEY': JSON.stringify(env.API_KEY),
+    },
+    server: {
+      host: '0.0.0.0', // Required for Replit to expose the server
+      port: 3000,
+    },
+  };
+});
+tsconfig.json
+code
+JSON
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
+    "sourceMap": true,
+    "jsx": "preserve"
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
+src/services/haptic.service.ts
+code
+TypeScript
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class HapticService {
+  vibrate(pattern: number | number[] = 5): void {
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(pattern);
+      } catch (e) {
+        console.warn("Haptic feedback failed.", e);
+      }
+    }
+  }
+}
+src/components/toast.component.ts
+code
+TypeScript
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ToastService } from '../services/toast.service';
+
+@Component({
+  selector: 'app-toast-notifications',
+  template: `
+    <div class="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-sm px-4 z-50 pointer-events-none">
+      <div class="flex flex-col-reverse items-center gap-2">
+        @for(toast of toasts(); track toast.id) {
+          <div 
+            role="status"
+            class="w-full max-w-xs bg-gray-800 text-white rounded-full shadow-lg flex items-center justify-between p-2 pl-4 pointer-events-auto"
+            [class]="toast.isExiting ? 'animate-toast-out' : 'animate-toast-in'">
+            <span class="text-sm font-medium">{{ toast.message }}</span>
+            @if(toast.options?.actionText && toast.options?.action) {
+               <button 
+                (click)="toast.options.action()"
+                class="ml-2 px-3 py-1.5 bg-gray-700 text-blue-300 text-sm font-semibold rounded-full hover:bg-gray-600 transition-colors">
+                 {{ toast.options.actionText }}
+               </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
+})
+export class ToastComponent {
+  private toastService = inject(ToastService);
+  toasts = this.toastService.toasts;
+}
+src/services/toast.service.ts
+code
+TypeScript
+import { Injectable, signal } from '@angular/core';
+
+export interface Toast {
+  id: number;
+  message: string;
+  isExiting: boolean;
+  options?: ToastOptions;
+}
+
+export interface ToastOptions {
+  duration?: number;
+  actionText?: string;
+  action?: () => void;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ToastService {
+  toasts = signal<Toast[]>([]);
+  private toastId = 0;
+
+  show(message: string, options: ToastOptions = {}): void {
+    const id = this.toastId++;
+    const newToast: Toast = { id, message, isExiting: false, options };
+
+    this.toasts.update(currentToasts => [newToast, ...currentToasts]);
+
+    const duration = options.duration ?? 5000; // Default 5 seconds
+
+    setTimeout(() => {
+      this.dismiss(id);
+    }, duration);
+  }
+
+  dismiss(id: number): void {
+    this.toasts.update(currentToasts =>
+      currentToasts.map(toast =>
+        toast.id === id ? { ...toast, isExiting: true } : toast
+      )
+    );
+
+    // Wait for exit animation to complete before removing from array
+    setTimeout(() => {
+      this.toasts.update(currentToasts =>
+        currentToasts.filter(toast => toast.id !== id)
+      );
+    }, 300); // Must match animation duration
+  }
+}
+src/components/skeleton-loader.component.ts
+(Este archivo está vacío)
+src/services/online-status.service.ts
+code
+TypeScript
+import { Injectable, signal, OnDestroy } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class OnlineStatusService implements OnDestroy {
+  isOnline = signal<boolean>(navigator.onLine);
+
+  private onlineHandler = () => this.isOnline.set(true);
+  private offlineHandler = () => this.isOnline.set(false);
+
+  constructor() {
+    window.addEventListener('online', this.onlineHandler);
+    window.addEventListener('offline', this.offlineHandler);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('online', this.onlineHandler);
+    window.removeEventListener('offline', this.offlineHandler);
+  }
+}
+src/services/theme.service.ts
+code
+TypeScript
+import { Injectable, signal, effect } from '@angular/core';
+
+type Theme = 'light' | 'dark';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ThemeService {
+  isDarkMode = signal<boolean>(false);
+
+  constructor() {
+    this.loadTheme();
+    
+    effect(() => {
+      if (this.isDarkMode()) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  }
+
+  private loadTheme() {
+    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (savedTheme) {
+      this.isDarkMode.set(savedTheme === 'dark');
+    } else {
+      this.isDarkMode.set(prefersDark);
+    }
+  }
+
+  setDarkMode(isDark: boolean): void {
+    this.isDarkMode.set(isDark);
+  }
+}
+src/components/toggle.component.ts
+code
+TypeScript
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-toggle',
+  template: `
+    <label class="relative inline-flex items-center cursor-pointer">
+      <input 
+        type="checkbox" 
+        class="sr-only peer"
+        [id]="id()"
+        [checked]="checked()"
+        (change)="onToggleChange($event)">
+      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+    </label>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
+})
+export class ToggleComponent {
+  id = input<string>();
+  checked = input<boolean>(false);
+  checkedChange = output<boolean>();
+
+  onToggleChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.checkedChange.emit(input.checked);
+  }
+}
+src/components/document-viewer.component.ts
+code
+TypeScript
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Document } from '../models/itinerary.model';
+
+@Component({
+  selector: 'app-document-viewer',
+  template: `
+    @if(document(); as doc) {
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-backdrop" (click)="close.emit()"></div>
+        <div class="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-2xl shadow-xl document-viewer-content overflow-hidden">
+          <header class="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-bold text-lg truncate pr-4" [title]="doc.name">{{ doc.name }}</h3>
+            <button (click)="close.emit()" aria-label="Close document viewer" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-500 dark:text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </header>
+          <div class="p-4 bg-gray-50 dark:bg-gray-900 flex justify-center items-center" style="max-height: 70vh;">
+            @if(doc.type.startsWith('image/')) {
+              <img [src]="'data:' + doc.type + ';base64,' + doc.data" [alt]="doc.name" class="max-w-full max-h-full object-contain rounded-md">
+            } @else {
+              <div class="text-center p-8">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-16 h-16 text-gray-400 mx-auto">
+                  <path fill-rule="evenodd" d="M3.75 3A1.75 1.75 0 002 4.75v14.5A1.75 1.75 0 003.75 21h16.5A1.75 1.75 0 0022 19.25V4.75A1.75 1.75 0 0020.25 3H3.75zm.75 14.5V4.75a.25.25 0 01.25-.25h15.5a.25.25 0 01.25.25v14.5a.25.25 0 01-.25.25H4.5a.25.25 0 01-.25-.25z" clip-rule="evenodd" />
+                </svg>
+                <p class="mt-4 text-gray-600 dark:text-gray-300">Preview not available for this file type.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ doc.type }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule],
+})
+export class DocumentViewerComponent {
+  document = input<Document | null>();
+  close = output<void>();
+}
+src/services/user.service.ts
+code
+TypeScript
+import { Injectable, signal, effect } from '@angular/core';
+import { TravelStyle } from '../models/itinerary.model';
+
+const USER_PREFS_KEY = 'userPreferences';
+
+interface UserPreferences {
+  travelStyle: TravelStyle;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class UserService {
+  travelStyle = signal<TravelStyle>('Balanced');
+
+  constructor() {
+    this.loadPreferences();
+
+    effect(() => {
+      const currentPrefs: UserPreferences = {
+        travelStyle: this.travelStyle(),
+      };
+      this.persistPreferences(currentPrefs);
+    });
+  }
+
+  setTravelStyle(style: TravelStyle): void {
+    this.travelStyle.set(style);
+  }
+  
+  private persistPreferences(prefs: UserPreferences): void {
+    try {
+      localStorage.setItem(USER_PREFS_KEY, JSON.stringify(prefs));
+    } catch (e) {
+      console.error('Failed to save user preferences to localStorage', e);
+    }
+  }
+
+  private loadPreferences(): void {
+    try {
+      const storedPrefs = localStorage.getItem(USER_PREFS_KEY);
+      if (storedPrefs) {
+        const prefs: UserPreferences = JSON.parse(storedPrefs);
+        this.travelStyle.set(prefs.travelStyle || 'Balanced');
+      }
+    } catch (e) {
+      console.error('Failed to load user preferences from localStorage', e);
+    }
+  }
+}
+src/components/world-map.component.ts
+(Este archivo está vacío)
+src/components/world-map.component.html
+(Este archivo está vacío)
+src/services/country.service.ts
+(Este archivo está vacío)
+src/assets/countries.json
+(Este archivo está vacío)

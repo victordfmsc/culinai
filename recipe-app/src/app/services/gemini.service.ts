@@ -37,19 +37,48 @@ export class GeminiService {
     }
 
     try {
-      const prompt = `Create 3 recipes using these ingredients: ${ingredients}. 
-      Return ONLY a valid JSON array with this exact structure:
-      [{"title":"Recipe Name","description":"Brief description","ingredients":["ingredient 1","ingredient 2"],"instructions":["step 1","step 2"],"prepTime":"30 mins","servings":4}]`;
+      const prompt = `You are a professional chef. Create 3 delicious and practical recipes using PRIMARILY these ingredients: ${ingredients}. 
+      You can add common pantry items (oil, salt, pepper, spices, etc.) but the main ingredients should be the ones provided.
+      
+      Each recipe should be:
+      - Different in style (e.g., one quick dish, one comfort food, one healthy option)
+      - Realistic and easy to follow
+      - Using mostly the provided ingredients
+      
+      Return ONLY a valid JSON array with EXACTLY this structure, no text before or after:
+      [
+        {
+          "title": "Recipe Name",
+          "description": "Brief appetizing description in 1-2 sentences",
+          "ingredients": ["2 cups of ingredient 1", "1 lb ingredient 2", "specific measurements"],
+          "instructions": ["Detailed step 1", "Detailed step 2", "Clear cooking instructions"],
+          "prepTime": "X mins",
+          "servings": 4
+        }
+      ]
+      
+      Make sure to include proper measurements and cooking temperatures where relevant.`;
 
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
       
+      // Try to extract JSON from the response
       const jsonMatch = text.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+        try {
+          const recipes = JSON.parse(jsonMatch[0]);
+          // Validate that we have the expected structure
+          if (Array.isArray(recipes) && recipes.length > 0 && recipes[0].title) {
+            console.log('Successfully generated recipes with AI');
+            return recipes.slice(0, 3); // Ensure we only return 3 recipes
+          }
+        } catch (parseError) {
+          console.error('Failed to parse AI response:', parseError);
+        }
       }
       
+      console.log('AI response invalid, using fallback recipes');
       return this.getMockRecipes(ingredients);
     } catch (error) {
       console.error('Failed to generate recipes:', error);
