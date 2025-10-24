@@ -8,7 +8,15 @@ This is a recipe management application built with Angular 19 that helps users m
 
 **Recent Changes (Oct 24, 2025)**:
 - ✅ **AI Recipe Generation**: Now generates 10 unique recipes per request (previously 3)
-- ✅ **Detailed Instructions for Beginners**: Recipe instructions are now comprehensive step-by-step guides with exact temperatures, timing, visual cues, and cooking techniques explained for those who have never cooked the dish
+- ✅ **Ultra Detailed Instructions for Complete Beginners**: Recipe instructions are now EXTREMELY detailed (8-12 steps minimum) with:
+  - Exact temperatures in both Fahrenheit and Celsius
+  - Precise timing for each step
+  - Visual cues for doneness (e.g., "golden brown", "fork-tender", "translucent")
+  - Step-by-step technique explanations (e.g., how to sauté, what "al dente" means)
+  - Safety warnings (e.g., "Be careful - oil may splatter")
+  - Tips for success (e.g., "Don't overcrowd the pan")
+  - Explanations of WHY each step matters
+  - Written as if standing next to the cook in the kitchen, guiding every move
 - ✅ **Auto-Translation of AI Content**: Gemini now generates ALL recipe content (titles, descriptions, ingredients, instructions) in the selected language
 - ✅ **Complete UI Translation**: All UI elements, labels, and buttons now translate automatically when language changes
 - ✅ **Google Translate API Integration**: Implemented auto-translation service for dynamic content using Google Cloud Translation API

@@ -52,7 +52,7 @@ export class GeminiService {
     // Always try Gemini first if available
     if (this.model) {
       try {
-        const prompt = `You are a professional chef teaching beginners. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.
+        const prompt = `You are a professional chef teaching someone who has NEVER cooked this dish before. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.
         
 Important rules:
 - WRITE EVERYTHING IN ${languageName.toUpperCase()} (recipe titles, descriptions, ingredients, instructions - ALL TEXT)
@@ -62,13 +62,19 @@ Important rules:
 - Include cooking methods like: stir-fry, baked, grilled, soup, salad, pasta, rice bowl, curry, etc.
 - Include real measurements and cooking times
 
-CRITICAL - DETAILED INSTRUCTIONS FOR BEGINNERS:
-- Each instruction step must be VERY detailed and explain HOW to do it
-- Include exact temperatures, timing, and visual cues
-- Explain cooking techniques (e.g., "heat oil until it shimmers", "sauté until golden brown and fragrant")
-- Add tips for knowing when food is ready (e.g., "chicken is done when internal temp is 165°F and juices run clear")
-- Guide them through the entire process as if they've never cooked before
-- Each recipe should have 6-10 detailed instruction steps minimum
+CRITICAL - ULTRA DETAILED INSTRUCTIONS FOR COMPLETE BEGINNERS WHO HAVE NEVER COOKED THIS DISH:
+- Assume the person has NEVER made this recipe before
+- Each step must be EXTREMELY detailed with exact HOW-TO explanations
+- Include EXACT temperatures in both Fahrenheit and Celsius (e.g., "375°F/190°C")
+- Include EXACT timing (e.g., "cook for 3-4 minutes", "simmer for 20 minutes")
+- Include VISUAL CUES so they know when it's ready (e.g., "golden brown", "bubbling vigorously", "fork-tender", "translucent")
+- Explain COOKING TECHNIQUES step-by-step (e.g., "To sauté: heat oil over medium-high heat until it shimmers but doesn't smoke, then add ingredients and stir constantly")
+- Add SAFETY WARNINGS (e.g., "Be careful - oil may splatter", "Use oven mitts - pan is very hot")
+- Explain WHY each step matters (e.g., "This step seals in the juices", "Covering prevents drying out")
+- Include TIPS for success (e.g., "Don't overcrowd the pan or it will steam instead of sear")
+- Tell them HOW to know when it's done (e.g., "Chicken is fully cooked when it reaches 165°F/74°C internally and juices run clear, not pink")
+- Each recipe MUST have 8-12 detailed instruction steps minimum
+- Write as if you're standing next to them in the kitchen, guiding their every move
 
 Return ONLY a JSON array with 10 recipes, no other text, in this exact format:
 [
@@ -264,80 +270,196 @@ Make sure all 10 recipes are VERY different from each other and instructions are
       {
         title: `Salteado Rápido de ${mainIngredient}`,
         description: `Un salteado asiático rápido con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 taza de ${i}`), '2 cdas salsa de soya', '1 cda aceite de sésamo', 'Ajo, jengibre'],
-        instructions: ['Calentar wok a fuego alto', `Saltear ${mainIngredient} 3-4 minutos`, 'Agregar vegetales y salsa', 'Revolver 2 minutos y servir'],
+        ingredients: [...ingredientList.map(i => `1 taza de ${i}, cortado en trozos del tamaño de un bocado`), '2 cdas de salsa de soya', '1 cda de aceite de sésamo', '2 dientes de ajo picados finamente', '1 pulgada de jengibre fresco picado finamente', '2 cdas de aceite vegetal para cocinar'],
+        instructions: [
+          'Prepara todos los ingredientes primero (esto se llama "mise en place"). Corta todos los vegetales y proteínas en trozos uniformes del tamaño de un bocado para que se cocinen de manera pareja. Pica el ajo y jengibre finamente.',
+          'Calienta un wok grande o sartén pesada a fuego alto durante 2-3 minutos hasta que esté muy caliente. Sabrás que está listo cuando una gota de agua chisporrotee y se evapore inmediatamente.',
+          'Añade 2 cucharadas de aceite de cocina (aceite vegetal o de maní funcionan mejor) y gíralo alrededor del wok para cubrir el fondo y los lados. El aceite debe brillar pero no humear.',
+          `Añade el ${mainIngredient} en una sola capa, asegurándote de que las piezas no se superpongan. Deja que se cocine sin mover durante 2 minutos para obtener un buen sellado, luego voltea y cocina otros 2 minutos hasta que esté dorado y completamente cocido.`,
+          'Empuja la proteína cocida hacia los lados del wok. Añade el ajo y jengibre picados al centro y revuelve durante 30 segundos hasta que estén fragantes (ten cuidado de no quemarlos o sabrán amargos).',
+          'Añade todos los vegetales, empezando con los más duros primero. Saltea constantemente, mezclando todo con una espátula, durante 2-3 minutos hasta que los vegetales estén tiernos pero crujientes.',
+          'Vierte la salsa de soya y aceite de sésamo sobre todo. Mezcla vigorosamente durante 1 minuto para cubrir todos los ingredientes uniformemente. La salsa debe cubrir todo con un acabado brillante.',
+          'Prueba y ajusta el sazón si es necesario. Sirve inmediatamente sobre arroz al vapor mientras esté caliente y crujiente. ¡El salteado pierde su textura si se deja reposar!'
+        ],
         prepTime: '15 min',
         servings: 2
       },
       {
         title: `Cazuela de ${mainIngredient} al Horno`,
         description: `Cazuela reconfortante con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tazas de ${i}`), '1 taza de queso', '1/2 taza de crema', 'Hierbas'],
-        instructions: ['Precalentar horno a 190°C', 'Capas de ingredientes en molde', 'Añadir crema y queso', 'Hornear 35 minutos'],
+        ingredients: [...ingredientList.map(i => `2 tazas de ${i}, picado`), '1 taza de queso rallado (cheddar o mozzarella)', '1/2 taza de crema espesa', '1 cdta de hierbas secas (tomillo o romero)', 'Sal y pimienta al gusto', 'Aceite en aerosol para cocinar'],
+        instructions: [
+          'Precalienta tu horno a 375°F (190°C). Coloca la rejilla del horno en la posición central. Esta temperatura asegura que la cazuela se cocine por completo sin quemar la parte superior.',
+          'Mientras el horno se calienta, prepara todos tus ingredientes. Pica todos los vegetales y proteínas en cubos uniformes de aproximadamente 1 pulgada para que todo se cocine de manera pareja.',
+          'Rocía un molde para hornear de 9x13 pulgadas con aceite en aerosol o unta con mantequilla para evitar que se pegue. Esto hace que la limpieza sea mucho más fácil después.',
+          `Crea la primera capa: extiende la mitad de tu ${mainIngredient} uniformemente por el fondo del molde. Sazona esta capa ligeramente con sal, pimienta y la mitad de las hierbas secas.`,
+          'Añade los ingredientes restantes en una capa uniforme encima. Trata de distribuir todo uniformemente para que cada porción tenga una buena mezcla de ingredientes.',
+          'En un tazón pequeño, bate la crema espesa con una pizca de sal y pimienta. Vierte esto uniformemente sobre toda la cazuela - creará una salsa cremosa mientras se hornea.',
+          'Espolvorea el queso rallado uniformemente sobre la parte superior. El queso se derretirá y creará una corteza dorada y burbujeante.',
+          'Cubre el molde firmemente con papel aluminio. Esto atrapa el vapor y ayuda a que todo se cocine sin secarse. Hornea durante 25 minutos cubierto.',
+          'Retira el papel aluminio con cuidado (¡cuidado con el vapor caliente!) y hornea durante 10-15 minutos adicionales hasta que el queso esté dorado y burbujeante, y los bordes estén ligeramente crujientes.',
+          'Deja reposar la cazuela durante 5 minutos antes de servir. Esto permite que la salsa se espese ligeramente y hace más fácil porcionar. Sirve caliente.'
+        ],
         prepTime: '45 min',
         servings: 4
       },
       {
         title: `Sopa Abundante de ${mainIngredient}`,
         description: `Sopa reconfortante con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 taza de ${i}`), '4 tazas de caldo', '1 cebolla', 'Condimentos'],
-        instructions: ['Sofreír cebolla', 'Añadir ingredientes y caldo', 'Cocinar a fuego lento 20 minutos', 'Condimentar y servir'],
+        ingredients: [...ingredientList.map(i => `1 taza de ${i}, cortado en cubos`), '4 tazas de caldo de pollo o vegetales', '1 cebolla grande picada finamente', '2 dientes de ajo picados', '2 cdas de aceite de oliva', '1 hoja de laurel', '1 cdta de tomillo seco', 'Sal y pimienta al gusto', 'Perejil fresco picado para decorar'],
+        instructions: [
+          'Prepara todos tus ingredientes antes de comenzar a cocinar (esto se llama mise en place). Corta todos los vegetales en cubos de tamaño similar (aproximadamente 1/2 pulgada) para que se cocinen de manera uniforme.',
+          'En una olla grande u olla holandesa, calienta 2 cucharadas de aceite de oliva a fuego medio durante aproximadamente 1 minuto. El aceite debe fluir fácilmente pero no humear.',
+          'Añade la cebolla picada a la olla. Saltea durante 5-7 minutos, revolviendo ocasionalmente con una cuchara de madera, hasta que la cebolla se vuelva suave y translúcida (ligeramente transparente) y huela dulce. No dejes que se dore.',
+          'Añade el ajo picado y revuelve constantemente durante 30-60 segundos hasta que puedas olerlo. Ten cuidado de no quemar el ajo o sabrá amargo.',
+          `Añade el ${mainIngredient} a la olla y revuelve para combinar con las cebollas y ajo. Cocina durante 2-3 minutos, revolviendo ocasionalmente, para que los sabores se mezclen.`,
+          'Vierte el caldo lentamente para evitar salpicaduras. Añade la hoja de laurel y el tomillo seco. Revuelve todo y sube el fuego a alto.',
+          'Una vez que la sopa comience a burbujear vigorosamente, reduce el fuego a bajo para que hierva a fuego lento suavemente (pequeñas burbujas que ocasionalmente rompen la superficie). Cubre la olla parcialmente con una tapa.',
+          'Deja que la sopa hierva a fuego lento durante 20-25 minutos, revolviendo cada 5-10 minutos para evitar que se pegue. Los vegetales deben estar tiernos cuando los pinches con un tenedor.',
+          'Prueba la sopa con cuidado (sopla la cuchara primero - ¡está caliente!). Añade sal y pimienta gradualmente, probando mientras agregas. Retira y desecha la hoja de laurel.',
+          'Sirve la sopa caliente en tazones y decora con perejil fresco picado. Sirve con pan crujiente para mojar.'
+        ],
         prepTime: '30 min',
         servings: 4
       },
       {
         title: `Brochetas de ${mainIngredient} a la Parrilla`,
         description: `Brochetas estilo BBQ con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `700g de ${i}`), 'Marinada BBQ', 'Palitos', 'Aceite de oliva'],
-        instructions: ['Marinar 1 hora', 'Ensartar en palitos', 'Asar 6-8 minutos', 'Voltear y cocinar hasta listo'],
-        prepTime: '20 min',
+        ingredients: [...ingredientList.map(i => `700g de ${i}, cortado en cubos de 1.5 pulgadas`), '1/2 taza de marinada BBQ comprada o casera', '8-10 palitos de bambú para brochetas', '2 cdas de aceite de oliva', 'Sal y pimienta', '1 pimiento morrón cortado en trozos'],
+        instructions: [
+          'Si usas palitos de bambú, sumérgelos en agua fría durante al menos 30 minutos antes de usar. Esto evita que se quemen en la parrilla.',
+          `En un tazón grande, coloca los cubos de ${mainIngredient}. Añade la marinada BBQ, sal y pimienta. Mezcla bien para cubrir todas las piezas uniformemente. Cubre y refrigera durante al menos 1 hora (o hasta 4 horas para más sabor).`,
+          'Mientras marinas la carne, prepara la parrilla. Si usas carbón, enciende el carbón 20 minutos antes de cocinar hasta que las brasas estén grises y calientes. Si usas gas, precalienta a fuego medio-alto (alrededor de 400°F/200°C).',
+          'Ensarta los ingredientes marinados en los palitos, alternando con piezas de pimiento morrón. Deja un pequeño espacio entre cada pieza para que el calor circule y se cocinen uniformemente. No aprietes demasiado o no se cocinarán bien por dentro.',
+          'Engrasa ligeramente las rejillas de la parrilla con aceite usando una toalla de papel sostenida con pinzas (cuidado - la parrilla está caliente). Esto evita que las brochetas se peguen.',
+          'Coloca las brochetas en la parrilla caliente. Deberías escuchar un chisporroteo inmediato - esto significa que la parrilla está lo suficientemente caliente.',
+          'Cocina durante 3-4 minutos sin mover. Verás marcas de parrilla oscuras en la parte inferior - esto es bueno. Gira las brochetas 90 grados para crear un patrón entrecruzado.',
+          'Cocina otros 3-4 minutos, luego voltea las brochetas completamente. Repite el proceso en el otro lado. El tiempo total de cocción es de 12-16 minutos, dependiendo del grosor.',
+          `El ${mainIngredient} está listo cuando alcanza una temperatura interna segura (165°F/74°C para pollo, 145°F/63°C para cerdo). Los jugos deben salir claros, no rosados.`,
+          'Retira las brochetas de la parrilla con cuidado usando pinzas. Deja reposar 3-5 minutos antes de servir - esto permite que los jugos se redistribuyan. Sirve caliente.'
+        ],
+        prepTime: '20 min + 1 hora de marinado',
         servings: 4
       },
       {
         title: `Ensalada Mediterránea de ${mainIngredient}`,
         description: `Ensalada fresca con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tazas de ${i}`), 'Lechuga', 'Queso feta', 'Aceitunas', 'Aderezo de limón'],
-        instructions: ['Picar todos los ingredientes', 'Mezclar en tazón grande', 'Añadir aderezo', 'Cubrir con feta y servir'],
+        ingredients: [...ingredientList.map(i => `2 tazas de ${i}, cocido y enfriado`), '4 tazas de lechuga mixta lavada', '1/2 taza de queso feta desmenuzado', '1/2 taza de aceitunas kalamata sin hueso', '1 pepino cortado en rodajas', '1 tomate cortado en cubos', '3 cdas de aceite de oliva extra virgen', '2 cdas de jugo de limón fresco', '1 cdta de orégano seco', 'Sal y pimienta al gusto'],
+        instructions: [
+          'Comienza lavando toda la verdura fresca. Lava la lechuga hoja por hoja bajo agua fría, luego sécala completamente con un centrifugador de ensaladas o toallas de papel. La lechuga mojada diluirá el aderezo.',
+          `Si tu ${mainIngredient} necesita cocinarse, hazlo primero y déjalo enfriar completamente. Puedes asar, hervir o saltear - solo asegúrate de que esté a temperatura ambiente antes de añadirlo a la ensalada.`,
+          'Corta el pepino en rodajas finas de aproximadamente 1/4 de pulgada. Corta el tomate en cubos medianos. Estos ingredientes frescos añaden textura crujiente.',
+          'En un tazón pequeño, prepara el aderezo: mezcla el aceite de oliva, jugo de limón recién exprimido, orégano seco, sal y pimienta. Bate vigorosamente con un tenedor durante 30 segundos hasta que esté bien combinado y emulsionado (espeso y cremoso).',
+          'En un tazón grande para ensaladas, coloca la lechuga como base. Extiéndela uniformemente para crear una cama para los otros ingredientes.',
+          `Distribuye uniformemente encima: el ${mainIngredient} cocido y enfriado, pepino en rodajas, tomate en cubos y aceitunas kalamata. Trata de esparcir todo de manera atractiva.`,
+          'Justo antes de servir (no antes o la ensalada se pondrá aguada), rocía el aderezo sobre toda la ensalada. Comienza con 3/4 del aderezo - siempre puedes añadir más.',
+          'Mezcla suavemente la ensalada con dos cucharas grandes, levantando desde el fondo para asegurar que todo se cubra con aderezo. Sé gentil para no aplastar los ingredientes.',
+          'Prueba y ajusta el sazón si es necesario. Espolvorea el queso feta desmenuzado encima como toque final. El feta se desmoronará más si lo mezclas, así que déjalo arriba como decoración.',
+          'Sirve inmediatamente mientras esté fresca y crujiente. Esta ensalada es mejor cuando se consume dentro de los 30 minutos de mezclar.'
+        ],
         prepTime: '15 min',
         servings: 3
       },
       {
         title: `Pasta Primavera con ${mainIngredient}`,
         description: `Pasta italiana con ${ingredients}`,
-        ingredients: ['500g de pasta', ...ingredientList.map(i => `1 taza de ${i}`), 'Parmesano', 'Aceite de oliva', 'Ajo'],
-        instructions: ['Hervir pasta al dente', 'Saltear vegetales', 'Combinar con pasta', 'Cubrir con parmesano'],
+        ingredients: ['500g de pasta (penne, fusilli o farfalle)', ...ingredientList.map(i => `1 taza de ${i}, picado`), '1/2 taza de queso parmesano recién rallado', '3 cdas de aceite de oliva extra virgen', '4 dientes de ajo picados finamente', '1/4 cdta de hojuelas de chile (opcional)', 'Sal para el agua de la pasta', 'Pimienta negra recién molida', 'Albahaca fresca picada para decorar'],
+        instructions: [
+          'Llena una olla grande (al menos 6 cuartos) con agua hasta 3/4 de su capacidad. Añade 2 cucharadas de sal - el agua debe saber como el mar. Esto sazona la pasta desde adentro.',
+          'Tapa la olla y lleva a ebullición completa a fuego alto. Sabrás que está lista cuando veas grandes burbujas rodantes en toda la superficie. Esto puede tomar 10-15 minutos.',
+          'Una vez que hierva, añade la pasta. Revuelve inmediatamente con una cuchara de madera para evitar que se pegue. Deja que el agua vuelva a hervir.',
+          'Cocina la pasta según las instrucciones del paquete MENOS 1 minuto (esto se llama "al dente"). Revuelve ocasionalmente para evitar que se pegue. La pasta debe estar firme al morderla, no blanda.',
+          'Antes de escurrir, saca 1 taza del agua de cocción de la pasta con un tazón medidor y resérvala. Esta agua con almidón ayudará a crear una salsa cremosa después.',
+          'Escurre la pasta en un colador en el fregadero. No enjuagues - el almidón ayuda a que la salsa se adhiera. Sacude suavemente para eliminar el exceso de agua.',
+          'Mientras la pasta se cocina, calienta el aceite de oliva en una sartén grande a fuego medio durante 1 minuto. Añade el ajo picado y hojuelas de chile. Cocina durante 30-45 segundos, revolviendo constantemente, hasta que esté fragante pero no dorado.',
+          `Añade todos los vegetales a la sartén. Saltea durante 4-5 minutos, revolviendo frecuentemente, hasta que estén tiernos pero aún crujientes. Sazona con sal y pimienta mientras cocinas.`,
+          'Añade la pasta escurrida a la sartén con los vegetales. Mezcla bien. Si parece seca, añade el agua de pasta reservada, 1/4 taza a la vez, hasta que se forme una salsa ligera que cubra la pasta.',
+          'Retira del fuego. Añade el parmesano rallado y mezcla vigorosamente - el calor derretirá el queso y creará una salsa cremosa. Prueba y ajusta sal y pimienta.',
+          'Sirve inmediatamente en platos calientes. Decora con albahaca fresca picada y más parmesano rallado si lo deseas. ¡La pasta es mejor cuando está caliente!'
+        ],
         prepTime: '25 min',
         servings: 4
       },
       {
         title: `Curry Indio de ${mainIngredient}`,
         description: `Curry picante con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tazas de ${i}`), 'Pasta de curry', 'Leche de coco', 'Arroz', 'Especias'],
-        instructions: ['Tostar especias', 'Añadir pasta de curry y leche de coco', 'Cocinar ingredientes 20 min', 'Servir sobre arroz'],
+        ingredients: [...ingredientList.map(i => `2 tazas de ${i}, cortado en trozos`), '2 cdas de pasta de curry (roja, verde o amarilla)', '1 lata (400ml) de leche de coco', '2 tazas de arroz basmati', '2 cdas de aceite vegetal', '1 cebolla picada', '2 dientes de ajo picados', '1 cdta de jengibre fresco rallado', '1 taza de caldo de vegetales', 'Cilantro fresco picado', 'Sal al gusto'],
+        instructions: [
+          'Primero prepara el arroz: enjuaga 2 tazas de arroz basmati bajo agua fría hasta que el agua salga clara (esto elimina el exceso de almidón). Escurre bien.',
+          'En una olla mediana, combina el arroz enjuagado con 3 tazas de agua y una pizca de sal. Lleva a ebullición a fuego alto, luego reduce a fuego lento, tapa y cocina durante 15-18 minutos sin destapar.',
+          'Mientras el arroz cocina, prepara todos los ingredientes del curry: pica la cebolla, ajo y ralla el jengibre fresco. Ten todo listo antes de comenzar a cocinar.',
+          'Calienta 2 cucharadas de aceite vegetal en una olla grande o sartén honda a fuego medio durante 1 minuto. El aceite debe fluir fácilmente cuando inclines la sartén.',
+          'Añade la cebolla picada y cocina durante 5-6 minutos, revolviendo ocasionalmente, hasta que esté suave y ligeramente dorada en los bordes. La cebolla caramelizada añade dulzura al curry.',
+          'Añade el ajo picado y jengibre rallado. Revuelve constantemente durante 30 segundos hasta que huelas el aroma - ten cuidado de no quemar o se volverá amargo.',
+          'Añade la pasta de curry y cocina durante 1-2 minutos, revolviendo constantemente. Verás que el aceite se vuelve de color y huele muy aromático - esto se llama "despertar las especias".',
+          `Añade el ${mainIngredient} a la olla y revuelve para cubrir con la mezcla de curry. Cocina durante 3-4 minutos para sellar y absorber los sabores.`,
+          'Vierte la leche de coco (primero revuelve bien la lata) y el caldo de vegetales. Revuelve bien, luego lleva a ebullición suave. Reduce el fuego a medio-bajo.',
+          'Deja que el curry hierva a fuego lento sin tapar durante 15-20 minutos, revolviendo ocasionalmente, hasta que la salsa se espese y los ingredientes estén tiernos. Debe reducirse aproximadamente 1/3.',
+          'Prueba y ajusta el sazón con sal. El curry debe tener un equilibrio de picante, cremoso y salado. Retira del fuego y deja reposar 3-5 minutos.',
+          'Sirve el curry caliente sobre el arroz basmati esponjoso. Decora generosamente con cilantro fresco picado. Puedes servir con naan o pan plano al lado.'
+        ],
         prepTime: '40 min',
         servings: 4
       },
       {
         title: `Tacos Mexicanos de ${mainIngredient}`,
         description: `Tacos estilo callejero con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `500g de ${i}`), 'Tortillas', 'Salsa', 'Cilantro', 'Limón'],
-        instructions: ['Condimentar y cocinar el relleno', 'Calentar tortillas', 'Armar tacos', 'Cubrir con salsa y cilantro'],
+        ingredients: [...ingredientList.map(i => `500g de ${i}, picado o desmenuzado`), '8-10 tortillas de maíz pequeñas', '1 taza de salsa fresca (pico de gallo o salsa verde)', '1/2 taza de cilantro fresco picado', '1 cebolla pequeña picada finamente', '2 limas cortadas en gajos', '2 cdtas de comino molido', '1 cdta de pimentón', '2 cdas de aceite vegetal', 'Sal y pimienta al gusto'],
+        instructions: [
+          `En un tazón, sazona el ${mainIngredient} picado con comino molido, pimentón, sal y pimienta. Mezcla bien para cubrir uniformemente. Esta mezcla de especias le da el auténtico sabor mexicano.`,
+          'Calienta 2 cucharadas de aceite en una sartén grande a fuego medio-alto durante 1-2 minutos hasta que el aceite brille. El aceite debe estar caliente pero no humeando.',
+          `Añade el ${mainIngredient} sazonado a la sartén en una capa uniforme. Si usas carne molida, rómpela con una espátula de madera mientras cocinas.`,
+          'Cocina durante 6-8 minutos sin revolver mucho al principio - esto permite que se dore y desarrolle sabor. Revuelve ocasionalmente para cocinar uniformemente por todos lados.',
+          `El ${mainIngredient} está listo cuando esté completamente dorado y cocido (la temperatura interna debe ser de 165°F/74°C para pollo, 160°F/71°C para carne molida). Debe verse caramelizado en algunos lugares.`,
+          'Mientras se cocina el relleno, calienta las tortillas. Puedes hacerlo directamente sobre la llama de la estufa de gas durante 15-20 segundos por lado hasta que se inflen ligeramente y tengan manchas negras.',
+          'Si no tienes estufa de gas, calienta las tortillas en una sartén seca a fuego medio durante 20-30 segundos por lado. Envuélvelas en un paño de cocina limpio para mantenerlas calientes y suaves.',
+          'Prepara tu estación de montaje de tacos: coloca tortillas calientes, el relleno cocido, cebolla picada, cilantro fresco, salsa y gajos de lima en tazones separados.',
+          'Para armar: toma una tortilla caliente, añade 2-3 cucharadas del relleno en el centro. No sobrecargues o será difícil de comer.',
+          'Cubre con un poco de cebolla picada, cilantro fresco generoso, una cucharada de salsa y exprime jugo de lima fresco encima. ¡La lima es esencial - despierta todos los sabores!',
+          'Dobla y come inmediatamente mientras esté caliente. Los tacos son mejores recién hechos. Sirve 2-3 tacos por persona.'
+        ],
         prepTime: '20 min',
         servings: 4
       },
       {
         title: `Bowl Asiático de ${mainIngredient} con Arroz`,
         description: `Bowl saludable con ${ingredients}`,
-        ingredients: ['2 tazas de arroz', ...ingredientList.map(i => `1 taza de ${i}`), 'Salsa de soya', 'Semillas de sésamo', 'Vegetales'],
-        instructions: ['Cocinar arroz', 'Preparar ingredientes', 'Colocar en capas en bowl', 'Rociar con salsa y semillas'],
+        ingredients: ['2 tazas de arroz (blanco, integral o jazmín)', ...ingredientList.map(i => `1 taza de ${i}, cortado`), '3 cdas de salsa de soya baja en sodio', '1 cda de aceite de sésamo', '2 cdtas de semillas de sésamo tostadas', '2 cebollines picados finamente', '1 aguacate en rodajas', '1 huevo cocido por porción (opcional)', 'Sriracha o salsa picante al gusto'],
+        instructions: [
+          'Cocina el arroz según las instrucciones del paquete. Para arroz blanco: 2 tazas de arroz + 3 tazas de agua, hierve, luego reduce a fuego lento durante 15-18 minutos tapado. No destapes mientras cocina.',
+          'Cuando el arroz esté listo, quita del fuego y deja reposar tapado durante 5 minutos. Esto permite que el vapor termine la cocción y el arroz quede esponjoso. Luego destapa y esponja con un tenedor.',
+          `Mientras el arroz cocina, prepara el ${mainIngredient}: córtalo en trozos pequeños del tamaño de un bocado para que sea fácil de comer con palillos o tenedor.`,
+          'Calienta una sartén antiadherente a fuego medio-alto. Añade una cucharada de aceite y deja calentar durante 30 segundos hasta que brille.',
+          `Añade el ${mainIngredient} a la sartén. Cocina durante 5-7 minutos, revolviendo ocasionalmente, hasta que esté completamente cocido y ligeramente dorado. Sazona con una pizca de sal.`,
+          'Mientras todo se cocina, prepara tus vegetales: pica los cebollines en rodajas finas, corta el aguacate en rodajas, y ten listos todos los ingredientes adicionales.',
+          'Para ensamblar el bowl, comienza con una generosa porción de arroz caliente en el fondo de un bowl hondo. Aplana ligeramente la parte superior con el reverso de una cuchara.',
+          `Coloca el ${mainIngredient} cocido en una sección del bowl, sobre el arroz. Añade los vegetales en secciones separadas alrededor del bowl - esto se ve bonito y permite que comas cada ingrediente como quieras.`,
+          'Añade rodajas de aguacate fresco en un lado. Si quieres más proteína, añade medio huevo cocido cortado por la mitad.',
+          'Rocía salsa de soya sobre todo el bowl (empieza con 1-2 cucharadas y añade más al gusto). Luego rocía aceite de sésamo - solo un poco, es muy fuerte.',
+          'Espolvorea semillas de sésamo tostadas y cebollines picados por encima como decoración final. Añade unas gotas de sriracha si te gusta picante.',
+          'Mezcla todo junto con tu tenedor o palillos mientras comes. Cada bocado debe tener un poco de arroz, proteína, vegetales y salsa. ¡Disfruta!'
+        ],
         prepTime: '30 min',
         servings: 2
       },
       {
         title: `Pizza Flatbread de ${mainIngredient}`,
         description: `Flatbread gourmet con ${ingredients}`,
-        ingredients: ['2 flatbreads', ...ingredientList.map(i => `1/2 taza de ${i}`), 'Mozzarella', 'Aceite de oliva', 'Hierbas'],
-        instructions: ['Precalentar horno a 220°C', 'Cubrir flatbreads', 'Hornear 12-15 minutos', 'Cortar y servir caliente'],
+        ingredients: ['2 panes flatbread o pan pita grande', ...ingredientList.map(i => `1/2 taza de ${i}, cortado fino`), '1 taza de queso mozzarella rallado', '1/2 taza de salsa marinara o salsa de tomate', '2 cdas de aceite de oliva extra virgen', '1 cdta de hierbas italianas secas (orégano, albahaca)', 'Hojuelas de chile rojo (opcional)', 'Hojas de albahaca fresca'],
+        instructions: [
+          'Precalienta tu horno a 425°F (220°C). Coloca una rejilla del horno en la posición más alta - esto asegura que la parte superior se dore bien. Deja que el horno se caliente completamente durante al menos 10 minutos.',
+          'Prepara una bandeja para hornear grande cubriéndola con papel pergamino. Esto evita que los flatbreads se peguen y facilita la limpieza.',
+          'Coloca los flatbreads sobre el papel pergamino. Cepilla ligeramente la parte superior de cada flatbread con 1 cucharada de aceite de oliva usando un pincel de cocina. Esto crea una base crujiente.',
+          'Extiende la salsa marinara uniformemente sobre cada flatbread, dejando un borde de 1/2 pulgada alrededor como corteza. Usa el reverso de una cuchara en movimientos circulares para distribuir uniformemente.',
+          `Distribuye el ${mainIngredient} preparado uniformemente sobre la salsa. No sobrecargues - demasiados ingredientes harán que el flatbread quede empapado. Menos es más.`,
+          'Espolvorea el queso mozzarella rallado uniformemente sobre todo. El queso debe cubrir la mayoría de los ingredientes pero aún dejar algo visible para textura.',
+          'Espolvorea las hierbas italianas secas sobre el queso. Si te gusta picante, añade unas hojuelas de chile rojo ahora.',
+          'Coloca la bandeja en el horno precalentado en la rejilla superior. Hornea durante 12-15 minutos. Estará listo cuando el queso esté completamente derretido y burbujeante, con manchas doradas.',
+          'Observa cuidadosamente durante los últimos minutos - los bordes deben estar dorados y crujientes, pero no quemados. Los hornos varían, así que confía en tus ojos más que en el reloj.',
+          'Retira del horno con cuidado usando guantes de horno (¡la bandeja está EXTREMADAMENTE caliente!). Deja que los flatbreads reposen en la bandeja durante 2-3 minutos - esto permite que el queso se asiente y será más fácil de cortar.',
+          'Transfiere a una tabla de cortar. Decora con hojas de albahaca fresca. Corta cada flatbread en 4-6 triángulos con un cortador de pizza o cuchillo afilado.',
+          'Sirve inmediatamente mientras el queso esté fundido y la corteza crujiente. Perfecto para compartir o como comida rápida.'
+        ],
         prepTime: '25 min',
         servings: 2
       }
