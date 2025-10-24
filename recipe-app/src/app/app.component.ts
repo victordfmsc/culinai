@@ -467,7 +467,8 @@ export class AppComponent {
     this.changeView('suggestions');
     
     try {
-      const generatedRecipes = await this.geminiService.generateRecipes(ingredients);
+      const currentLanguage = this.translationService.currentLanguage();
+      const generatedRecipes = await this.geminiService.generateRecipes(ingredients, currentLanguage);
       this.recipes.set(generatedRecipes);
     } catch (error) {
       console.error('Failed to generate recipes', error);

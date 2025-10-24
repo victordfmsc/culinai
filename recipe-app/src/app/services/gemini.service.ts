@@ -35,8 +35,19 @@ export class GeminiService {
     }
   }
 
-  async generateRecipes(ingredients: string): Promise<Recipe[]> {
-    console.log('Generating 10 recipes for:', ingredients);
+  async generateRecipes(ingredients: string, language: string = 'en'): Promise<Recipe[]> {
+    console.log('Generating 10 recipes for:', ingredients, 'in language:', language);
+    
+    // Language name mapping for better prompts
+    const languageNames: { [key: string]: string } = {
+      'en': 'English',
+      'es': 'Spanish',
+      'fr': 'French',
+      'de': 'German',
+      'it': 'Italian'
+    };
+    
+    const languageName = languageNames[language] || 'English';
     
     // Always try Gemini first if available
     if (this.model) {
@@ -44,6 +55,7 @@ export class GeminiService {
         const prompt = `You are a professional chef. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.
         
 Important rules:
+- WRITE EVERYTHING IN ${languageName.toUpperCase()} (recipe titles, descriptions, ingredients, instructions - ALL TEXT)
 - Use the provided ingredients as main components
 - Each recipe MUST be completely different (vary cuisine style, cooking method, difficulty)
 - Include cuisines like: Italian, Asian, Mexican, American, Mediterranean, Indian, etc.
