@@ -6,7 +6,9 @@ This is a recipe management application built with Angular 19 that helps users m
 - **Web Application**: Deployed via Angular dev server on port 5000
 - **Mobile Application**: Android app via Capacitor framework (see Mobile Architecture section)
 
-**Recent Changes (Oct 20, 2025)**:
+**Recent Changes (Oct 24, 2025)**:
+- ✅ **AI Recipe Generation**: Now generates 10 unique recipes per request (previously 3)
+- ✅ **Deployment Fix**: Simplified deployment to use direct Angular output directory (recipe-app/dist/recipe-app/browser) instead of copying to intermediate Chefai folder
 - ✅ Environment variables now auto-injected on build via inject-env.js script
 - ✅ Android project is now self-contained with plugins copied locally (no node_modules dependency)
 - ✅ capacitor.settings.gradle modified to use local plugin directories
@@ -74,8 +76,11 @@ Preferred communication style: Simple, everyday language.
 **AI Recipe Generation**:
 - `GeminiService` integrates with Google's Generative AI API
 - Uses `gemini-pro` model for recipe generation
-- Falls back to mock data when API key not configured
+- **Generates 10 unique recipes per request** with diverse cuisines (Italian, Asian, Mexican, Mediterranean, Indian, etc.)
+- Varies cooking methods: stir-fry, baked, grilled, soup, salad, pasta, rice bowl, curry, tacos, flatbread
+- Falls back to 10 mock recipes when API key not configured
 - Generates structured recipe objects with title, description, ingredients, instructions, prep time, servings
+- Configured with user's GEMINI_API_KEY secret for personalized AI-generated recipes
 
 ## Data Models
 
