@@ -65,44 +65,80 @@ export class FridgeComponent implements OnInit {
     'ginger', 'cilantro', 'basil', 'oregano', 'thyme'
   ];
 
+  // Manual translations for common ingredients
+  private ingredientTranslations: { [lang: string]: string[] } = {
+    'es': [
+      'pollo', 'carne de res', 'cerdo', 'pescado', 'camarones', 'salmón', 'atún',
+      'huevos', 'leche', 'queso', 'yogur', 'mantequilla', 'crema',
+      'tomates', 'cebollas', 'ajo', 'papas', 'zanahorias', 'brócoli', 'espinacas',
+      'pimientos', 'champiñones', 'calabacín', 'berenjena', 'pepino', 'lechuga',
+      'arroz', 'pasta', 'pan', 'harina', 'avena', 'quinoa',
+      'aceite de oliva', 'salsa de soya', 'sal', 'pimienta', 'comino', 'pimentón',
+      'limón', 'lima', 'aguacate', 'maíz', 'frijoles', 'garbanzos',
+      'parmesano', 'mozzarella', 'tocino', 'salchicha', 'carne molida',
+      'jengibre', 'cilantro', 'albahaca', 'orégano', 'tomillo'
+    ],
+    'fr': [
+      'poulet', 'bœuf', 'porc', 'poisson', 'crevettes', 'saumon', 'thon',
+      'œufs', 'lait', 'fromage', 'yaourt', 'beurre', 'crème',
+      'tomates', 'oignons', 'ail', 'pommes de terre', 'carottes', 'brocoli', 'épinards',
+      'poivrons', 'champignons', 'courgette', 'aubergine', 'concombre', 'laitue',
+      'riz', 'pâtes', 'pain', 'farine', 'avoine', 'quinoa',
+      'huile d\'olive', 'sauce soja', 'sel', 'poivre', 'cumin', 'paprika',
+      'citron', 'citron vert', 'avocat', 'maïs', 'haricots', 'pois chiches',
+      'parmesan', 'mozzarella', 'bacon', 'saucisse', 'bœuf haché',
+      'gingembre', 'coriandre', 'basilic', 'origan', 'thym'
+    ],
+    'de': [
+      'Hühnchen', 'Rindfleisch', 'Schweinefleisch', 'Fisch', 'Garnelen', 'Lachs', 'Thunfisch',
+      'Eier', 'Milch', 'Käse', 'Joghurt', 'Butter', 'Sahne',
+      'Tomaten', 'Zwiebeln', 'Knoblauch', 'Kartoffeln', 'Karotten', 'Brokkoli', 'Spinat',
+      'Paprika', 'Pilze', 'Zucchini', 'Aubergine', 'Gurke', 'Kopfsalat',
+      'Reis', 'Nudeln', 'Brot', 'Mehl', 'Hafer', 'Quinoa',
+      'Olivenöl', 'Sojasoße', 'Salz', 'Pfeffer', 'Kreuzkümmel', 'Paprikapulver',
+      'Zitrone', 'Limette', 'Avocado', 'Mais', 'Bohnen', 'Kichererbsen',
+      'Parmesan', 'Mozzarella', 'Speck', 'Wurst', 'Hackfleisch',
+      'Ingwer', 'Koriander', 'Basilikum', 'Oregano', 'Thymian'
+    ],
+    'it': [
+      'pollo', 'manzo', 'maiale', 'pesce', 'gamberi', 'salmone', 'tonno',
+      'uova', 'latte', 'formaggio', 'yogurt', 'burro', 'panna',
+      'pomodori', 'cipolle', 'aglio', 'patate', 'carote', 'broccoli', 'spinaci',
+      'peperoni', 'funghi', 'zucchine', 'melanzane', 'cetriolo', 'lattuga',
+      'riso', 'pasta', 'pane', 'farina', 'avena', 'quinoa',
+      'olio d\'oliva', 'salsa di soia', 'sale', 'pepe', 'cumino', 'paprika',
+      'limone', 'lime', 'avocado', 'mais', 'fagioli', 'ceci',
+      'parmigiano', 'mozzarella', 'bacon', 'salsiccia', 'carne macinata',
+      'zenzero', 'coriandolo', 'basilico', 'origano', 'timo'
+    ]
+  };
+
   translatedIngredients = signal<string[]>([...this.commonIngredients]);
 
   constructor() {
     // Auto-translate ingredients when language changes
     effect(() => {
       const currentLang = this.translationService.currentLanguage();
-      console.log('Language changed to:', currentLang);
-      
-      // If English, use original names
-      if (currentLang === 'en') {
-        this.translatedIngredients.set([...this.commonIngredients]);
-        return;
-      }
-      
-      // Translate all ingredients
-      this.translateIngredients();
+      console.log('🌍 Language changed to:', currentLang);
+      this.updateTranslatedIngredients();
     });
   }
 
   ngOnInit() {
-    // Translate on initial load if not English
-    const currentLang = this.translationService.currentLanguage();
-    if (currentLang !== 'en') {
-      this.translateIngredients();
-    }
+    // Translate on initial load
+    this.updateTranslatedIngredients();
   }
 
-  private async translateIngredients() {
+  private updateTranslatedIngredients() {
     const currentLang = this.translationService.currentLanguage();
-    console.log('Translating', this.commonIngredients.length, 'ingredients to:', currentLang);
     
-    try {
-      const translated = await this.translationService.translateBatch(this.commonIngredients, currentLang);
-      console.log('✅ Translation successful! First 5 items:', translated.slice(0, 5));
-      this.translatedIngredients.set(translated);
-    } catch (error) {
-      console.error('❌ Failed to translate ingredients:', error);
-      // Fallback to original names on error
+    // Use manual translations if available
+    if (this.ingredientTranslations[currentLang]) {
+      console.log('✅ Using manual translations for:', currentLang);
+      this.translatedIngredients.set(this.ingredientTranslations[currentLang]);
+    } else {
+      // Fallback to English for unsupported languages
+      console.log('ℹ️ No translations for', currentLang, '- using English');
       this.translatedIngredients.set([...this.commonIngredients]);
     }
   }
