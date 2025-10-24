@@ -52,7 +52,7 @@ export class GeminiService {
     // Always try Gemini first if available
     if (this.model) {
       try {
-        const prompt = `You are a professional chef. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.
+        const prompt = `You are a professional chef teaching beginners. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.
         
 Important rules:
 - WRITE EVERYTHING IN ${languageName.toUpperCase()} (recipe titles, descriptions, ingredients, instructions - ALL TEXT)
@@ -61,21 +61,34 @@ Important rules:
 - Include cuisines like: Italian, Asian, Mexican, American, Mediterranean, Indian, etc.
 - Include cooking methods like: stir-fry, baked, grilled, soup, salad, pasta, rice bowl, curry, etc.
 - Include real measurements and cooking times
-- Be very specific with instructions
+
+CRITICAL - DETAILED INSTRUCTIONS FOR BEGINNERS:
+- Each instruction step must be VERY detailed and explain HOW to do it
+- Include exact temperatures, timing, and visual cues
+- Explain cooking techniques (e.g., "heat oil until it shimmers", "sauté until golden brown and fragrant")
+- Add tips for knowing when food is ready (e.g., "chicken is done when internal temp is 165°F and juices run clear")
+- Guide them through the entire process as if they've never cooked before
+- Each recipe should have 6-10 detailed instruction steps minimum
 
 Return ONLY a JSON array with 10 recipes, no other text, in this exact format:
 [
   {
     "title": "Very Specific Recipe Name with Cuisine Style",
     "description": "One appetizing sentence description",
-    "ingredients": ["2 lbs chicken breast", "3 cups basmati rice", "exact amounts with units"],
-    "instructions": ["Step 1 with specific details", "Step 2 with temperature in °F", "Step 3 with exact timing"],
+    "ingredients": ["2 lbs chicken breast, cut into 1-inch cubes", "3 cups basmati rice", "exact amounts with units and prep notes"],
+    "instructions": [
+      "Preheat your oven to 375°F (190°C). Place the rack in the middle position. This ensures even cooking throughout the dish.",
+      "In a large skillet, heat 2 tablespoons of olive oil over medium-high heat for about 2 minutes until the oil shimmers but doesn't smoke. This is the right temperature for searing.",
+      "Add the chicken pieces in a single layer, making sure not to overcrowd the pan. Sear for 3-4 minutes without moving them - you'll know they're ready to flip when they release easily from the pan and have a golden-brown crust.",
+      "Very detailed step with exact measurements, temperatures, visual cues, and timing",
+      "Continue with specific instructions explaining WHY and HOW to do each step"
+    ],
     "prepTime": "25 mins",
     "servings": 4
   }
 ]
 
-Make sure all 10 recipes are VERY different from each other!`;
+Make sure all 10 recipes are VERY different from each other and instructions are beginner-friendly with lots of detail!`;
 
         console.log('Calling Gemini API for 10 recipes...');
         const result = await this.model.generateContent(prompt);
@@ -135,24 +148,55 @@ Make sure all 10 recipes are VERY different from each other!`;
       {
         title: `Quick ${mainIngredient} Stir-Fry`,
         description: `A fast Asian-style stir-fry with ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 cup ${i}`), '2 tbsp soy sauce', '1 tbsp sesame oil', 'Garlic, ginger'],
-        instructions: ['Heat wok to high heat', `Stir-fry ${mainIngredient} 3-4 minutes`, 'Add vegetables and sauce', 'Toss 2 minutes and serve'],
+        ingredients: [...ingredientList.map(i => `1 cup ${i}, cut into bite-sized pieces`), '2 tbsp soy sauce', '1 tbsp sesame oil', '2 cloves garlic, minced', '1 inch fresh ginger, minced'],
+        instructions: [
+          'Prepare all ingredients first (mise en place). Cut all vegetables and proteins into uniform, bite-sized pieces so they cook evenly. Mince the garlic and ginger finely.',
+          'Heat a large wok or heavy skillet over high heat for 2-3 minutes until very hot. You\'ll know it\'s ready when a drop of water sizzles and evaporates immediately.',
+          'Add 2 tablespoons of cooking oil (vegetable or peanut oil work best) and swirl it around the wok to coat the bottom and sides. The oil should shimmer but not smoke.',
+          `Add the ${mainIngredient} in a single layer, making sure pieces don't overlap. Let it cook undisturbed for 2 minutes to get a nice sear, then flip and cook another 2 minutes until golden brown and cooked through.`,
+          'Push the cooked protein to the sides of the wok. Add the minced garlic and ginger to the center and stir for 30 seconds until fragrant (be careful not to burn them).',
+          'Add all the vegetables, starting with the harder ones first. Stir-fry constantly, tossing everything together with a spatula, for 2-3 minutes until vegetables are crisp-tender.',
+          'Pour the soy sauce and sesame oil over everything. Toss vigorously for 1 minute to coat all ingredients evenly. The sauce should coat everything with a glossy finish.',
+          'Taste and adjust seasoning if needed. Serve immediately over steamed rice while hot and crispy.'
+        ],
         prepTime: '15 mins',
         servings: 2
       },
       {
         title: `Baked ${mainIngredient} Casserole`,
         description: `Comfort food casserole with ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 cups ${i}`), '1 cup cheese', '1/2 cup cream', 'Herbs'],
-        instructions: ['Preheat oven to 375°F', 'Layer ingredients in dish', 'Add cream and cheese', 'Bake 35 minutes'],
+        ingredients: [...ingredientList.map(i => `2 cups ${i}, chopped`), '1 cup shredded cheese (cheddar or mozzarella)', '1/2 cup heavy cream', '1 tsp dried herbs (thyme or rosemary)', 'Salt and pepper to taste', 'Cooking spray'],
+        instructions: [
+          'Preheat your oven to 375°F (190°C). Position the oven rack in the middle. This temperature ensures the casserole cooks through without burning the top.',
+          'While the oven heats, prepare all your ingredients. Chop all vegetables and proteins into uniform pieces, about 1-inch cubes, so everything cooks evenly.',
+          'Spray a 9x13 inch baking dish with cooking spray or brush with butter to prevent sticking. This makes cleanup much easier later.',
+          `Create the first layer: spread half of your ${mainIngredient} evenly across the bottom of the baking dish. Season this layer lightly with salt, pepper, and half the dried herbs.`,
+          'Add the remaining ingredients in an even layer on top. Try to distribute everything uniformly so each serving has a good mix of ingredients.',
+          'In a small bowl, whisk together the heavy cream with a pinch of salt and pepper. Pour this evenly over the entire casserole - it will create a creamy sauce as it bakes.',
+          'Sprinkle the shredded cheese evenly over the top. The cheese will melt and create a golden, bubbly crust.',
+          'Cover the dish tightly with aluminum foil. This traps steam and helps everything cook through without drying out. Bake for 25 minutes covered.',
+          'Remove the foil carefully (watch out for hot steam!) and bake for an additional 10-15 minutes until the cheese is golden brown and bubbly, and the edges are slightly crispy.',
+          'Let the casserole rest for 5 minutes before serving. This allows the sauce to thicken slightly and makes it easier to portion. Serve hot.'
+        ],
         prepTime: '45 mins',
         servings: 4
       },
       {
         title: `Hearty ${mainIngredient} Soup`,
         description: `Warming soup with ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 cup ${i}`), '4 cups broth', '1 onion', 'Seasonings'],
-        instructions: ['Sauté onion', 'Add ingredients and broth', 'Simmer 20 minutes', 'Season and serve'],
+        ingredients: [...ingredientList.map(i => `1 cup ${i}, diced`), '4 cups chicken or vegetable broth', '1 large onion, finely chopped', '2 cloves garlic, minced', '2 tbsp olive oil', '1 bay leaf', '1 tsp dried thyme', 'Salt and pepper to taste', 'Fresh parsley for garnish'],
+        instructions: [
+          'Prepare all your ingredients before you start cooking (this is called mise en place). Dice all vegetables into similar-sized pieces (about 1/2 inch) so they cook evenly.',
+          'In a large pot or Dutch oven, heat 2 tablespoons of olive oil over medium heat for about 1 minute. The oil should flow easily but not smoke.',
+          'Add the chopped onion to the pot. Sauté for 5-7 minutes, stirring occasionally with a wooden spoon, until the onion becomes soft and translucent (slightly see-through) and smells sweet. Don\'t let it brown.',
+          'Add the minced garlic and stir constantly for 30-60 seconds until you can smell it. Be careful not to burn the garlic or it will taste bitter.',
+          `Add the ${mainIngredient} to the pot and stir to combine with the onions and garlic. Cook for 2-3 minutes, stirring occasionally, to let the flavors blend.`,
+          'Pour in the broth slowly to avoid splashing. Add the bay leaf and dried thyme. Stir everything together and turn the heat up to high.',
+          'Once the soup starts to bubble vigorously, reduce the heat to low so it just simmers gently (small bubbles occasionally breaking the surface). Cover the pot partially with a lid.',
+          'Let the soup simmer for 20-25 minutes, stirring every 5-10 minutes to prevent sticking. The vegetables should be tender when pierced with a fork.',
+          'Taste the soup carefully (blow on the spoon first - it\'s hot!). Add salt and pepper gradually, tasting as you go. Remove and discard the bay leaf.',
+          'Ladle the hot soup into bowls and garnish with fresh chopped parsley. Serve with crusty bread for dipping.'
+        ],
         prepTime: '30 mins',
         servings: 4
       },

@@ -8,6 +8,7 @@ This is a recipe management application built with Angular 19 that helps users m
 
 **Recent Changes (Oct 24, 2025)**:
 - ✅ **AI Recipe Generation**: Now generates 10 unique recipes per request (previously 3)
+- ✅ **Detailed Instructions for Beginners**: Recipe instructions are now comprehensive step-by-step guides with exact temperatures, timing, visual cues, and cooking techniques explained for those who have never cooked the dish
 - ✅ **Auto-Translation of AI Content**: Gemini now generates ALL recipe content (titles, descriptions, ingredients, instructions) in the selected language
 - ✅ **Complete UI Translation**: All UI elements, labels, and buttons now translate automatically when language changes
 - ✅ **Google Translate API Integration**: Implemented auto-translation service for dynamic content using Google Cloud Translation API
@@ -95,6 +96,12 @@ Preferred communication style: Simple, everyday language.
 - Uses `gemini-pro` model for recipe generation
 - **Generates 10 unique recipes per request** with diverse cuisines (Italian, Asian, Mexican, Mediterranean, Indian, etc.)
 - Varies cooking methods: stir-fry, baked, grilled, soup, salad, pasta, rice bowl, curry, tacos, flatbread
+- **Beginner-Friendly Detailed Instructions**: Each recipe includes 6-10 detailed instruction steps with:
+  - Exact temperatures and timing
+  - Visual cues for doneness (e.g., "golden brown", "fork-tender")
+  - Cooking technique explanations (e.g., "sauté until translucent", "sear without moving")
+  - Tips for success (e.g., "oil should shimmer but not smoke")
+  - Safety reminders and why each step is important
 - **Multilingual Recipe Generation**: Automatically generates ALL content in the user's selected language (English, Spanish, French, German, Italian)
 - Language parameter passed from TranslationService to ensure recipe titles, descriptions, ingredients, and instructions match UI language
 - Falls back to 10 mock recipes when API key not configured
