@@ -8,6 +8,8 @@ This is a recipe management application built with Angular 19 that helps users m
 
 **Recent Changes (Oct 24, 2025)**:
 - ✅ **AI Recipe Generation**: Now generates 10 unique recipes per request (previously 3)
+- ✅ **Auto-Translation of AI Content**: Gemini now generates ALL recipe content (titles, descriptions, ingredients, instructions) in the selected language
+- ✅ **Complete UI Translation**: All UI elements, labels, and buttons now translate automatically when language changes
 - ✅ **Deployment Fix**: Simplified deployment to use direct Angular output directory (recipe-app/dist/recipe-app/browser) instead of copying to intermediate Chefai folder
 - ✅ Environment variables now auto-injected on build via inject-env.js script
 - ✅ Android project is now self-contained with plugins copied locally (no node_modules dependency)
@@ -47,6 +49,8 @@ Preferred communication style: Simple, everyday language.
 - Supported languages: English, Spanish, French, German, Italian
 - Translation keys stored in service, not external files
 - Language selection persists in signal state
+- **AI Content Translation**: Gemini service receives current language and generates ALL recipe content (titles, descriptions, ingredients, instructions) in the selected language
+- Complete UI translation including all labels, buttons, placeholders, and messages across all components
 
 ## Backend Architecture
 
@@ -80,6 +84,8 @@ Preferred communication style: Simple, everyday language.
 - Uses `gemini-pro` model for recipe generation
 - **Generates 10 unique recipes per request** with diverse cuisines (Italian, Asian, Mexican, Mediterranean, Indian, etc.)
 - Varies cooking methods: stir-fry, baked, grilled, soup, salad, pasta, rice bowl, curry, tacos, flatbread
+- **Multilingual Recipe Generation**: Automatically generates ALL content in the user's selected language (English, Spanish, French, German, Italian)
+- Language parameter passed from TranslationService to ensure recipe titles, descriptions, ingredients, and instructions match UI language
 - Falls back to 10 mock recipes when API key not configured
 - Generates structured recipe objects with title, description, ingredients, instructions, prep time, servings
 - Configured with user's GEMINI_API_KEY secret for personalized AI-generated recipes

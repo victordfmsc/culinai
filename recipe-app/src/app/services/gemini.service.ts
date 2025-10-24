@@ -109,13 +109,29 @@ Make sure all 10 recipes are VERY different from each other!`;
       }
     }
     
-    // Enhanced fallback with 10 ingredient-based recipes
-    console.log('Using enhanced fallback with 10 recipes');
+    // Fallback recipes in the selected language
+    console.log('Using fallback recipes in', languageName);
+    return this.getFallbackRecipes(ingredients, language);
+  }
+
+  private getFallbackRecipes(ingredients: string, language: string): Recipe[] {
     const ingredientList = ingredients.toLowerCase().split(',').map(i => i.trim());
     const mainIngredient = ingredientList[0] || 'Mixed';
     
-    const recipes: Recipe[] = [
-      // Recipe 1: Stir-Fry
+    // Define fallback recipes per language
+    const fallbackRecipes: { [key: string]: Recipe[] } = {
+      'en': this.getEnglishFallbackRecipes(mainIngredient, ingredientList, ingredients),
+      'es': this.getSpanishFallbackRecipes(mainIngredient, ingredientList, ingredients),
+      'fr': this.getFrenchFallbackRecipes(mainIngredient, ingredientList, ingredients),
+      'de': this.getGermanFallbackRecipes(mainIngredient, ingredientList, ingredients),
+      'it': this.getItalianFallbackRecipes(mainIngredient, ingredientList, ingredients)
+    };
+    
+    return fallbackRecipes[language] || fallbackRecipes['en'];
+  }
+
+  private getEnglishFallbackRecipes(mainIngredient: string, ingredientList: string[], ingredients: string): Recipe[] {
+    return [
       {
         title: `Quick ${mainIngredient} Stir-Fry`,
         description: `A fast Asian-style stir-fry with ${ingredients}`,
@@ -124,8 +140,6 @@ Make sure all 10 recipes are VERY different from each other!`;
         prepTime: '15 mins',
         servings: 2
       },
-      
-      // Recipe 2: Baked
       {
         title: `Baked ${mainIngredient} Casserole`,
         description: `Comfort food casserole with ${ingredients}`,
@@ -134,8 +148,6 @@ Make sure all 10 recipes are VERY different from each other!`;
         prepTime: '45 mins',
         servings: 4
       },
-      
-      // Recipe 3: Soup
       {
         title: `Hearty ${mainIngredient} Soup`,
         description: `Warming soup with ${ingredients}`,
@@ -144,8 +156,6 @@ Make sure all 10 recipes are VERY different from each other!`;
         prepTime: '30 mins',
         servings: 4
       },
-      
-      // Recipe 4: Grilled
       {
         title: `Grilled ${mainIngredient} Skewers`,
         description: `BBQ-style grilled ${ingredients}`,
@@ -154,8 +164,6 @@ Make sure all 10 recipes are VERY different from each other!`;
         prepTime: '20 mins',
         servings: 4
       },
-      
-      // Recipe 5: Salad
       {
         title: `Mediterranean ${mainIngredient} Salad`,
         description: `Fresh salad featuring ${ingredients}`,
@@ -164,8 +172,6 @@ Make sure all 10 recipes are VERY different from each other!`;
         prepTime: '15 mins',
         servings: 3
       },
-      
-      // Recipe 6: Pasta
       {
         title: `${mainIngredient} Pasta Primavera`,
         description: `Italian pasta with ${ingredients}`,
@@ -174,8 +180,6 @@ Make sure all 10 recipes are VERY different from each other!`;
         prepTime: '25 mins',
         servings: 4
       },
-      
-      // Recipe 7: Curry
       {
         title: `Indian ${mainIngredient} Curry`,
         description: `Spicy curry with ${ingredients}`,
@@ -184,8 +188,6 @@ Make sure all 10 recipes are VERY different from each other!`;
         prepTime: '40 mins',
         servings: 4
       },
-      
-      // Recipe 8: Tacos
       {
         title: `Mexican ${mainIngredient} Tacos`,
         description: `Street-style tacos with ${ingredients}`,
@@ -194,8 +196,6 @@ Make sure all 10 recipes are VERY different from each other!`;
         prepTime: '20 mins',
         servings: 4
       },
-      
-      // Recipe 9: Rice Bowl
       {
         title: `Asian ${mainIngredient} Rice Bowl`,
         description: `Healthy bowl with ${ingredients}`,
@@ -204,8 +204,6 @@ Make sure all 10 recipes are VERY different from each other!`;
         prepTime: '30 mins',
         servings: 2
       },
-      
-      // Recipe 10: Pizza/Flatbread
       {
         title: `${mainIngredient} Flatbread Pizza`,
         description: `Gourmet flatbread with ${ingredients}`,
@@ -215,7 +213,345 @@ Make sure all 10 recipes are VERY different from each other!`;
         servings: 2
       }
     ];
-    
-    return recipes;
+  }
+
+  private getSpanishFallbackRecipes(mainIngredient: string, ingredientList: string[], ingredients: string): Recipe[] {
+    return [
+      {
+        title: `Salteado Rápido de ${mainIngredient}`,
+        description: `Un salteado asiático rápido con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 taza de ${i}`), '2 cdas salsa de soya', '1 cda aceite de sésamo', 'Ajo, jengibre'],
+        instructions: ['Calentar wok a fuego alto', `Saltear ${mainIngredient} 3-4 minutos`, 'Agregar vegetales y salsa', 'Revolver 2 minutos y servir'],
+        prepTime: '15 min',
+        servings: 2
+      },
+      {
+        title: `Cazuela de ${mainIngredient} al Horno`,
+        description: `Cazuela reconfortante con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 tazas de ${i}`), '1 taza de queso', '1/2 taza de crema', 'Hierbas'],
+        instructions: ['Precalentar horno a 190°C', 'Capas de ingredientes en molde', 'Añadir crema y queso', 'Hornear 35 minutos'],
+        prepTime: '45 min',
+        servings: 4
+      },
+      {
+        title: `Sopa Abundante de ${mainIngredient}`,
+        description: `Sopa reconfortante con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 taza de ${i}`), '4 tazas de caldo', '1 cebolla', 'Condimentos'],
+        instructions: ['Sofreír cebolla', 'Añadir ingredientes y caldo', 'Cocinar a fuego lento 20 minutos', 'Condimentar y servir'],
+        prepTime: '30 min',
+        servings: 4
+      },
+      {
+        title: `Brochetas de ${mainIngredient} a la Parrilla`,
+        description: `Brochetas estilo BBQ con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `700g de ${i}`), 'Marinada BBQ', 'Palitos', 'Aceite de oliva'],
+        instructions: ['Marinar 1 hora', 'Ensartar en palitos', 'Asar 6-8 minutos', 'Voltear y cocinar hasta listo'],
+        prepTime: '20 min',
+        servings: 4
+      },
+      {
+        title: `Ensalada Mediterránea de ${mainIngredient}`,
+        description: `Ensalada fresca con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 tazas de ${i}`), 'Lechuga', 'Queso feta', 'Aceitunas', 'Aderezo de limón'],
+        instructions: ['Picar todos los ingredientes', 'Mezclar en tazón grande', 'Añadir aderezo', 'Cubrir con feta y servir'],
+        prepTime: '15 min',
+        servings: 3
+      },
+      {
+        title: `Pasta Primavera con ${mainIngredient}`,
+        description: `Pasta italiana con ${ingredients}`,
+        ingredients: ['500g de pasta', ...ingredientList.map(i => `1 taza de ${i}`), 'Parmesano', 'Aceite de oliva', 'Ajo'],
+        instructions: ['Hervir pasta al dente', 'Saltear vegetales', 'Combinar con pasta', 'Cubrir con parmesano'],
+        prepTime: '25 min',
+        servings: 4
+      },
+      {
+        title: `Curry Indio de ${mainIngredient}`,
+        description: `Curry picante con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 tazas de ${i}`), 'Pasta de curry', 'Leche de coco', 'Arroz', 'Especias'],
+        instructions: ['Tostar especias', 'Añadir pasta de curry y leche de coco', 'Cocinar ingredientes 20 min', 'Servir sobre arroz'],
+        prepTime: '40 min',
+        servings: 4
+      },
+      {
+        title: `Tacos Mexicanos de ${mainIngredient}`,
+        description: `Tacos estilo callejero con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `500g de ${i}`), 'Tortillas', 'Salsa', 'Cilantro', 'Limón'],
+        instructions: ['Condimentar y cocinar el relleno', 'Calentar tortillas', 'Armar tacos', 'Cubrir con salsa y cilantro'],
+        prepTime: '20 min',
+        servings: 4
+      },
+      {
+        title: `Bowl Asiático de ${mainIngredient} con Arroz`,
+        description: `Bowl saludable con ${ingredients}`,
+        ingredients: ['2 tazas de arroz', ...ingredientList.map(i => `1 taza de ${i}`), 'Salsa de soya', 'Semillas de sésamo', 'Vegetales'],
+        instructions: ['Cocinar arroz', 'Preparar ingredientes', 'Colocar en capas en bowl', 'Rociar con salsa y semillas'],
+        prepTime: '30 min',
+        servings: 2
+      },
+      {
+        title: `Pizza Flatbread de ${mainIngredient}`,
+        description: `Flatbread gourmet con ${ingredients}`,
+        ingredients: ['2 flatbreads', ...ingredientList.map(i => `1/2 taza de ${i}`), 'Mozzarella', 'Aceite de oliva', 'Hierbas'],
+        instructions: ['Precalentar horno a 220°C', 'Cubrir flatbreads', 'Hornear 12-15 minutos', 'Cortar y servir caliente'],
+        prepTime: '25 min',
+        servings: 2
+      }
+    ];
+  }
+
+  private getFrenchFallbackRecipes(mainIngredient: string, ingredientList: string[], ingredients: string): Recipe[] {
+    return [
+      {
+        title: `Sauté Rapide de ${mainIngredient}`,
+        description: `Un sauté asiatique rapide avec ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 tasse de ${i}`), '2 c. à soupe de sauce soja', '1 c. à soupe d\'huile de sésame', 'Ail, gingembre'],
+        instructions: ['Chauffer le wok à feu vif', `Faire sauter ${mainIngredient} 3-4 minutes`, 'Ajouter légumes et sauce', 'Mélanger 2 minutes et servir'],
+        prepTime: '15 min',
+        servings: 2
+      },
+      {
+        title: `Casserole de ${mainIngredient} au Four`,
+        description: `Casserole réconfortante avec ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 tasses de ${i}`), '1 tasse de fromage', '1/2 tasse de crème', 'Herbes'],
+        instructions: ['Préchauffer le four à 190°C', 'Disposer les ingrédients en couches', 'Ajouter crème et fromage', 'Cuire 35 minutes'],
+        prepTime: '45 min',
+        servings: 4
+      },
+      {
+        title: `Soupe Copieuse de ${mainIngredient}`,
+        description: `Soupe réconfortante avec ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 tasse de ${i}`), '4 tasses de bouillon', '1 oignon', 'Assaisonnements'],
+        instructions: ['Faire revenir l\'oignon', 'Ajouter ingrédients et bouillon', 'Mijoter 20 minutes', 'Assaisonner et servir'],
+        prepTime: '30 min',
+        servings: 4
+      },
+      {
+        title: `Brochettes de ${mainIngredient} Grillées`,
+        description: `Brochettes style BBQ avec ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `700g de ${i}`), 'Marinade BBQ', 'Brochettes', 'Huile d\'olive'],
+        instructions: ['Mariner 1 heure', 'Enfiler sur brochettes', 'Griller 6-8 minutes', 'Retourner et cuire'],
+        prepTime: '20 min',
+        servings: 4
+      },
+      {
+        title: `Salade Méditerranéenne de ${mainIngredient}`,
+        description: `Salade fraîche avec ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 tasses de ${i}`), 'Laitue', 'Fromage feta', 'Olives', 'Vinaigrette au citron'],
+        instructions: ['Hacher tous les ingrédients', 'Mélanger dans un grand bol', 'Ajouter la vinaigrette', 'Garnir de feta et servir'],
+        prepTime: '15 min',
+        servings: 3
+      },
+      {
+        title: `Pâtes Primavera au ${mainIngredient}`,
+        description: `Pâtes italiennes avec ${ingredients}`,
+        ingredients: ['500g de pâtes', ...ingredientList.map(i => `1 tasse de ${i}`), 'Parmesan', 'Huile d\'olive', 'Ail'],
+        instructions: ['Cuire les pâtes al dente', 'Faire revenir les légumes', 'Mélanger avec les pâtes', 'Garnir de parmesan'],
+        prepTime: '25 min',
+        servings: 4
+      },
+      {
+        title: `Curry Indien au ${mainIngredient}`,
+        description: `Curry épicé avec ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 tasses de ${i}`), 'Pâte de curry', 'Lait de coco', 'Riz', 'Épices'],
+        instructions: ['Torréfier les épices', 'Ajouter pâte de curry et lait de coco', 'Mijoter 20 min', 'Servir avec du riz'],
+        prepTime: '40 min',
+        servings: 4
+      },
+      {
+        title: `Tacos Mexicains au ${mainIngredient}`,
+        description: `Tacos de rue avec ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `500g de ${i}`), 'Tortillas', 'Salsa', 'Coriandre', 'Citron vert'],
+        instructions: ['Assaisonner et cuire la garniture', 'Réchauffer les tortillas', 'Assembler les tacos', 'Garnir de salsa et coriandre'],
+        prepTime: '20 min',
+        servings: 4
+      },
+      {
+        title: `Bol de Riz Asiatique au ${mainIngredient}`,
+        description: `Bol santé avec ${ingredients}`,
+        ingredients: ['2 tasses de riz', ...ingredientList.map(i => `1 tasse de ${i}`), 'Sauce soja', 'Graines de sésame', 'Légumes'],
+        instructions: ['Cuire le riz', 'Préparer les garnitures', 'Disposer en couches', 'Arroser de sauce et graines'],
+        prepTime: '30 min',
+        servings: 2
+      },
+      {
+        title: `Pizza Flatbread au ${mainIngredient}`,
+        description: `Flatbread gourmet avec ${ingredients}`,
+        ingredients: ['2 flatbreads', ...ingredientList.map(i => `1/2 tasse de ${i}`), 'Mozzarella', 'Huile d\'olive', 'Herbes'],
+        instructions: ['Préchauffer le four à 220°C', 'Garnir les flatbreads', 'Cuire 12-15 minutes', 'Trancher et servir chaud'],
+        prepTime: '25 min',
+        servings: 2
+      }
+    ];
+  }
+
+  private getGermanFallbackRecipes(mainIngredient: string, ingredientList: string[], ingredients: string): Recipe[] {
+    return [
+      {
+        title: `Schnelles ${mainIngredient} Pfannengericht`,
+        description: `Ein schnelles asiatisches Pfannengericht mit ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 Tasse ${i}`), '2 EL Sojasoße', '1 EL Sesamöl', 'Knoblauch, Ingwer'],
+        instructions: ['Wok stark erhitzen', `${mainIngredient} 3-4 Minuten anbraten`, 'Gemüse und Soße hinzufügen', '2 Minuten schwenken und servieren'],
+        prepTime: '15 Min',
+        servings: 2
+      },
+      {
+        title: `${mainIngredient} Auflauf`,
+        description: `Herzhafter Auflauf mit ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 Tassen ${i}`), '1 Tasse Käse', '1/2 Tasse Sahne', 'Kräuter'],
+        instructions: ['Ofen auf 190°C vorheizen', 'Zutaten schichten', 'Sahne und Käse hinzufügen', '35 Minuten backen'],
+        prepTime: '45 Min',
+        servings: 4
+      },
+      {
+        title: `Herzhafte ${mainIngredient} Suppe`,
+        description: `Wärmende Suppe mit ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 Tasse ${i}`), '4 Tassen Brühe', '1 Zwiebel', 'Gewürze'],
+        instructions: ['Zwiebel anschwitzen', 'Zutaten und Brühe hinzufügen', '20 Minuten köcheln', 'Würzen und servieren'],
+        prepTime: '30 Min',
+        servings: 4
+      },
+      {
+        title: `Gegrillte ${mainIngredient} Spieße`,
+        description: `BBQ-Spieße mit ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `700g ${i}`), 'BBQ-Marinade', 'Spieße', 'Olivenöl'],
+        instructions: ['1 Stunde marinieren', 'Auf Spieße stecken', '6-8 Minuten grillen', 'Wenden und fertig garen'],
+        prepTime: '20 Min',
+        servings: 4
+      },
+      {
+        title: `Mediterraner ${mainIngredient} Salat`,
+        description: `Frischer Salat mit ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 Tassen ${i}`), 'Salat', 'Feta-Käse', 'Oliven', 'Zitronen-Dressing'],
+        instructions: ['Alle Zutaten hacken', 'In großer Schüssel mischen', 'Dressing hinzufügen', 'Mit Feta garnieren'],
+        prepTime: '15 Min',
+        servings: 3
+      },
+      {
+        title: `${mainIngredient} Pasta Primavera`,
+        description: `Italienische Pasta mit ${ingredients}`,
+        ingredients: ['500g Pasta', ...ingredientList.map(i => `1 Tasse ${i}`), 'Parmesan', 'Olivenöl', 'Knoblauch'],
+        instructions: ['Pasta al dente kochen', 'Gemüse anbraten', 'Mit Pasta vermengen', 'Mit Parmesan bestreuen'],
+        prepTime: '25 Min',
+        servings: 4
+      },
+      {
+        title: `Indisches ${mainIngredient} Curry`,
+        description: `Würziges Curry mit ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 Tassen ${i}`), 'Currypaste', 'Kokosmilch', 'Reis', 'Gewürze'],
+        instructions: ['Gewürze rösten', 'Currypaste und Kokosmilch hinzufügen', '20 Min köcheln', 'Mit Reis servieren'],
+        prepTime: '40 Min',
+        servings: 4
+      },
+      {
+        title: `Mexikanische ${mainIngredient} Tacos`,
+        description: `Street-Style Tacos mit ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `500g ${i}`), 'Tortillas', 'Salsa', 'Koriander', 'Limette'],
+        instructions: ['Füllung würzen und zubereiten', 'Tortillas erwärmen', 'Tacos zusammenstellen', 'Mit Salsa und Koriander garnieren'],
+        prepTime: '20 Min',
+        servings: 4
+      },
+      {
+        title: `Asiatische ${mainIngredient} Reisschale`,
+        description: `Gesunde Schale mit ${ingredients}`,
+        ingredients: ['2 Tassen Reis', ...ingredientList.map(i => `1 Tasse ${i}`), 'Sojasoße', 'Sesam', 'Gemüse'],
+        instructions: ['Reis kochen', 'Toppings vorbereiten', 'In Schale schichten', 'Mit Soße und Sesam beträufeln'],
+        prepTime: '30 Min',
+        servings: 2
+      },
+      {
+        title: `${mainIngredient} Flatbread Pizza`,
+        description: `Gourmet-Flatbread mit ${ingredients}`,
+        ingredients: ['2 Flatbreads', ...ingredientList.map(i => `1/2 Tasse ${i}`), 'Mozzarella', 'Olivenöl', 'Kräuter'],
+        instructions: ['Ofen auf 220°C vorheizen', 'Flatbreads belegen', '12-15 Minuten backen', 'Schneiden und heiß servieren'],
+        prepTime: '25 Min',
+        servings: 2
+      }
+    ];
+  }
+
+  private getItalianFallbackRecipes(mainIngredient: string, ingredientList: string[], ingredients: string): Recipe[] {
+    return [
+      {
+        title: `Saltato Veloce di ${mainIngredient}`,
+        description: `Un saltato asiatico veloce con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 tazza di ${i}`), '2 cucchiai di salsa di soia', '1 cucchiaio di olio di sesamo', 'Aglio, zenzero'],
+        instructions: ['Scaldare il wok a fuoco alto', `Saltare ${mainIngredient} 3-4 minuti`, 'Aggiungere verdure e salsa', 'Mescolare 2 minuti e servire'],
+        prepTime: '15 min',
+        servings: 2
+      },
+      {
+        title: `Casseruola di ${mainIngredient} al Forno`,
+        description: `Casseruola confortante con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 tazze di ${i}`), '1 tazza di formaggio', '1/2 tazza di panna', 'Erbe'],
+        instructions: ['Preriscaldare il forno a 190°C', 'Disporre gli ingredienti a strati', 'Aggiungere panna e formaggio', 'Cuocere 35 minuti'],
+        prepTime: '45 min',
+        servings: 4
+      },
+      {
+        title: `Zuppa Abbondante di ${mainIngredient}`,
+        description: `Zuppa calda con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 tazza di ${i}`), '4 tazze di brodo', '1 cipolla', 'Condimenti'],
+        instructions: ['Rosolare la cipolla', 'Aggiungere ingredienti e brodo', 'Cuocere a fuoco lento 20 minuti', 'Condire e servire'],
+        prepTime: '30 min',
+        servings: 4
+      },
+      {
+        title: `Spiedini di ${mainIngredient} alla Griglia`,
+        description: `Spiedini stile BBQ con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `700g di ${i}`), 'Marinata BBQ', 'Spiedini', 'Olio d\'oliva'],
+        instructions: ['Marinare 1 ora', 'Infilare sugli spiedini', 'Grigliare 6-8 minuti', 'Girare e cuocere'],
+        prepTime: '20 min',
+        servings: 4
+      },
+      {
+        title: `Insalata Mediterranea di ${mainIngredient}`,
+        description: `Insalata fresca con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 tazze di ${i}`), 'Lattuga', 'Formaggio feta', 'Olive', 'Condimento al limone'],
+        instructions: ['Tritare tutti gli ingredienti', 'Mescolare in una ciotola grande', 'Aggiungere il condimento', 'Guarnire con feta e servire'],
+        prepTime: '15 min',
+        servings: 3
+      },
+      {
+        title: `Pasta Primavera con ${mainIngredient}`,
+        description: `Pasta italiana con ${ingredients}`,
+        ingredients: ['500g di pasta', ...ingredientList.map(i => `1 tazza di ${i}`), 'Parmigiano', 'Olio d\'oliva', 'Aglio'],
+        instructions: ['Cuocere la pasta al dente', 'Saltare le verdure', 'Unire alla pasta', 'Guarnire con parmigiano'],
+        prepTime: '25 min',
+        servings: 4
+      },
+      {
+        title: `Curry Indiano di ${mainIngredient}`,
+        description: `Curry piccante con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 tazze di ${i}`), 'Pasta di curry', 'Latte di cocco', 'Riso', 'Spezie'],
+        instructions: ['Tostare le spezie', 'Aggiungere pasta di curry e latte di cocco', 'Cuocere 20 min', 'Servire con riso'],
+        prepTime: '40 min',
+        servings: 4
+      },
+      {
+        title: `Tacos Messicani di ${mainIngredient}`,
+        description: `Tacos in stile street food con ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `500g di ${i}`), 'Tortillas', 'Salsa', 'Coriandolo', 'Lime'],
+        instructions: ['Condire e cuocere il ripieno', 'Scaldare le tortillas', 'Assemblare i tacos', 'Guarnire con salsa e coriandolo'],
+        prepTime: '20 min',
+        servings: 4
+      },
+      {
+        title: `Bowl di Riso Asiatico con ${mainIngredient}`,
+        description: `Bowl salutare con ${ingredients}`,
+        ingredients: ['2 tazze di riso', ...ingredientList.map(i => `1 tazza di ${i}`), 'Salsa di soia', 'Semi di sesamo', 'Verdure'],
+        instructions: ['Cuocere il riso', 'Preparare i condimenti', 'Disporre a strati nella bowl', 'Condire con salsa e semi'],
+        prepTime: '30 min',
+        servings: 2
+      },
+      {
+        title: `Pizza Flatbread con ${mainIngredient}`,
+        description: `Flatbread gourmet con ${ingredients}`,
+        ingredients: ['2 flatbreads', ...ingredientList.map(i => `1/2 tazza di ${i}`), 'Mozzarella', 'Olio d\'oliva', 'Erbe'],
+        instructions: ['Preriscaldare il forno a 220°C', 'Condire i flatbreads', 'Cuocere 12-15 minuti', 'Tagliare e servire caldo'],
+        prepTime: '25 min',
+        servings: 2
+      }
+    ];
   }
 }
