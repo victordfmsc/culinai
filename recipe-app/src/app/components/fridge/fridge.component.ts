@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, signal, computed, effect, inject } from '@angular/core';
+import { Component, Output, EventEmitter, signal, computed, effect, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -45,7 +45,7 @@ import { TranslationService } from '../../services/translation.service';
     </div>
   `
 })
-export class FridgeComponent {
+export class FridgeComponent implements OnInit {
   @Output() findRecipes = new EventEmitter<string>();
   
   private translationService = inject(TranslationService);
@@ -71,6 +71,7 @@ export class FridgeComponent {
     // Auto-translate ingredients when language changes
     effect(() => {
       const currentLang = this.translationService.currentLanguage();
+      console.log('Language changed to:', currentLang);
       
       // If English, use original names
       if (currentLang === 'en') {
@@ -83,12 +84,24 @@ export class FridgeComponent {
     });
   }
 
+  ngOnInit() {
+    // Translate on initial load if not English
+    const currentLang = this.translationService.currentLanguage();
+    if (currentLang !== 'en') {
+      this.translateIngredients();
+    }
+  }
+
   private async translateIngredients() {
+    const currentLang = this.translationService.currentLanguage();
+    console.log('Translating', this.commonIngredients.length, 'ingredients to:', currentLang);
+    
     try {
-      const translated = await this.translationService.translateBatch(this.commonIngredients);
+      const translated = await this.translationService.translateBatch(this.commonIngredients, currentLang);
+      console.log('✅ Translation successful! First 5 items:', translated.slice(0, 5));
       this.translatedIngredients.set(translated);
     } catch (error) {
-      console.error('Failed to translate ingredients:', error);
+      console.error('❌ Failed to translate ingredients:', error);
       // Fallback to original names on error
       this.translatedIngredients.set([...this.commonIngredients]);
     }

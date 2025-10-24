@@ -156,8 +156,9 @@ export class AutoTranslateService {
 
       this.saveCache();
       return results;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Batch translation error:', error);
+      console.error('Error details:', error.message, error.stack);
       // Fallback to original texts for failed translations
       needsTranslation.forEach(({ index, text }) => {
         results[index] = text;
