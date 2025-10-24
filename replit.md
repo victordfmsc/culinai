@@ -10,6 +10,8 @@ This is a recipe management application built with Angular 19 that helps users m
 - ✅ **AI Recipe Generation**: Now generates 10 unique recipes per request (previously 3)
 - ✅ **Auto-Translation of AI Content**: Gemini now generates ALL recipe content (titles, descriptions, ingredients, instructions) in the selected language
 - ✅ **Complete UI Translation**: All UI elements, labels, and buttons now translate automatically when language changes
+- ✅ **Google Translate API Integration**: Implemented auto-translation service for dynamic content using Google Cloud Translation API
+- ✅ **Translation Cache System**: localStorage-based caching to reduce API calls and improve performance
 - ✅ **Deployment Fix**: Simplified deployment to use direct Angular output directory (recipe-app/dist/recipe-app/browser) instead of copying to intermediate Chefai folder
 - ✅ Environment variables now auto-injected on build via inject-env.js script
 - ✅ Android project is now self-contained with plugins copied locally (no node_modules dependency)
@@ -51,6 +53,13 @@ Preferred communication style: Simple, everyday language.
 - Language selection persists in signal state
 - **AI Content Translation**: Gemini service receives current language and generates ALL recipe content (titles, descriptions, ingredients, instructions) in the selected language
 - Complete UI translation including all labels, buttons, placeholders, and messages across all components
+- **Google Translate API Auto-Translation**:
+  - `AutoTranslateService` provides automatic translation for any text
+  - Uses Google Cloud Translation API v2 for real-time translation
+  - localStorage-based cache system reduces API calls and costs
+  - Batch translation support for efficient processing
+  - Fallback to manual translations when API unavailable
+  - Language detection capability for user-generated content
 
 ## Backend Architecture
 

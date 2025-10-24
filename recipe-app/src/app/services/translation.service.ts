@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { AutoTranslateService } from './auto-translate.service';
 
 type Language = 'en' | 'es' | 'fr' | 'de' | 'it';
 
@@ -11,8 +12,67 @@ interface Translations {
 })
 export class TranslationService {
   currentLanguage = signal<Language>('en');
+  private autoTranslate = inject(AutoTranslateService);
 
-  private translations: Translations = {
+  // Base translations in English - will be auto-translated to other languages
+  private baseTranslations: { [key: string]: string } = {
+    app_title: 'Recipe Manager',
+    points: 'Points',
+    level: 'Level',
+    logout: 'Logout',
+    nav_home: 'Home',
+    nav_fridge: 'Fridge',
+    nav_recipes: 'Recipes',
+    nav_shopping: 'Shopping',
+    nav_profile: 'Profile',
+    login_welcome: 'Welcome!',
+    login_prompt: 'Sign in to manage your recipes',
+    login_with_google: 'Sign in with Google',
+    login_email_continue: 'Or continue with email',
+    login_email_placeholder: 'Email',
+    login_password_placeholder: 'Password',
+    login_signin_button: 'Sign In',
+    login_signup_button: 'Sign Up',
+    login_skip: 'Skip login and try the app',
+    cancel: 'Cancel',
+    cooked_button: 'I Cooked This!',
+    modal_plan_recipe_title: 'Plan Recipe',
+    modal_plan_recipe_prompt: 'Select a day for {title}',
+    modal_select_recipe_title: 'Select Recipe for {day}',
+    modal_select_recipe_prompt: 'Choose a recipe:',
+    modal_select_recipe_empty: 'No recipes available',
+    modal_select_recipe_empty_cta: 'Find recipes from your fridge first!',
+    suggestions_ingredients_title: 'Ingredients',
+    suggestions_instructions_title: 'Instructions',
+    day_monday: 'Mon',
+    day_tuesday: 'Tue',
+    day_wednesday: 'Wed',
+    day_thursday: 'Thu',
+    day_friday: 'Fri',
+    day_saturday: 'Sat',
+    day_sunday: 'Sun',
+    shopping_title: 'Shopping List',
+    shopping_empty: 'Your shopping list is empty',
+    shopping_clear: 'Clear Checked Items',
+    home_meal_plan: 'Weekly Meal Plan',
+    home_no_meals: 'No meals planned',
+    fridge_question: 'What ingredients do you have?',
+    fridge_placeholder: 'e.g., chicken, tomatoes, onions, garlic...',
+    fridge_find: 'Find Recipes',
+    fridge_common: 'Common Ingredients',
+    suggestions_title: 'Recipe Suggestions',
+    suggestions_empty: 'No recipes yet. Go to your Fridge to find recipes!',
+    suggestions_servings: 'servings',
+    suggestions_cook: 'Cook Now',
+    suggestions_plan: 'Plan for Later',
+    suggestions_add_shopping: 'Add to Shopping List',
+    recipe_time: 'Time',
+    recipe_servings: 'Servings',
+    recipe_start_cooking: 'Start Cooking'
+  };
+
+  // Manual fallback translations (used if auto-translate fails)
+  private fallbackTranslations: Translations = {
     app_title: { en: 'Recipe Manager', es: 'Administrador de Recetas', fr: 'Gestionnaire de Recettes', de: 'Rezeptverwaltung', it: 'Gestore di Ricette' },
     points: { en: 'Points', es: 'Puntos', fr: 'Points', de: 'Punkte', it: 'Punti' },
     level: { en: 'Level', es: 'Nivel', fr: 'Niveau', de: 'Level', it: 'Livello' },
@@ -48,50 +108,125 @@ export class TranslationService {
     day_friday: { en: 'Fri', es: 'Vie', fr: 'Ven', de: 'Fr', it: 'Ven' },
     day_saturday: { en: 'Sat', es: 'Sáb', fr: 'Sam', de: 'Sa', it: 'Sab' },
     day_sunday: { en: 'Sun', es: 'Dom', fr: 'Dim', de: 'So', it: 'Dom' },
-    
-    // Shopping List
     shopping_title: { en: 'Shopping List', es: 'Lista de Compras', fr: 'Liste de Courses', de: 'Einkaufsliste', it: 'Lista della Spesa' },
     shopping_empty: { en: 'Your shopping list is empty', es: 'Tu lista de compras está vacía', fr: 'Votre liste de courses est vide', de: 'Ihre Einkaufsliste ist leer', it: 'La tua lista della spesa è vuota' },
     shopping_clear: { en: 'Clear Checked Items', es: 'Eliminar Marcados', fr: 'Effacer les éléments cochés', de: 'Markierte löschen', it: 'Cancella Selezionati' },
-    
-    // Home
     home_meal_plan: { en: 'Weekly Meal Plan', es: 'Plan Semanal de Comidas', fr: 'Plan de Repas Hebdomadaire', de: 'Wöchentlicher Essensplan', it: 'Piano Pasti Settimanale' },
     home_no_meals: { en: 'No meals planned', es: 'Sin comidas planeadas', fr: 'Aucun repas prévu', de: 'Keine Mahlzeiten geplant', it: 'Nessun pasto pianificato' },
-    
-    // Fridge
     fridge_question: { en: 'What ingredients do you have?', es: '¿Qué ingredientes tienes?', fr: 'Quels ingrédients avez-vous?', de: 'Welche Zutaten haben Sie?', it: 'Quali ingredienti hai?' },
     fridge_placeholder: { en: 'e.g., chicken, tomatoes, onions, garlic...', es: 'ej., pollo, tomates, cebollas, ajo...', fr: 'ex., poulet, tomates, oignons, ail...', de: 'z.B. Hühnchen, Tomaten, Zwiebeln, Knoblauch...', it: 'es., pollo, pomodori, cipolle, aglio...' },
     fridge_find: { en: 'Find Recipes', es: 'Buscar Recetas', fr: 'Trouver des Recettes', de: 'Rezepte finden', it: 'Trova Ricette' },
     fridge_common: { en: 'Common Ingredients', es: 'Ingredientes Comunes', fr: 'Ingrédients Courants', de: 'Häufige Zutaten', it: 'Ingredienti Comuni' },
-    
-    // Suggestions
     suggestions_title: { en: 'Recipe Suggestions', es: 'Sugerencias de Recetas', fr: 'Suggestions de Recettes', de: 'Rezeptvorschläge', it: 'Suggerimenti Ricette' },
     suggestions_empty: { en: 'No recipes yet. Go to your Fridge to find recipes!', es: '¡Aún no hay recetas. Ve a tu Nevera para buscar recetas!', fr: 'Pas encore de recettes. Allez à votre Frigo pour trouver des recettes!', de: 'Noch keine Rezepte. Gehen Sie zu Ihrem Kühlschrank, um Rezepte zu finden!', it: 'Ancora nessuna ricetta. Vai al tuo Frigo per trovare ricette!' },
     suggestions_servings: { en: 'servings', es: 'porciones', fr: 'portions', de: 'Portionen', it: 'porzioni' },
     suggestions_cook: { en: 'Cook Now', es: 'Cocinar Ahora', fr: 'Cuisiner Maintenant', de: 'Jetzt Kochen', it: 'Cucina Ora' },
     suggestions_plan: { en: 'Plan for Later', es: 'Planificar', fr: 'Planifier', de: 'Planen', it: 'Pianifica' },
     suggestions_add_shopping: { en: 'Add to Shopping List', es: 'Agregar a Compras', fr: 'Ajouter à la Liste', de: 'Zur Einkaufsliste', it: 'Aggiungi alla Spesa' },
-    
-    // Recipe Details
     recipe_time: { en: 'Time', es: 'Tiempo', fr: 'Temps', de: 'Zeit', it: 'Tempo' },
     recipe_servings: { en: 'Servings', es: 'Porciones', fr: 'Portions', de: 'Portionen', it: 'Porzioni' },
     recipe_start_cooking: { en: 'Start Cooking', es: 'Empezar a Cocinar', fr: 'Commencer à Cuisiner', de: 'Mit Kochen beginnen', it: 'Inizia a Cucinare' }
   };
 
+  // Cache for auto-translated texts
+  private translationCache: Map<string, Promise<string>> = new Map();
+
   translate(key: string, params?: Record<string, any>): string {
     const lang = this.currentLanguage();
-    let translation = this.translations[key]?.[lang] || key;
     
+    // If English, return original
+    if (lang === 'en') {
+      let translation = this.baseTranslations[key] || key;
+      if (params) {
+        Object.keys(params).forEach(param => {
+          translation = translation.replace(`{${param}}`, params[param]);
+        });
+      }
+      return translation;
+    }
+
+    // Try fallback first (synchronous)
+    let translation = this.fallbackTranslations[key]?.[lang];
+    
+    // If not in fallback, use base English as fallback
+    if (!translation) {
+      translation = this.baseTranslations[key] || key;
+    }
+
+    // Apply params
     if (params) {
       Object.keys(params).forEach(param => {
         translation = translation.replace(`{${param}}`, params[param]);
       });
     }
-    
+
     return translation;
+  }
+
+  /**
+   * Async version that uses Google Translate API for any text
+   * This is useful for dynamic content like recipe names, user input, etc.
+   */
+  async translateText(text: string, targetLang?: Language): Promise<string> {
+    const lang = targetLang || this.currentLanguage();
+    
+    // If English, return original
+    if (lang === 'en') {
+      return text;
+    }
+
+    // Try auto-translate with cache
+    const cacheKey = `${text}|${lang}`;
+    if (!this.translationCache.has(cacheKey)) {
+      this.translationCache.set(cacheKey, this.autoTranslate.translate(text, lang, 'en'));
+    }
+
+    try {
+      return await this.translationCache.get(cacheKey)!;
+    } catch (error) {
+      console.error('Translation failed:', error);
+      return text; // Fallback to original
+    }
+  }
+
+  /**
+   * Translate multiple texts in batch (more efficient)
+   */
+  async translateBatch(texts: string[], targetLang?: Language): Promise<string[]> {
+    const lang = targetLang || this.currentLanguage();
+    
+    // If English, return originals
+    if (lang === 'en') {
+      return texts;
+    }
+
+    try {
+      return await this.autoTranslate.translateBatch(texts, lang, 'en');
+    } catch (error) {
+      console.error('Batch translation failed:', error);
+      return texts; // Fallback to originals
+    }
   }
 
   setLanguage(lang: Language) {
     this.currentLanguage.set(lang);
+  }
+
+  /**
+   * Clear translation cache
+   */
+  clearCache(): void {
+    this.translationCache.clear();
+    this.autoTranslate.clearCache();
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats() {
+    return {
+      service: this.autoTranslate.getCacheStats(),
+      local: { entries: this.translationCache.size }
+    };
   }
 }

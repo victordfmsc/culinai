@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../environments/environment';
 
 export interface TranslationCache {
@@ -11,13 +12,18 @@ export interface TranslationCache {
   providedIn: 'root'
 })
 export class AutoTranslateService {
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
   private apiKey: string = environment.googleTranslateApiKey;
   private cache: TranslationCache = {};
   private readonly CACHE_KEY = 'translation_cache';
   private readonly API_URL = 'https://translation.googleapis.com/language/translate/v2';
 
   constructor() {
-    this.loadCache();
+    this.isBrowser = isPlatformBrowser(this.platformId);
+    if (this.isBrowser) {
+      this.loadCache();
+    }
     console.log('AutoTranslate Service initialized with API key:', this.apiKey ? '✓' : '✗');
   }
 
@@ -197,7 +203,9 @@ export class AutoTranslateService {
    */
   clearCache(): void {
     this.cache = {};
-    localStorage.removeItem(this.CACHE_KEY);
+    if (this.isBrowser) {
+      localStorage.removeItem(this.CACHE_KEY);
+    }
     console.log('Translation cache cleared');
   }
 
@@ -214,6 +222,10 @@ export class AutoTranslateService {
   }
 
   private loadCache(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+    
     try {
       const cached = localStorage.getItem(this.CACHE_KEY);
       if (cached) {
@@ -227,6 +239,10 @@ export class AutoTranslateService {
   }
 
   private saveCache(): void {
+    if (!this.isBrowser) {
+      return;
+    }
+    
     try {
       localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.cache));
     } catch (error) {
