@@ -41,8 +41,8 @@ externalPort = 3001
 [deployment]
 deploymentTarget = "autoscale"
 publicDir = "Chefai"
-run = ["npx", "http-server", "Chefai", "-p", "5000", "--proxy", "http://localhost:5000?"]
-build = ["bash", "deploy-build.sh"]
+run = ["npx", "http-server", "recipe-app/dist/recipe-app/browser", "-p", "5000", "--proxy", "http://localhost:5000?"]
+build = ["bash", "-c", "cd recipe-app && node inject-env.js && npm run build"]
 
 [nix]
 channel = "stable-25_05"

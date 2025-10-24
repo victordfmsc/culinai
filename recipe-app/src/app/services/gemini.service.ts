@@ -36,32 +36,36 @@ export class GeminiService {
   }
 
   async generateRecipes(ingredients: string): Promise<Recipe[]> {
-    console.log('Generating recipes for:', ingredients);
+    console.log('Generating 10 recipes for:', ingredients);
     
     // Always try Gemini first if available
     if (this.model) {
       try {
-        const prompt = `You are a chef. Create exactly 3 different recipes using these ingredients: ${ingredients}.
+        const prompt = `You are a professional chef. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.
         
 Important rules:
 - Use the provided ingredients as main components
-- Each recipe must be different (vary cuisine, cooking method, style)
+- Each recipe MUST be completely different (vary cuisine style, cooking method, difficulty)
+- Include cuisines like: Italian, Asian, Mexican, American, Mediterranean, Indian, etc.
+- Include cooking methods like: stir-fry, baked, grilled, soup, salad, pasta, rice bowl, curry, etc.
 - Include real measurements and cooking times
-- Be specific with instructions
+- Be very specific with instructions
 
-Return ONLY a JSON array, no other text, in this exact format:
+Return ONLY a JSON array with 10 recipes, no other text, in this exact format:
 [
   {
-    "title": "Specific Recipe Name",
-    "description": "One sentence description",
-    "ingredients": ["2 lbs chicken", "3 cups rice", "exact amounts"],
-    "instructions": ["Step 1 details", "Step 2 with temperature", "Step 3 timing"],
+    "title": "Very Specific Recipe Name with Cuisine Style",
+    "description": "One appetizing sentence description",
+    "ingredients": ["2 lbs chicken breast", "3 cups basmati rice", "exact amounts with units"],
+    "instructions": ["Step 1 with specific details", "Step 2 with temperature in °F", "Step 3 with exact timing"],
     "prepTime": "25 mins",
     "servings": 4
   }
-]`;
+]
 
-        console.log('Calling Gemini API...');
+Make sure all 10 recipes are VERY different from each other!`;
+
+        console.log('Calling Gemini API for 10 recipes...');
         const result = await this.model.generateContent(prompt);
         const response = result.response;
         const text = response.text();
@@ -81,8 +85,8 @@ Return ONLY a JSON array, no other text, in this exact format:
           try {
             const recipes = JSON.parse(jsonString);
             if (Array.isArray(recipes) && recipes.length > 0) {
-              console.log('✅ Generated', recipes.length, 'unique recipes!');
-              return recipes.slice(0, 3);
+              console.log('✅ Generated', recipes.length, 'unique recipes with AI!');
+              return recipes.slice(0, 10);
             }
           } catch (e) {
             console.error('JSON parse error:', e);
@@ -93,76 +97,112 @@ Return ONLY a JSON array, no other text, in this exact format:
       }
     }
     
-    // Enhanced fallback with ingredient-based recipes
-    console.log('Using enhanced fallback recipes');
+    // Enhanced fallback with 10 ingredient-based recipes
+    console.log('Using enhanced fallback with 10 recipes');
     const ingredientList = ingredients.toLowerCase().split(',').map(i => i.trim());
+    const mainIngredient = ingredientList[0] || 'Mixed';
     
-    // Create varied recipes based on ingredients
-    const recipes: Recipe[] = [];
-    
-    // Recipe 1: Quick version
-    recipes.push({
-      title: `Quick ${ingredientList[0] || 'Mixed'} Stir-Fry`,
-      description: `A fast and delicious stir-fry featuring ${ingredients}`,
-      ingredients: [
-        ...ingredientList.map(i => `1 cup ${i}`),
-        '2 tbsp olive oil',
-        'Salt and pepper to taste',
-        '1 tsp garlic powder'
-      ],
-      instructions: [
-        'Heat oil in a large pan over medium-high heat',
-        `Add ${ingredientList[0] || 'ingredients'} and cook for 3-4 minutes`,
-        'Add remaining ingredients and stir-fry for 5-7 minutes',
-        'Season with salt, pepper, and garlic powder',
-        'Serve hot immediately'
-      ],
-      prepTime: '15 mins',
-      servings: 2
-    });
-    
-    // Recipe 2: Baked version
-    recipes.push({
-      title: `Baked ${ingredientList[0] || 'Mixed'} Casserole`,
-      description: `A hearty baked dish with ${ingredients}`,
-      ingredients: [
-        ...ingredientList.map(i => `2 cups ${i}`),
-        '1 cup cheese',
-        '1/2 cup cream',
-        'Salt, pepper, herbs'
-      ],
-      instructions: [
-        'Preheat oven to 375°F (190°C)',
-        `Layer ${ingredientList.join(', ')} in a baking dish`,
-        'Mix cream with seasonings and pour over',
-        'Top with cheese',
-        'Bake for 30-35 minutes until golden',
-        'Let rest 5 minutes before serving'
-      ],
-      prepTime: '45 mins',
-      servings: 4
-    });
-    
-    // Recipe 3: Soup version
-    recipes.push({
-      title: `${ingredientList[0] || 'Hearty'} Soup`,
-      description: `A warming soup made with ${ingredients}`,
-      ingredients: [
-        ...ingredientList.map(i => `1 cup chopped ${i}`),
-        '4 cups vegetable broth',
-        '1 onion, diced',
-        'Seasonings to taste'
-      ],
-      instructions: [
-        'Sauté onion in pot until soft',
-        `Add ${ingredientList[0] || 'main ingredients'} and cook 5 minutes`,
-        'Pour in broth and bring to boil',
-        'Reduce heat and simmer 20 minutes',
-        'Season to taste and serve with bread'
-      ],
-      prepTime: '35 mins',
-      servings: 4
-    });
+    const recipes: Recipe[] = [
+      // Recipe 1: Stir-Fry
+      {
+        title: `Quick ${mainIngredient} Stir-Fry`,
+        description: `A fast Asian-style stir-fry with ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 cup ${i}`), '2 tbsp soy sauce', '1 tbsp sesame oil', 'Garlic, ginger'],
+        instructions: ['Heat wok to high heat', `Stir-fry ${mainIngredient} 3-4 minutes`, 'Add vegetables and sauce', 'Toss 2 minutes and serve'],
+        prepTime: '15 mins',
+        servings: 2
+      },
+      
+      // Recipe 2: Baked
+      {
+        title: `Baked ${mainIngredient} Casserole`,
+        description: `Comfort food casserole with ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 cups ${i}`), '1 cup cheese', '1/2 cup cream', 'Herbs'],
+        instructions: ['Preheat oven to 375°F', 'Layer ingredients in dish', 'Add cream and cheese', 'Bake 35 minutes'],
+        prepTime: '45 mins',
+        servings: 4
+      },
+      
+      // Recipe 3: Soup
+      {
+        title: `Hearty ${mainIngredient} Soup`,
+        description: `Warming soup with ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 cup ${i}`), '4 cups broth', '1 onion', 'Seasonings'],
+        instructions: ['Sauté onion', 'Add ingredients and broth', 'Simmer 20 minutes', 'Season and serve'],
+        prepTime: '30 mins',
+        servings: 4
+      },
+      
+      // Recipe 4: Grilled
+      {
+        title: `Grilled ${mainIngredient} Skewers`,
+        description: `BBQ-style grilled ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1.5 lbs ${i}`), 'BBQ marinade', 'Skewers', 'Olive oil'],
+        instructions: ['Marinate 1 hour', 'Thread onto skewers', 'Grill 6-8 minutes', 'Turn and cook until done'],
+        prepTime: '20 mins',
+        servings: 4
+      },
+      
+      // Recipe 5: Salad
+      {
+        title: `Mediterranean ${mainIngredient} Salad`,
+        description: `Fresh salad featuring ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 cups ${i}`), 'Lettuce', 'Feta cheese', 'Olives', 'Lemon dressing'],
+        instructions: ['Chop all ingredients', 'Toss in large bowl', 'Add dressing', 'Top with feta and serve'],
+        prepTime: '15 mins',
+        servings: 3
+      },
+      
+      // Recipe 6: Pasta
+      {
+        title: `${mainIngredient} Pasta Primavera`,
+        description: `Italian pasta with ${ingredients}`,
+        ingredients: ['1 lb pasta', ...ingredientList.map(i => `1 cup ${i}`), 'Parmesan', 'Olive oil', 'Garlic'],
+        instructions: ['Boil pasta al dente', 'Sauté vegetables', 'Combine with pasta', 'Top with parmesan'],
+        prepTime: '25 mins',
+        servings: 4
+      },
+      
+      // Recipe 7: Curry
+      {
+        title: `Indian ${mainIngredient} Curry`,
+        description: `Spicy curry with ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `2 cups ${i}`), 'Curry paste', 'Coconut milk', 'Rice', 'Spices'],
+        instructions: ['Toast spices', 'Add curry paste and coconut milk', 'Simmer ingredients 20 mins', 'Serve over rice'],
+        prepTime: '40 mins',
+        servings: 4
+      },
+      
+      // Recipe 8: Tacos
+      {
+        title: `Mexican ${mainIngredient} Tacos`,
+        description: `Street-style tacos with ${ingredients}`,
+        ingredients: [...ingredientList.map(i => `1 lb ${i}`), 'Tortillas', 'Salsa', 'Cilantro', 'Lime'],
+        instructions: ['Season and cook filling', 'Warm tortillas', 'Assemble tacos', 'Top with salsa and cilantro'],
+        prepTime: '20 mins',
+        servings: 4
+      },
+      
+      // Recipe 9: Rice Bowl
+      {
+        title: `Asian ${mainIngredient} Rice Bowl`,
+        description: `Healthy bowl with ${ingredients}`,
+        ingredients: ['2 cups rice', ...ingredientList.map(i => `1 cup ${i}`), 'Soy sauce', 'Sesame seeds', 'Vegetables'],
+        instructions: ['Cook rice', 'Prepare toppings', 'Layer in bowl', 'Drizzle with sauce and seeds'],
+        prepTime: '30 mins',
+        servings: 2
+      },
+      
+      // Recipe 10: Pizza/Flatbread
+      {
+        title: `${mainIngredient} Flatbread Pizza`,
+        description: `Gourmet flatbread with ${ingredients}`,
+        ingredients: ['2 flatbreads', ...ingredientList.map(i => `1/2 cup ${i}`), 'Mozzarella', 'Olive oil', 'Herbs'],
+        instructions: ['Preheat oven to 425°F', 'Top flatbreads', 'Bake 12-15 minutes', 'Slice and serve hot'],
+        prepTime: '25 mins',
+        servings: 2
+      }
+    ];
     
     return recipes;
   }
