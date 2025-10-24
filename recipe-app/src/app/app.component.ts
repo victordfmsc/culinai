@@ -367,6 +367,8 @@ export class AppComponent {
   private setupStateSynchronization() {
     effect(() => {
       const remoteUser = this.firestoreService.currentUserData();
+      const isGuest = this.guestMode();
+      
       if (remoteUser) {
         if (JSON.stringify(this.mealPlan()) !== JSON.stringify(remoteUser.mealPlan)) {
           this.mealPlan.set(remoteUser.mealPlan);
@@ -374,7 +376,8 @@ export class AppComponent {
         if (JSON.stringify(this.shoppingList()) !== JSON.stringify(remoteUser.shoppingList)) {
           this.shoppingList.set(remoteUser.shoppingList);
         }
-      } else {
+      } else if (!isGuest) {
+        // Only reset if not in guest mode
         this.mealPlan.set(EMPTY_MEAL_PLAN);
         this.shoppingList.set([]);
       }
