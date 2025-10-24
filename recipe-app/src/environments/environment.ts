@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  googleApiKey: 'AIzaSyDmHuNY4Dp_JY9ZELtCSLeSHaJCrrnMoY8',
+  googleApiKey: 'AIzaSyA_UKEF1Y6iXW9f4l9AV8_groWmahyuDNI',
   revenuecatAndroidKey: 'sk_owtDVYfPeLydnNPWiHiFzfQqnyxAk',
   revenuecatWebKey: 'sk_owtDVYfPeLydnNPWiHiFzfQqnyxAk',
   revenuecatIosKey: ''
