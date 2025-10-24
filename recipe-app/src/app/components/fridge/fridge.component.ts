@@ -33,7 +33,7 @@ import { TranslationService } from '../../services/translation.service';
           <div class="flex flex-wrap gap-2">
             @for (ingredient of translatedIngredients(); track $index) {
               <button
-                (click)="addIngredient(commonIngredients[$index])"
+                (click)="addIngredient(ingredient)"
                 class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-indigo-100 hover:text-indigo-700 transition-colors"
               >
                 {{ ingredient }}
