@@ -27,6 +27,11 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
                   (change)="toggleItem(i)"
                   class="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
                 />
+                @if (item.quantity && item.quantity > 1) {
+                  <span class="px-2 py-1 bg-indigo-100 text-indigo-700 font-bold text-sm rounded-full min-w-[2rem] text-center">
+                    {{ item.quantity }}×
+                  </span>
+                }
                 <span [class.line-through]="item.checked" [class.text-gray-400]="item.checked" class="flex-1">
                   {{ item.text }}
                 </span>

@@ -6,6 +6,11 @@ This is a recipe management application built with Angular 19 that helps users m
 - **Web Application**: Deployed via Angular dev server on port 5000
 - **Mobile Application**: Android app via Capacitor framework (see Mobile Architecture section)
 
+**Recent Changes (Oct 25, 2025)**:
+- ✅ **Smart Shopping List**: Items added repeatedly now group together and show quantity badges (e.g., "3× tomatoes") instead of appearing as duplicates
+- ✅ **Intelligent Ingredient Parsing**: System recognizes quantities and units in multiple languages (English, Spanish, French, German, Italian) and sums them automatically
+- ✅ **Fixed Ingredient Translation Bug**: Clicking translated ingredients (e.g., "cerdo") now correctly adds the translated name instead of English
+
 **Recent Changes (Oct 24, 2025)**:
 - ✅ **AI Recipe Generation**: Now generates 10 unique recipes per request (previously 3)
 - ✅ **Ultra Detailed Instructions for Complete Beginners**: Recipe instructions are now EXTREMELY detailed (8-12 steps minimum) with:

@@ -595,13 +595,85 @@ export class AppComponent {
   }
 
   private mergeShoppingItems(newItems: string[]) {
-    const currentList = this.shoppingList();
-    const existingTexts = new Set(currentList.map(item => item.text.toLowerCase()));
+    const currentList = [...this.shoppingList()];
     
-    const itemsToAdd = newItems
-      .filter(text => !existingTexts.has(text.toLowerCase()))
-      .map(text => ({ text, checked: false }));
+    for (const newItemText of newItems) {
+      const parsed = this.parseIngredient(newItemText);
+      
+      // Try to find existing item with same ingredient name
+      const existingIndex = currentList.findIndex(item => {
+        const existingParsed = this.parseIngredient(item.text);
+        return existingParsed.ingredient.toLowerCase() === parsed.ingredient.toLowerCase();
+      });
+      
+      if (existingIndex >= 0) {
+        // Item exists - sum quantities
+        const existingItem = currentList[existingIndex];
+        const existingParsed = this.parseIngredient(existingItem.text);
+        
+        const newQuantity = (existingParsed.quantity || 1) + (parsed.quantity || 1);
+        const displayQuantity = existingItem.quantity ? (existingItem.quantity + (parsed.quantity || 1)) : newQuantity;
+        
+        // Update with combined quantity
+        currentList[existingIndex] = {
+          ...existingItem,
+          text: `${existingParsed.unit ? `${existingParsed.unit} ` : ''}${existingParsed.ingredient}`,
+          quantity: displayQuantity
+        };
+      } else {
+        // New item - add to list
+        currentList.push({
+          text: parsed.ingredient,
+          checked: false,
+          quantity: parsed.quantity || 1
+        });
+      }
+    }
     
-    this.shoppingList.set([...currentList, ...itemsToAdd]);
+    this.shoppingList.set(currentList);
+  }
+  
+  private parseIngredient(text: string): { quantity: number | null, unit: string | null, ingredient: string } {
+    // Common units in multiple languages
+    const units = [
+      // English
+      'cup', 'cups', 'tbsp', 'tsp', 'oz', 'lb', 'lbs', 'g', 'kg', 'ml', 'l',
+      'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'ounce', 'ounces', 'pound', 'pounds',
+      'gram', 'grams', 'kilogram', 'kilograms', 'liter', 'liters', 'milliliter', 'milliliters',
+      'clove', 'cloves', 'piece', 'pieces', 'slice', 'slices', 'can', 'cans', 'jar', 'jars',
+      // Spanish
+      'taza', 'tazas', 'cda', 'cdas', 'cdta', 'cdtas', 'gramo', 'gramos', 'kilo', 'kilos',
+      'litro', 'litros', 'diente', 'dientes', 'lata', 'latas', 'pizca', 'rebanada', 'rebanadas',
+      // French
+      'tasse', 'tasses', 'cuillère', 'cuillères', 'gramme', 'grammes', 'litre', 'litres',
+      'gousse', 'gousses', 'tranche', 'tranches', 'boîte', 'boîtes',
+      // German
+      'Tasse', 'Tassen', 'Esslöffel', 'Teelöffel', 'Gramm', 'Kilogramm', 'Liter',
+      'Zehe', 'Zehen', 'Scheibe', 'Scheiben', 'Dose', 'Dosen',
+      // Italian
+      'tazza', 'tazze', 'cucchiaio', 'cucchiai', 'cucchiaino', 'cucchiaini', 'grammo', 'grammi',
+      'litro', 'litri', 'spicchio', 'spicchi', 'fetta', 'fette', 'scatola', 'scatole'
+    ];
+    
+    // Try to match: "number unit ingredient" or "number ingredient"
+    const regex = /^(\d+(?:[.,]\d+)?)\s*([a-zA-Zéàèùâêîôûäöüß]+)?\s+(.+)$/i;
+    const match = text.match(regex);
+    
+    if (match) {
+      const quantity = parseFloat(match[1].replace(',', '.'));
+      const possibleUnit = match[2]?.toLowerCase();
+      const rest = match[3];
+      
+      // Check if the second group is a unit
+      if (possibleUnit && units.some(u => u.toLowerCase() === possibleUnit)) {
+        return { quantity, unit: possibleUnit, ingredient: rest };
+      } else {
+        // No unit, just quantity and ingredient
+        return { quantity, unit: null, ingredient: match[2] ? `${match[2]} ${rest}` : rest };
+      }
+    }
+    
+    // No quantity found, treat as "1 x ingredient"
+    return { quantity: null, unit: null, ingredient: text };
   }
 }

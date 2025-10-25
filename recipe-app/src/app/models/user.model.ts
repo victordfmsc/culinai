@@ -1,6 +1,7 @@
 export interface ShoppingItem {
   text: string;
   checked: boolean;
+  quantity?: number;
 }
 
 export interface MealPlan {
