@@ -7,9 +7,11 @@ This is a recipe management application built with Angular 19 that helps users m
 - **Mobile Application**: Android app via Capacitor framework (see Mobile Architecture section)
 
 **Recent Changes (Oct 25, 2025)**:
-- ✅ **Smart Shopping List with Base Ingredient Extraction**: System extracts only the core ingredient name (e.g., "brócoli" from "2 tazas de brócoli cortado a trozos tamaño de un bocado") and groups/sums quantities automatically
-- ✅ **Intelligent Quantity Summing**: Numerical quantities are extracted and summed across duplicate ingredients (e.g., "2 cups broccoli" + "3 cups broccoli" = "5× broccoli")
-- ✅ **Multi-Language Descriptor Removal**: Automatically removes descriptive text in 5 languages:
+- ✅ **Smart Shopping List with Context-Aware Extraction**:
+  - **Numeric quantities**: Extracts base ingredient name and sums (e.g., "2 cups brócoli picado" + "3 cups brócoli" = "5× brócoli")
+  - **Non-numeric items**: Keeps full text as-is (e.g., "sal", "aceite de oliva", "una pizca de hierbas secas")
+  - Prevents nonsensical extractions like "pulgada de..." or "de hierbas secas"
+- ✅ **Multi-Language Descriptor Removal** (only for numeric quantities):
   - 🇬🇧 English: "chopped", "diced", "cut into", "bite-sized", etc.
   - 🇪🇸 Spanish: "picado", "cortado en", "tamaño de un bocado", etc.
   - 🇫🇷 French: "haché", "coupé en", "en dés", etc.
@@ -17,6 +19,7 @@ This is a recipe management application built with Angular 19 that helps users m
   - 🇮🇹 Italian: "tritato", "tagliato", "a cubetti", etc.
 - ✅ **Visual Quantity Badges**: Items with quantity > 1 display colored badges (e.g., "3× tomatoes")
 - ✅ **Fixed Ingredient Translation Bug**: Clicking translated ingredients now correctly adds the translated name instead of English
+- ✅ **Gemini API Updated**: Changed from deprecated `gemini-pro` to `gemini-1.5-flash` model
 
 **Recent Changes (Oct 24, 2025)**:
 - ✅ **AI Recipe Generation**: Now generates 10 unique recipes per request (previously 3)

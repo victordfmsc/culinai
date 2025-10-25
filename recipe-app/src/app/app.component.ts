@@ -599,15 +599,17 @@ export class AppComponent {
     
     for (const newItemText of newItems) {
       const parsed = this.parseIngredient(newItemText);
-      const baseIngredient = parsed.baseIngredient;
       
-      // Try to find existing item with same base ingredient name
+      // Use base ingredient only if we have a numeric quantity, otherwise use full text
+      const displayText = parsed.hasNumericQuantity ? parsed.baseIngredient : parsed.ingredient;
+      
+      // Try to find existing item with same ingredient name
       const existingIndex = currentList.findIndex(item => {
-        return item.text.toLowerCase() === baseIngredient.toLowerCase();
+        return item.text.toLowerCase() === displayText.toLowerCase();
       });
       
-      if (existingIndex >= 0) {
-        // Item exists - sum quantities
+      if (existingIndex >= 0 && parsed.hasNumericQuantity) {
+        // Item exists and has numeric quantity - sum quantities
         const existingItem = currentList[existingIndex];
         const newTotal = (existingItem.quantity || 1) + (parsed.quantity || 1);
         
@@ -616,12 +618,15 @@ export class AppComponent {
           ...existingItem,
           quantity: newTotal
         };
+      } else if (existingIndex >= 0) {
+        // Item exists but no numeric quantity - just skip to avoid duplicates
+        continue;
       } else {
-        // New item - add to list with base ingredient name only
+        // New item - add to list
         currentList.push({
-          text: baseIngredient,
+          text: displayText,
           checked: false,
-          quantity: parsed.quantity || 1
+          quantity: parsed.hasNumericQuantity ? (parsed.quantity || 1) : undefined
         });
       }
     }
@@ -629,7 +634,7 @@ export class AppComponent {
     this.shoppingList.set(currentList);
   }
   
-  private parseIngredient(text: string): { quantity: number | null, unit: string | null, ingredient: string, baseIngredient: string } {
+  private parseIngredient(text: string): { quantity: number | null, unit: string | null, ingredient: string, baseIngredient: string, hasNumericQuantity: boolean } {
     // Common units in multiple languages
     const units = [
       // English
@@ -717,11 +722,15 @@ export class AppComponent {
       baseIngredient = words.slice(0, 2).join(' ');
     }
     
+    // Determine if we have a meaningful numeric quantity
+    const hasNumericQuantity = quantity !== null && quantity >= 1;
+    
     return { 
       quantity, 
       unit, 
       ingredient: remaining,
-      baseIngredient: baseIngredient
+      baseIngredient: baseIngredient,
+      hasNumericQuantity: hasNumericQuantity
     };
   }
 }
