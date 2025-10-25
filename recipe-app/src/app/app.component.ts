@@ -599,31 +599,27 @@ export class AppComponent {
     
     for (const newItemText of newItems) {
       const parsed = this.parseIngredient(newItemText);
+      const baseIngredient = parsed.baseIngredient;
       
-      // Try to find existing item with same ingredient name
+      // Try to find existing item with same base ingredient name
       const existingIndex = currentList.findIndex(item => {
-        const existingParsed = this.parseIngredient(item.text);
-        return existingParsed.ingredient.toLowerCase() === parsed.ingredient.toLowerCase();
+        return item.text.toLowerCase() === baseIngredient.toLowerCase();
       });
       
       if (existingIndex >= 0) {
         // Item exists - sum quantities
         const existingItem = currentList[existingIndex];
-        const existingParsed = this.parseIngredient(existingItem.text);
-        
-        const newQuantity = (existingParsed.quantity || 1) + (parsed.quantity || 1);
-        const displayQuantity = existingItem.quantity ? (existingItem.quantity + (parsed.quantity || 1)) : newQuantity;
+        const newTotal = (existingItem.quantity || 1) + (parsed.quantity || 1);
         
         // Update with combined quantity
         currentList[existingIndex] = {
           ...existingItem,
-          text: `${existingParsed.unit ? `${existingParsed.unit} ` : ''}${existingParsed.ingredient}`,
-          quantity: displayQuantity
+          quantity: newTotal
         };
       } else {
-        // New item - add to list
+        // New item - add to list with base ingredient name only
         currentList.push({
-          text: parsed.ingredient,
+          text: baseIngredient,
           checked: false,
           quantity: parsed.quantity || 1
         });
@@ -633,7 +629,7 @@ export class AppComponent {
     this.shoppingList.set(currentList);
   }
   
-  private parseIngredient(text: string): { quantity: number | null, unit: string | null, ingredient: string } {
+  private parseIngredient(text: string): { quantity: number | null, unit: string | null, ingredient: string, baseIngredient: string } {
     // Common units in multiple languages
     const units = [
       // English
@@ -644,36 +640,88 @@ export class AppComponent {
       // Spanish
       'taza', 'tazas', 'cda', 'cdas', 'cdta', 'cdtas', 'gramo', 'gramos', 'kilo', 'kilos',
       'litro', 'litros', 'diente', 'dientes', 'lata', 'latas', 'pizca', 'rebanada', 'rebanadas',
+      'unidad', 'unidades',
       // French
       'tasse', 'tasses', 'cuillère', 'cuillères', 'gramme', 'grammes', 'litre', 'litres',
-      'gousse', 'gousses', 'tranche', 'tranches', 'boîte', 'boîtes',
+      'gousse', 'gousses', 'tranche', 'tranches', 'boîte', 'boîtes', 'unité', 'unités',
       // German
       'Tasse', 'Tassen', 'Esslöffel', 'Teelöffel', 'Gramm', 'Kilogramm', 'Liter',
-      'Zehe', 'Zehen', 'Scheibe', 'Scheiben', 'Dose', 'Dosen',
+      'Zehe', 'Zehen', 'Scheibe', 'Scheiben', 'Dose', 'Dosen', 'Stück',
       // Italian
       'tazza', 'tazze', 'cucchiaio', 'cucchiai', 'cucchiaino', 'cucchiaini', 'grammo', 'grammi',
-      'litro', 'litri', 'spicchio', 'spicchi', 'fetta', 'fette', 'scatola', 'scatole'
+      'litro', 'litri', 'spicchio', 'spicchi', 'fetta', 'fette', 'scatola', 'scatole', 'unità'
     ];
+    
+    // Descriptive phrases to remove (in multiple languages)
+    const descriptors = [
+      // English
+      'cut into', 'chopped', 'diced', 'sliced', 'minced', 'grated', 'shredded', 'peeled',
+      'bite-sized', 'cubed', 'julienned', 'finely chopped', 'roughly chopped', 'thinly sliced',
+      'to taste', 'optional', 'for garnish', 'fresh', 'dried', 'frozen',
+      // Spanish
+      'cortado en', 'cortado a', 'picado', 'en cubos', 'en rodajas', 'rallado', 'pelado',
+      'tamaño de un bocado', 'finamente picado', 'al gusto', 'opcional', 'para decorar',
+      'fresco', 'seco', 'congelado',
+      // French
+      'coupé en', 'haché', 'en dés', 'en tranches', 'râpé', 'pelé', 'émincé',
+      'au goût', 'facultatif', 'pour garnir', 'frais', 'séché', 'surgelé',
+      // German
+      'geschnitten in', 'gehackt', 'gewürfelt', 'in Scheiben', 'gerieben', 'geschält',
+      'nach Geschmack', 'optional', 'zum Garnieren', 'frisch', 'getrocknet', 'gefroren',
+      // Italian
+      'tagliato a', 'tritato', 'a cubetti', 'a fette', 'grattugiato', 'sbucciato',
+      'a pezzetti', 'a piacere', 'opzionale', 'per guarnire', 'fresco', 'secco', 'surgelato'
+    ];
+    
+    let remaining = text;
+    let quantity: number | null = null;
+    let unit: string | null = null;
     
     // Try to match: "number unit ingredient" or "number ingredient"
     const regex = /^(\d+(?:[.,]\d+)?)\s*([a-zA-Zéàèùâêîôûäöüß]+)?\s+(.+)$/i;
-    const match = text.match(regex);
+    const match = remaining.match(regex);
     
     if (match) {
-      const quantity = parseFloat(match[1].replace(',', '.'));
+      quantity = parseFloat(match[1].replace(',', '.'));
       const possibleUnit = match[2]?.toLowerCase();
       const rest = match[3];
       
       // Check if the second group is a unit
       if (possibleUnit && units.some(u => u.toLowerCase() === possibleUnit)) {
-        return { quantity, unit: possibleUnit, ingredient: rest };
+        unit = possibleUnit;
+        remaining = rest;
       } else {
         // No unit, just quantity and ingredient
-        return { quantity, unit: null, ingredient: match[2] ? `${match[2]} ${rest}` : rest };
+        remaining = match[2] ? `${match[2]} ${rest}` : rest;
       }
     }
     
-    // No quantity found, treat as "1 x ingredient"
-    return { quantity: null, unit: null, ingredient: text };
+    // Remove descriptive phrases to extract base ingredient
+    let baseIngredient = remaining.trim();
+    
+    // Remove anything after commas (usually descriptors)
+    baseIngredient = baseIngredient.split(',')[0].trim();
+    
+    // Remove descriptive phrases
+    for (const descriptor of descriptors) {
+      const regex = new RegExp(`\\s+${descriptor}\\s+.*`, 'i');
+      baseIngredient = baseIngredient.replace(regex, '');
+    }
+    
+    // Remove parenthetical descriptions
+    baseIngredient = baseIngredient.replace(/\s*\([^)]*\)/g, '').trim();
+    
+    // Get first 1-3 words (usually the ingredient name)
+    const words = baseIngredient.split(/\s+/);
+    if (words.length > 3) {
+      baseIngredient = words.slice(0, 2).join(' ');
+    }
+    
+    return { 
+      quantity, 
+      unit, 
+      ingredient: remaining,
+      baseIngredient: baseIngredient
+    };
   }
 }

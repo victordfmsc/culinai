@@ -25,7 +25,7 @@ export class GeminiService {
     if (apiKey && apiKey.startsWith('AIza')) {
       try {
         this.genAI = new GoogleGenerativeAI(apiKey);
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
         console.log('✅ Gemini model ready!');
       } catch (error) {
         console.error('Failed to init Gemini:', error);
