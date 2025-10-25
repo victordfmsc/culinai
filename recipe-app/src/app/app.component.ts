@@ -613,10 +613,11 @@ export class AppComponent {
         const existingItem = currentList[existingIndex];
         const newTotal = (existingItem.quantity || 1) + (parsed.quantity || 1);
         
-        // Update with combined quantity
+        // Update with combined quantity, keep the unit
         currentList[existingIndex] = {
           ...existingItem,
-          quantity: newTotal
+          quantity: newTotal,
+          unit: parsed.unit || existingItem.unit
         };
       } else if (existingIndex >= 0) {
         // Item exists but no numeric quantity - just skip to avoid duplicates
@@ -626,7 +627,8 @@ export class AppComponent {
         currentList.push({
           text: displayText,
           checked: false,
-          quantity: parsed.hasNumericQuantity ? (parsed.quantity || 1) : undefined
+          quantity: parsed.hasNumericQuantity ? (parsed.quantity || 1) : undefined,
+          unit: parsed.unit || undefined
         });
       }
     }

@@ -2,6 +2,7 @@ export interface ShoppingItem {
   text: string;
   checked: boolean;
   quantity?: number;
+  unit?: string;
 }
 
 export interface MealPlan {

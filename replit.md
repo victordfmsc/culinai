@@ -8,16 +8,18 @@ This is a recipe management application built with Angular 19 that helps users m
 
 **Recent Changes (Oct 25, 2025)**:
 - ✅ **Smart Shopping List with Context-Aware Extraction**:
-  - **Numeric quantities**: Extracts base ingredient name and sums (e.g., "2 cups brócoli picado" + "3 cups brócoli" = "5× brócoli")
+  - **Numeric quantities with units**: Extracts base ingredient name, preserves unit, and sums (e.g., "400 g carne" + "1000 g carne" = "1400 g carne")
+  - **Numeric quantities without units**: Shows multiplier (e.g., "2 tomatoes" + "3 tomatoes" = "5× tomatoes")
   - **Non-numeric items**: Keeps full text as-is (e.g., "sal", "aceite de oliva", "una pizca de hierbas secas")
   - Prevents nonsensical extractions like "pulgada de..." or "de hierbas secas"
+- ✅ **Unit Preservation & Display**: Shopping list displays proper units (g, kg, l, ml, cups, tbsp, etc.) instead of just multipliers for measurable ingredients
+- ✅ **Multi-Language Unit Recognition**: Supports units in 5 languages (cup/taza/tasse, gram/gramo/gramme, etc.)
 - ✅ **Multi-Language Descriptor Removal** (only for numeric quantities):
   - 🇬🇧 English: "chopped", "diced", "cut into", "bite-sized", etc.
   - 🇪🇸 Spanish: "picado", "cortado en", "tamaño de un bocado", etc.
   - 🇫🇷 French: "haché", "coupé en", "en dés", etc.
   - 🇩🇪 German: "gehackt", "geschnitten", "gewürfelt", etc.
   - 🇮🇹 Italian: "tritato", "tagliato", "a cubetti", etc.
-- ✅ **Visual Quantity Badges**: Items with quantity > 1 display colored badges (e.g., "3× tomatoes")
 - ✅ **Fixed Ingredient Translation Bug**: Clicking translated ingredients now correctly adds the translated name instead of English
 - ✅ **Gemini API Updated**: Changed from deprecated `gemini-pro` to `gemini-1.5-flash` model
 
