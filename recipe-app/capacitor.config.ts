@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.daiary.chefai',
+  appId: 'com.culinAI.com',
   appName: 'Chef AI',
   webDir: 'dist/recipe-app/browser'
 };
