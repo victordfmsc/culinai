@@ -8,7 +8,7 @@ import {
   updateDoc,
   Firestore
 } from 'firebase/firestore';
-import { UserData, EMPTY_MEAL_PLAN } from '../models/user.model';
+import { UserData, EMPTY_MEAL_PLAN, EMPTY_ACHIEVEMENTS } from '../models/user.model';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBYcruBDN5mbfnqJ2HnAyH4MSosKRODwRg",
@@ -52,7 +52,8 @@ export class FirestoreService {
         level: 1,
         mealPlan: EMPTY_MEAL_PLAN,
         shoppingList: [],
-        createdAt: new Date()
+        createdAt: new Date(),
+        achievements: EMPTY_ACHIEVEMENTS
       };
       
       const userDoc = doc(this.db, 'users', uid);
