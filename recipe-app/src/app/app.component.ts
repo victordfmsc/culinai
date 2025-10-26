@@ -193,6 +193,16 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
               
               <div class="overflow-y-auto pr-2 -mr-2 space-y-6">
                   <p class="text-gray-600">{{ recipe.description }}</p>
+                  
+                  @if (recipe.tags && recipe.tags.length > 0) {
+                    <div class="flex flex-wrap gap-2">
+                      @for (tag of recipe.tags; track tag) {
+                        <span [class]="getTagClass(tag)" class="px-3 py-1 text-sm font-semibold rounded-full">
+                          {{ tag }}
+                        </span>
+                      }
+                    </div>
+                  }
 
                   <div class="flex justify-around text-center text-sm text-gray-700">
                       <div class="flex items-center space-x-2">
@@ -210,6 +220,38 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
                           </div>
                       </div>
                   </div>
+                  
+                  @if (recipe.nutrition) {
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <h4 class="text-sm font-semibold text-orange-900 mb-3">{{ 'nutrition_per_serving' | translate }}</h4>
+                      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        @if (recipe.nutrition.calories) {
+                          <div class="text-center">
+                            <div class="text-2xl font-bold text-orange-600">{{ recipe.nutrition.calories }}</div>
+                            <div class="text-xs text-gray-600">{{ 'nutrition_calories' | translate }}</div>
+                          </div>
+                        }
+                        @if (recipe.nutrition.protein) {
+                          <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600">{{ recipe.nutrition.protein }}g</div>
+                            <div class="text-xs text-gray-600">{{ 'nutrition_protein' | translate }}</div>
+                          </div>
+                        }
+                        @if (recipe.nutrition.carbs) {
+                          <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600">{{ recipe.nutrition.carbs }}g</div>
+                            <div class="text-xs text-gray-600">{{ 'nutrition_carbs' | translate }}</div>
+                          </div>
+                        }
+                        @if (recipe.nutrition.fat) {
+                          <div class="text-center">
+                            <div class="text-2xl font-bold text-yellow-600">{{ recipe.nutrition.fat }}g</div>
+                            <div class="text-xs text-gray-600">{{ 'nutrition_fat' | translate }}</div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
 
                   <div class="bg-indigo-50 p-4 rounded-lg">
                       <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -557,6 +599,43 @@ export class AppComponent {
     return recipe.ingredients.map(ingredient => 
       this.scaleIngredient(ingredient, recipe.servings, newServings)
     );
+  }
+  
+  getTagClass(tag: string): string {
+    const tagLower = tag.toLowerCase();
+    
+    if (tagLower.includes('protein') || tagLower.includes('proteín') || tagLower.includes('protéin') || tagLower.includes('eiwei')) {
+      return 'bg-blue-100 text-blue-800';
+    }
+    if (tagLower.includes('low cal') || tagLower.includes('hipocal') || tagLower.includes('kalorienarm') || tagLower.includes('ipocal')) {
+      return 'bg-green-100 text-green-800';
+    }
+    if (tagLower.includes('vegetar') || tagLower.includes('vegan')) {
+      return 'bg-emerald-100 text-emerald-800';
+    }
+    if (tagLower.includes('low carb') || tagLower.includes('bajo en carb') || tagLower.includes('keto') || tagLower.includes('kohlenhydrat')) {
+      return 'bg-purple-100 text-purple-800';
+    }
+    if (tagLower.includes('gluten') || tagLower.includes('sin gluten') || tagLower.includes('sans gluten') || tagLower.includes('senza glutine')) {
+      return 'bg-yellow-100 text-yellow-800';
+    }
+    if (tagLower.includes('spicy') || tagLower.includes('picante') || tagLower.includes('épic') || tagLower.includes('scharf')) {
+      return 'bg-red-100 text-red-800';
+    }
+    if (tagLower.includes('quick') || tagLower.includes('rápid') || tagLower.includes('rapide') || tagLower.includes('schnell') || tagLower.includes('veloce')) {
+      return 'bg-orange-100 text-orange-800';
+    }
+    if (tagLower.includes('healthy') || tagLower.includes('saludable') || tagLower.includes('sain') || tagLower.includes('gesund') || tagLower.includes('salutare')) {
+      return 'bg-teal-100 text-teal-800';
+    }
+    if (tagLower.includes('no salt') || tagLower.includes('sin sal') || tagLower.includes('sans sel') || tagLower.includes('ohne salz') || tagLower.includes('senza sale')) {
+      return 'bg-cyan-100 text-cyan-800';
+    }
+    if (tagLower.includes('dairy') || tagLower.includes('lácteo') || tagLower.includes('lait') || tagLower.includes('milch') || tagLower.includes('lattiero')) {
+      return 'bg-pink-100 text-pink-800';
+    }
+    
+    return 'bg-gray-100 text-gray-800';
   }
 
   onPlanRecipeRequest(recipe: Recipe) {
