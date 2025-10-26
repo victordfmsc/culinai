@@ -1,3 +1,5 @@
+import { UserAchievements, WeeklyChallenge } from './gamification.model';
+
 export interface ShoppingItem {
   text: string;
   checked: boolean;
@@ -35,4 +37,19 @@ export interface UserData {
   mealPlan: MealPlan;
   shoppingList: ShoppingItem[];
   createdAt: Date;
+  achievements?: UserAchievements;
 }
+
+export const EMPTY_ACHIEVEMENTS: UserAchievements = {
+  unlockedAchievements: [],
+  currentStreak: 0,
+  longestStreak: 0,
+  lastActiveDate: new Date(),
+  recipesCooked: 0,
+  recipesGenerated: 0,
+  mealPlansCreated: 0,
+  shoppingItemsAdded: 0,
+  languagesUsed: [],
+  portionsAdjusted: 0,
+  weeklyChallenge: undefined
+};

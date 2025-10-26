@@ -42,10 +42,6 @@ externalPort = 3001
 localPort = 38227
 externalPort = 3002
 
-[[ports]]
-localPort = 43445
-externalPort = 3003
-
 [deployment]
 deploymentTarget = "autoscale"
 publicDir = "Chefai"

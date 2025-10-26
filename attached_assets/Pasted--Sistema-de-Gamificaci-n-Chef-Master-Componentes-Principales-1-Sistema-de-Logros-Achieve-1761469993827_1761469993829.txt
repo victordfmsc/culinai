@@ -1,0 +1,91 @@
+🎮 Sistema de Gamificación "Chef Master"
+🏆 Componentes Principales:
+1. Sistema de Logros (Achievements)
+Badges que se desbloquean al completar acciones:
+
+🍳 Chef Principiante:
+
+"Primer Paso" - Agrega tu primera receta al plan semanal
+"Lista Inteligente" - Agrega 5 ingredientes a la lista de compras
+"Explorador" - Genera tus primeras 10 recetas con IA
+👨‍🍳 Chef Experimentado:
+
+"Planificador Pro" - Completa un plan semanal entero
+"Multilingüe" - Usa la app en 3 idiomas diferentes
+"Ajustador" - Ajusta porciones 20 veces
+"Cocinero Activo" - Cocina 25 recetas
+⭐ Chef Maestro:
+
+"Racha de Fuego" - 30 días consecutivos usando la app
+"Coleccionista" - Cocina 100 recetas diferentes
+"Premium Chef" - Suscríbete al plan premium
+2. Rachas Diarias (Daily Streaks)
+Contador de días consecutivos usando la app
+Bonificaciones de puntos por racha (día 7: 2x, día 30: 3x)
+Notificaciones para no romper la racha
+Indicador visual tipo "fuego" 🔥
+3. Desafíos Semanales
+Rotación cada semana:
+
+"Cocinero Internacional" - Cocina recetas de 3 países diferentes
+"Maestro del Tiempo" - Cocina 3 recetas de menos de 30 minutos
+"Planificador Perfecto" - Completa tu plan semanal sin modificaciones
+"Comprador Eficiente" - Usa todos los ingredientes de tu lista
+4. Sistema de Niveles Mejorado
+Nivel 1-5: Aprendiz de Cocina (0-500 puntos)
+Nivel 6-10: Cocinero Casero (500-1500 puntos)
+Nivel 11-20: Chef Profesional (1500-5000 puntos)
+Nivel 21-30: Chef Maestro (5000-15000 puntos)
+Nivel 31+: Leyenda Culinaria (15000+ puntos)
+5. Sistema de Puntos Expandido
++ 10 puntos - Agregar ingrediente a la nevera
++ 15 puntos - Generar recetas
++ 25 puntos - Cocinar una receta
++ 20 puntos - Planificar comida semanal
++ 30 puntos - Completar desafío semanal
++ 50 puntos - Desbloquear logro
++ 100 puntos - Racha de 7 días
++ 500 puntos - Racha de 30 días
+6. Perfil de Usuario Visual
+Avatar con "chef hat" que mejora con el nivel
+Vitrina de logros desbloqueados
+Estadísticas: recetas cocinadas, racha actual, nivel
+Progreso hacia próximo nivel (barra visual)
+Historial de logros recientes
+7. Recompensas Exclusivas
+Desbloquear features premium temporalmente:
+
+Nivel 10: 7 días de premium gratis
+Nivel 20: 1 mes de premium gratis
+30 días de racha: Acceso a recetas exclusivas
+🔧 Integración Técnica:
+Firebase Firestore:
+
+UserAchievements {
+  achievements: string[] // IDs de logros
+  currentStreak: number
+  longestStreak: number
+  lastActiveDate: Date
+  recipesCooked: number
+  weeklyChallenge: {
+    id: string
+    progress: number
+    completed: boolean
+  }
+  stats: {
+    totalRecipes: number
+    languagesUsed: string[]
+    portionsAdjusted: number
+  }
+}
+Sistema de Notificaciones (opcional):
+
+Recordatorios de racha
+Nuevos desafíos semanales
+Logros desbloqueados
+🎨 UI/UX:
+Badge flotante cuando desbloqueas logro (animación celebración)
+Progress bar siempre visible en header
+Tab "Profile" nuevo con todo el sistema de gamificación
+Confetti animation al subir de nivel
+Sound effects (opcional, se puede desactivar)
