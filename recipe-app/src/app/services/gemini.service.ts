@@ -63,12 +63,21 @@ export class GeminiService {
         const prompt = `You are a professional chef teaching someone who has NEVER cooked this dish before. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.
         
 Important rules:
-- WRITE EVERYTHING IN ${languageName.toUpperCase()} (recipe titles, descriptions, ingredients, instructions - ALL TEXT)
+- WRITE EVERYTHING IN ${languageName.toUpperCase()} (recipe titles, descriptions, ingredients, instructions, tags - ALL TEXT)
 - Use the provided ingredients as main components
 - Each recipe MUST be completely different (vary cuisine style, cooking method, difficulty)
 - Include cuisines like: Italian, Asian, Mexican, American, Mediterranean, Indian, etc.
 - Include cooking methods like: stir-fry, baked, grilled, soup, salad, pasta, rice bowl, curry, etc.
 - Include real measurements and cooking times
+
+NUTRITIONAL INFORMATION REQUIREMENTS:
+- Add "tags" array with 2-4 classification tags in ${languageName} based on the recipe characteristics
+- Possible tag categories: High Protein, Low Calorie, Low Carb, Vegetarian, Vegan, Gluten Free, Dairy Free, Spicy, Quick, Healthy, No Salt, Keto
+- Add "nutrition" object with approximate values per serving:
+  * calories: approximate number (e.g., 350)
+  * protein: grams of protein (e.g., 25)
+  * carbs: grams of carbohydrates (e.g., 40)
+  * fat: grams of fat (e.g., 12)
 
 CRITICAL - ULTRA DETAILED INSTRUCTIONS FOR COMPLETE BEGINNERS WHO HAVE NEVER COOKED THIS DISH:
 - Assume the person has NEVER made this recipe before
@@ -98,11 +107,18 @@ Return ONLY a JSON array with 10 recipes, no other text, in this exact format:
       "Continue with specific instructions explaining WHY and HOW to do each step"
     ],
     "prepTime": "25 mins",
-    "servings": 4
+    "servings": 4,
+    "tags": ["High Protein", "Healthy", "Quick"],
+    "nutrition": {
+      "calories": 380,
+      "protein": 35,
+      "carbs": 42,
+      "fat": 8
+    }
   }
 ]
 
-Make sure all 10 recipes are VERY different from each other and instructions are beginner-friendly with lots of detail!`;
+Make sure all 10 recipes are VERY different from each other, instructions are beginner-friendly with lots of detail, and nutritional information is realistic!`;
 
         console.log('Calling Gemini API for 10 recipes...');
         const result = await this.model.generateContent(prompt);

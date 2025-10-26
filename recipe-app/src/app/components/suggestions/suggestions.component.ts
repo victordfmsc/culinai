@@ -25,10 +25,25 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
             @for (recipe of recipes; track recipe.title) {
               <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
                 <h3 class="text-lg font-bold text-gray-800 mb-2">{{ recipe.title }}</h3>
-                <p class="text-sm text-gray-600 mb-4">{{ recipe.description }}</p>
+                <p class="text-sm text-gray-600 mb-3">{{ recipe.description }}</p>
                 
-                <div class="flex justify-between text-xs text-gray-500 mb-4">
-                  <span>⏱️ {{ recipe.prepTime }}</span>
+                @if (recipe.tags && recipe.tags.length > 0) {
+                  <div class="flex flex-wrap gap-2 mb-3">
+                    @for (tag of recipe.tags; track tag) {
+                      <span [class]="getTagClass(tag)" class="px-2 py-1 text-xs font-semibold rounded-full">
+                        {{ tag }}
+                      </span>
+                    }
+                  </div>
+                }
+                
+                <div class="flex justify-between items-center text-xs text-gray-500 mb-4">
+                  <div class="flex gap-3">
+                    <span>⏱️ {{ recipe.prepTime }}</span>
+                    @if (recipe.nutrition?.calories) {
+                      <span class="font-semibold text-orange-600">🔥 {{ recipe.nutrition.calories }} {{ 'nutrition_calories' | translate }}</span>
+                    }
+                  </div>
                   <span>🍽️ {{ getAdjustedServings(recipe) }} {{ 'suggestions_servings' | translate }}</span>
                 </div>
 
@@ -126,5 +141,42 @@ export class SuggestionsComponent {
     return recipe.ingredients.map(ingredient => 
       this.scaleIngredient(ingredient, recipe.servings, newServings)
     );
+  }
+  
+  getTagClass(tag: string): string {
+    const tagLower = tag.toLowerCase();
+    
+    if (tagLower.includes('protein') || tagLower.includes('proteín') || tagLower.includes('protéin') || tagLower.includes('eiwei')) {
+      return 'bg-blue-100 text-blue-800';
+    }
+    if (tagLower.includes('low cal') || tagLower.includes('hipocal') || tagLower.includes('kalorienarm') || tagLower.includes('ipocal')) {
+      return 'bg-green-100 text-green-800';
+    }
+    if (tagLower.includes('vegetar') || tagLower.includes('vegan')) {
+      return 'bg-emerald-100 text-emerald-800';
+    }
+    if (tagLower.includes('low carb') || tagLower.includes('bajo en carb') || tagLower.includes('keto') || tagLower.includes('kohlenhydrat')) {
+      return 'bg-purple-100 text-purple-800';
+    }
+    if (tagLower.includes('gluten') || tagLower.includes('sin gluten') || tagLower.includes('sans gluten') || tagLower.includes('senza glutine')) {
+      return 'bg-yellow-100 text-yellow-800';
+    }
+    if (tagLower.includes('spicy') || tagLower.includes('picante') || tagLower.includes('épic') || tagLower.includes('scharf')) {
+      return 'bg-red-100 text-red-800';
+    }
+    if (tagLower.includes('quick') || tagLower.includes('rápid') || tagLower.includes('rapide') || tagLower.includes('schnell') || tagLower.includes('veloce')) {
+      return 'bg-orange-100 text-orange-800';
+    }
+    if (tagLower.includes('healthy') || tagLower.includes('saludable') || tagLower.includes('sain') || tagLower.includes('gesund') || tagLower.includes('salutare')) {
+      return 'bg-teal-100 text-teal-800';
+    }
+    if (tagLower.includes('no salt') || tagLower.includes('sin sal') || tagLower.includes('sans sel') || tagLower.includes('ohne salz') || tagLower.includes('senza sale')) {
+      return 'bg-cyan-100 text-cyan-800';
+    }
+    if (tagLower.includes('dairy') || tagLower.includes('lácteo') || tagLower.includes('lait') || tagLower.includes('milch') || tagLower.includes('lattiero')) {
+      return 'bg-pink-100 text-pink-800';
+    }
+    
+    return 'bg-gray-100 text-gray-800';
   }
 }
