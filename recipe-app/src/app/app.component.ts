@@ -449,10 +449,14 @@ export class AppComponent {
         if (JSON.stringify(this.shoppingList()) !== JSON.stringify(remoteUser.shoppingList)) {
           this.shoppingList.set(remoteUser.shoppingList);
         }
+        if (remoteUser.achievements) {
+          this.subscriptionService.setRecipesGenerated(remoteUser.achievements.recipesGenerated);
+        }
       } else if (!isGuest) {
         // Only reset if not in guest mode
         this.mealPlan.set(EMPTY_MEAL_PLAN);
         this.shoppingList.set([]);
+        this.subscriptionService.setRecipesGenerated(0);
       }
     });
 
@@ -547,13 +551,6 @@ export class AppComponent {
       this.subscriptionService.incrementRecipesGenerated();
       
       await this.awardPoints(15, 'recipes_generated', 1);
-      
-      if (!this.guestMode() && this.firestoreService.currentUserData()) {
-        const userData = this.firestoreService.currentUserData()!;
-        await this.firestoreService.updateUserData(userData.uid, { 
-          achievements: userData.achievements 
-        });
-      }
     } catch (error) {
       console.error('Failed to generate recipes', error);
     } finally {
@@ -778,6 +775,8 @@ export class AppComponent {
 
   private async awardPremiumAchievement() {
     if (this.guestMode()) {
+      this.guestPoints.update(p => p + 200);
+      console.log('✅ Premium Chef achievement awarded in guest mode! +200 points');
       return;
     }
 
@@ -794,22 +793,22 @@ export class AppComponent {
 
     const newAchievements = this.gamificationService.checkAchievements(userData.achievements);
     
+    let bonusPoints = 0;
     for (const achievement of newAchievements) {
       userData.achievements.unlockedAchievements.push(achievement.id);
-      this.points.update(p => p + achievement.points);
-      userData.points += achievement.points;
+      bonusPoints += achievement.points;
     }
 
-    this.level.set(this.gamificationService.calculateLevel(userData.points));
-    userData.level = this.level();
+    userData.points += bonusPoints;
+    userData.level = this.gamificationService.calculateLevel(userData.points);
 
-    await this.firestoreService.updateUserData(userData.uid, {
+    await this.firestoreService.updateUser(userData.uid, {
       points: userData.points,
       level: userData.level,
       achievements: userData.achievements
     });
 
-    console.log('✅ Premium Chef achievement awarded! +200 points');
+    console.log(`✅ Premium Chef achievement awarded! +${bonusPoints} points`);
   }
 
   private async awardPoints(points: number, statType: string, amount: number) {
