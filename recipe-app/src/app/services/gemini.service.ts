@@ -191,7 +191,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
           'Taste and adjust seasoning if needed. Serve immediately over steamed rice while hot and crispy.'
         ],
         prepTime: '15 mins',
-        servings: 2
+        servings: 2,
+        tags: ['Quick', 'Healthy'],
+        nutrition: {
+          calories: 280,
+          protein: 22,
+          carbs: 18,
+          fat: 12
+        }
       },
       {
         title: `Baked ${mainIngredient} Casserole`,
@@ -210,7 +217,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
           'Let the casserole rest for 5 minutes before serving. This allows the sauce to thicken slightly and makes it easier to portion. Serve hot.'
         ],
         prepTime: '45 mins',
-        servings: 4
+        servings: 4,
+        tags: ['High Protein'],
+        nutrition: {
+          calories: 420,
+          protein: 28,
+          carbs: 22,
+          fat: 24
+        }
       },
       {
         title: `Hearty ${mainIngredient} Soup`,
@@ -229,7 +243,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
           'Ladle the hot soup into bowls and garnish with fresh chopped parsley. Serve with crusty bread for dipping.'
         ],
         prepTime: '30 mins',
-        servings: 4
+        servings: 4,
+        tags: ['Low Calorie', 'Healthy'],
+        nutrition: {
+          calories: 180,
+          protein: 14,
+          carbs: 20,
+          fat: 5
+        }
       },
       {
         title: `Grilled ${mainIngredient} Skewers`,
@@ -237,7 +258,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
         ingredients: [...ingredientList.map(i => `1.5 lbs ${i}`), 'BBQ marinade', 'Skewers', 'Olive oil'],
         instructions: ['Marinate 1 hour', 'Thread onto skewers', 'Grill 6-8 minutes', 'Turn and cook until done'],
         prepTime: '20 mins',
-        servings: 4
+        servings: 4,
+        tags: ['Quick', 'High Protein'],
+        nutrition: {
+          calories: 320,
+          protein: 30,
+          carbs: 8,
+          fat: 18
+        }
       },
       {
         title: `Mediterranean ${mainIngredient} Salad`,
@@ -245,7 +273,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
         ingredients: [...ingredientList.map(i => `2 cups ${i}`), 'Lettuce', 'Feta cheese', 'Olives', 'Lemon dressing'],
         instructions: ['Chop all ingredients', 'Toss in large bowl', 'Add dressing', 'Top with feta and serve'],
         prepTime: '15 mins',
-        servings: 3
+        servings: 3,
+        tags: ['Quick', 'Low Calorie', 'Healthy'],
+        nutrition: {
+          calories: 240,
+          protein: 12,
+          carbs: 15,
+          fat: 14
+        }
       },
       {
         title: `${mainIngredient} Pasta Primavera`,
@@ -307,7 +342,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
           'Prueba y ajusta el sazón si es necesario. Sirve inmediatamente sobre arroz al vapor mientras esté caliente y crujiente. ¡El salteado pierde su textura si se deja reposar!'
         ],
         prepTime: '15 min',
-        servings: 2
+        servings: 2,
+        tags: ['Quick', 'Healthy'],
+        nutrition: {
+          calories: 280,
+          protein: 22,
+          carbs: 18,
+          fat: 12
+        }
       },
       {
         title: `Cazuela de ${mainIngredient} al Horno`,
@@ -326,7 +368,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
           'Deja reposar la cazuela durante 5 minutos antes de servir. Esto permite que la salsa se espese ligeramente y hace más fácil porcionar. Sirve caliente.'
         ],
         prepTime: '45 min',
-        servings: 4
+        servings: 4,
+        tags: ['High Protein'],
+        nutrition: {
+          calories: 420,
+          protein: 28,
+          carbs: 22,
+          fat: 24
+        }
       },
       {
         title: `Sopa Abundante de ${mainIngredient}`,
@@ -345,7 +394,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
           'Sirve la sopa caliente en tazones y decora con perejil fresco picado. Sirve con pan crujiente para mojar.'
         ],
         prepTime: '30 min',
-        servings: 4
+        servings: 4,
+        tags: ['Low Calorie', 'Healthy'],
+        nutrition: {
+          calories: 180,
+          protein: 14,
+          carbs: 20,
+          fat: 5
+        }
       },
       {
         title: `Brochetas de ${mainIngredient} a la Parrilla`,
@@ -364,7 +420,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
           'Retira las brochetas de la parrilla con cuidado usando pinzas. Deja reposar 3-5 minutos antes de servir - esto permite que los jugos se redistribuyan. Sirve caliente.'
         ],
         prepTime: '20 min + 1 hora de marinado',
-        servings: 4
+        servings: 4,
+        tags: ['Quick', 'High Protein'],
+        nutrition: {
+          calories: 320,
+          protein: 30,
+          carbs: 8,
+          fat: 18
+        }
       },
       {
         title: `Ensalada Mediterránea de ${mainIngredient}`,
@@ -383,7 +446,14 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
           'Sirve inmediatamente mientras esté fresca y crujiente. Esta ensalada es mejor cuando se consume dentro de los 30 minutos de mezclar.'
         ],
         prepTime: '15 min',
-        servings: 3
+        servings: 3,
+        tags: ['Quick', 'Low Calorie', 'Healthy'],
+        nutrition: {
+          calories: 240,
+          protein: 12,
+          carbs: 15,
+          fat: 14
+        }
       },
       {
         title: `Pasta Primavera con ${mainIngredient}`,
