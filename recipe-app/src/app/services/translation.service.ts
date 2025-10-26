@@ -68,7 +68,8 @@ export class TranslationService {
     suggestions_add_shopping: 'Add to Shopping List',
     recipe_time: 'Time',
     recipe_servings: 'Servings',
-    recipe_start_cooking: 'Start Cooking'
+    recipe_start_cooking: 'Start Cooking',
+    adjust_servings: 'Adjust Servings'
   };
 
   // Manual fallback translations (used if auto-translate fails)
@@ -123,6 +124,7 @@ export class TranslationService {
     suggestions_cook: { en: 'Cook Now', es: 'Cocinar Ahora', fr: 'Cuisiner Maintenant', de: 'Jetzt Kochen', it: 'Cucina Ora' },
     suggestions_plan: { en: 'Plan for Later', es: 'Planificar', fr: 'Planifier', de: 'Planen', it: 'Pianifica' },
     suggestions_add_shopping: { en: 'Add to Shopping List', es: 'Agregar a Compras', fr: 'Ajouter à la Liste', de: 'Zur Einkaufsliste', it: 'Aggiungi alla Spesa' },
+    adjust_servings: { en: 'Adjust Servings', es: 'Ajustar Porciones', fr: 'Ajuster les Portions', de: 'Portionen Anpassen', it: 'Regola Porzioni' },
     recipe_time: { en: 'Time', es: 'Tiempo', fr: 'Temps', de: 'Zeit', it: 'Tempo' },
     recipe_servings: { en: 'Servings', es: 'Porciones', fr: 'Portions', de: 'Portionen', it: 'Porzioni' },
     recipe_start_cooking: { en: 'Start Cooking', es: 'Empezar a Cocinar', fr: 'Commencer à Cuisiner', de: 'Mit Kochen beginnen', it: 'Inizia a Cucinare' }

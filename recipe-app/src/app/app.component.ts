@@ -206,15 +206,41 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                           <div>
                               <div class="font-semibold">{{ 'recipe_servings' | translate }}</div>
-                              <div>{{ recipe.servings }}</div>
+                              <div>{{ adjustedServings() }}</div>
                           </div>
+                      </div>
+                  </div>
+
+                  <div class="bg-indigo-50 p-4 rounded-lg">
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                          {{ 'adjust_servings' | translate }}
+                      </label>
+                      <div class="flex items-center gap-4">
+                          <button 
+                              (click)="adjustedServings.set(Math.max(1, adjustedServings() - 1))"
+                              class="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors">
+                              −
+                          </button>
+                          <input 
+                              type="range" 
+                              min="1" 
+                              max="12" 
+                              [value]="adjustedServings()"
+                              (input)="adjustedServings.set(+$any($event.target).value)"
+                              class="flex-1 h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer slider">
+                          <button 
+                              (click)="adjustedServings.set(Math.min(12, adjustedServings() + 1))"
+                              class="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors">
+                              +
+                          </button>
+                          <span class="text-2xl font-bold text-indigo-600 min-w-[3rem] text-center">{{ adjustedServings() }}</span>
                       </div>
                   </div>
 
                   <div>
                       <h4 class="text-lg font-semibold text-gray-700 mb-2">{{ 'suggestions_ingredients_title' | translate }}</h4>
                       <ul class="list-disc list-inside bg-gray-50 p-4 rounded-lg space-y-1 text-gray-600">
-                          @for (ingredient of recipe.ingredients; track ingredient) {
+                          @for (ingredient of getScaledIngredients(recipe); track ingredient) {
                               <li>{{ ingredient }}</li>
                           }
                       </ul>
@@ -322,6 +348,9 @@ export class AppComponent {
   private firestoreService = inject(FirestoreService);
   private authService = inject(AuthService);
   private translationService = inject(TranslationService);
+  
+  // Expose Math to template
+  Math = Math;
 
   guestMode = signal(false);
   guestPoints = signal(0);
@@ -335,6 +364,7 @@ export class AppComponent {
   recipes = signal<Recipe[]>([]);
   isLoadingRecipes = signal(false);
   cookingRecipe = signal<Recipe | null>(null);
+  adjustedServings = signal<number>(4);
 
   userData = this.firestoreService.currentUserData;
   points = computed(() => {
@@ -508,10 +538,38 @@ export class AppComponent {
 
   onStartCooking(recipe: Recipe) {
     this.cookingRecipe.set(recipe);
+    this.adjustedServings.set(recipe.servings);
   }
 
   onCancelCooking() {
     this.cookingRecipe.set(null);
+    this.adjustedServings.set(4);
+  }
+  
+  scaleIngredient(ingredient: string, originalServings: number, newServings: number): string {
+    const scaleFactor = newServings / originalServings;
+    
+    // Extract number from beginning of ingredient
+    const numberMatch = ingredient.match(/^(\d+(?:[.,]\d+)?)\s+(.+)/);
+    if (numberMatch) {
+      const quantity = parseFloat(numberMatch[1].replace(',', '.'));
+      const rest = numberMatch[2];
+      const scaledQuantity = Math.round(quantity * scaleFactor * 10) / 10; // Round to 1 decimal
+      return `${scaledQuantity} ${rest}`;
+    }
+    
+    return ingredient; // Return unchanged if no number found
+  }
+  
+  getScaledIngredients(recipe: Recipe): string[] {
+    const newServings = this.adjustedServings();
+    if (newServings === recipe.servings) {
+      return recipe.ingredients;
+    }
+    
+    return recipe.ingredients.map(ingredient => 
+      this.scaleIngredient(ingredient, recipe.servings, newServings)
+    );
   }
 
   onPlanRecipeRequest(recipe: Recipe) {
