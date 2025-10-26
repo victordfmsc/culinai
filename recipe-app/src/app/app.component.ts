@@ -198,7 +198,7 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
                     <div class="flex flex-wrap gap-2">
                       @for (tag of recipe.tags; track tag) {
                         <span [class]="getTagClass(tag)" class="px-3 py-1 text-sm font-semibold rounded-full">
-                          {{ tag }}
+                          {{ translateTag(tag) }}
                         </span>
                       }
                     </div>
@@ -601,37 +601,60 @@ export class AppComponent {
     );
   }
   
+  translateTag(tag: string): string {
+    const tagMap: { [key: string]: string } = {
+      'High Protein': 'tag_high_protein',
+      'Low Calorie': 'tag_low_calorie',
+      'Low Carb': 'tag_low_carb',
+      'Vegetarian': 'tag_vegetarian',
+      'Vegan': 'tag_vegan',
+      'Gluten Free': 'tag_gluten_free',
+      'Dairy Free': 'tag_dairy_free',
+      'Spicy': 'tag_spicy',
+      'Quick': 'tag_quick',
+      'Healthy': 'tag_healthy',
+      'No Salt': 'tag_no_salt',
+      'Keto': 'tag_keto'
+    };
+    
+    const translationKey = tagMap[tag];
+    if (translationKey) {
+      return this.translationService.translate(translationKey);
+    }
+    return tag;
+  }
+  
   getTagClass(tag: string): string {
     const tagLower = tag.toLowerCase();
     
-    if (tagLower.includes('protein') || tagLower.includes('proteín') || tagLower.includes('protéin') || tagLower.includes('eiwei')) {
+    if (tagLower.includes('protein')) {
       return 'bg-blue-100 text-blue-800';
     }
-    if (tagLower.includes('low cal') || tagLower.includes('hipocal') || tagLower.includes('kalorienarm') || tagLower.includes('ipocal')) {
+    if (tagLower.includes('low cal')) {
       return 'bg-green-100 text-green-800';
     }
-    if (tagLower.includes('vegetar') || tagLower.includes('vegan')) {
+    if (tagLower.includes('vegetarian') || tagLower.includes('vegan')) {
       return 'bg-emerald-100 text-emerald-800';
     }
-    if (tagLower.includes('low carb') || tagLower.includes('bajo en carb') || tagLower.includes('keto') || tagLower.includes('kohlenhydrat')) {
+    if (tagLower.includes('low carb') || tagLower.includes('keto')) {
       return 'bg-purple-100 text-purple-800';
     }
-    if (tagLower.includes('gluten') || tagLower.includes('sin gluten') || tagLower.includes('sans gluten') || tagLower.includes('senza glutine')) {
+    if (tagLower.includes('gluten')) {
       return 'bg-yellow-100 text-yellow-800';
     }
-    if (tagLower.includes('spicy') || tagLower.includes('picante') || tagLower.includes('épic') || tagLower.includes('scharf')) {
+    if (tagLower.includes('spicy')) {
       return 'bg-red-100 text-red-800';
     }
-    if (tagLower.includes('quick') || tagLower.includes('rápid') || tagLower.includes('rapide') || tagLower.includes('schnell') || tagLower.includes('veloce')) {
+    if (tagLower.includes('quick')) {
       return 'bg-orange-100 text-orange-800';
     }
-    if (tagLower.includes('healthy') || tagLower.includes('saludable') || tagLower.includes('sain') || tagLower.includes('gesund') || tagLower.includes('salutare')) {
+    if (tagLower.includes('healthy')) {
       return 'bg-teal-100 text-teal-800';
     }
-    if (tagLower.includes('no salt') || tagLower.includes('sin sal') || tagLower.includes('sans sel') || tagLower.includes('ohne salz') || tagLower.includes('senza sale')) {
+    if (tagLower.includes('no salt') || tagLower.includes('salt')) {
       return 'bg-cyan-100 text-cyan-800';
     }
-    if (tagLower.includes('dairy') || tagLower.includes('lácteo') || tagLower.includes('lait') || tagLower.includes('milch') || tagLower.includes('lattiero')) {
+    if (tagLower.includes('dairy')) {
       return 'bg-pink-100 text-pink-800';
     }
     

@@ -9,6 +9,31 @@ The project's ambition is to provide a comprehensive, intelligent, and user-frie
 - **Mobile Application**: Android app via Capacitor framework (see Mobile Architecture section)
 
 **Recent Changes (Oct 26, 2025)**:
+- 🍎 **Nutritional Information & Classification Tags**:
+  - **Automatic Nutrition Data**: Each AI-generated recipe includes approximate nutritional values per serving
+    - Calories (displayed prominently with 🔥 icon)
+    - Protein (g)
+    - Carbohydrates (g)
+    - Fat (g)
+  - **Smart Classification Tags**: 2-4 tags per recipe based on characteristics
+    - **Available Tags**: High Protein, Low Calorie, Low Carb, Vegetarian, Vegan, Gluten Free, Dairy Free, Spicy, Quick, Healthy, No Salt, Keto
+    - **Color-coded badges**: Each tag type has distinctive colors (blue for protein, green for low-cal, purple for low-carb, etc.)
+    - **Multilingual tags**: Generated in user's selected language (English, Spanish, French, German, Italian)
+  - **Display Locations**:
+    - Recipe suggestion cards: Tags as colorful badges + calories next to prep time
+    - Cooking modal: Full nutritional panel with all macros + tag badges
+  - **Tag Color System**:
+    - 🔵 Blue: High Protein / Proteínico
+    - 🟢 Green: Low Calorie / Hipocalórico
+    - 🟣 Purple: Low Carb / Keto
+    - 🟡 Yellow: Gluten Free / Sin Gluten
+    - 🔴 Red: Spicy / Picante
+    - 🟠 Orange: Quick / Rápido
+    - 🔷 Teal: Healthy / Saludable
+    - 🔶 Cyan: No Salt / Sin Sal
+    - 💚 Emerald: Vegetarian / Vegan
+    - 🩷 Pink: Dairy Free / Sin Lácteos
+
 - 🎮 **Complete Gamification System "Chef Master"**:
   - **10 Achievements** across 3 tiers (Beginner, Experienced, Master)
   - **Daily Streaks** with bonus points (7 days: 100 pts, 30 days: 500 pts)
@@ -150,9 +175,35 @@ UserAchievements {
 
 The application integrates with Google's Gemini API (gemini-1.5-flash model) to generate 10 unique, highly detailed, and beginner-friendly recipes per request. Recipes include exact temperatures, precise timings, visual cues for doneness, technique explanations, safety warnings, and tips for success. The AI generates all recipe content in the user's selected language.
 
+**Nutritional Analysis**: Each generated recipe includes:
+- Classification tags (2-4 per recipe) based on dietary characteristics
+- Approximate nutritional values per serving: calories, protein, carbs, fat
+- Tags are generated in the user's selected language
+- Nutritional data helps users make informed dietary choices
+
 ## Data Models
 
-Core data models include `UserData` (uid, email, points, level, mealPlan, shoppingList, **achievements**), a `Recipe Model` (title, description, ingredients, instructions, prep time, servings, adjustedServings), and a `Meal Plan Structure` (seven-day structure with recipe names).
+Core data models include `UserData` (uid, email, points, level, mealPlan, shoppingList, **achievements**), a `Recipe Model` (title, description, ingredients, instructions, prep time, servings, adjustedServings, **tags**, **nutrition**), and a `Meal Plan Structure` (seven-day structure with recipe names).
+
+**Recipe Model Structure**:
+```typescript
+interface Recipe {
+  title: string;
+  description: string;
+  ingredients: string[];
+  instructions: string[];
+  prepTime: string;
+  servings: number;
+  adjustedServings?: number;
+  tags?: string[];              // e.g., ["High Protein", "Healthy", "Quick"]
+  nutrition?: {
+    calories: number;           // e.g., 380
+    protein?: number;           // grams, e.g., 35
+    carbs?: number;             // grams, e.g., 42
+    fat?: number;               // grams, e.g., 8
+  };
+}
+```
 
 ## Mobile Architecture
 

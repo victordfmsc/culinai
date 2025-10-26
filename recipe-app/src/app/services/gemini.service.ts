@@ -71,8 +71,9 @@ Important rules:
 - Include real measurements and cooking times
 
 NUTRITIONAL INFORMATION REQUIREMENTS:
-- Add "tags" array with 2-4 classification tags in ${languageName} based on the recipe characteristics
-- Possible tag categories: High Protein, Low Calorie, Low Carb, Vegetarian, Vegan, Gluten Free, Dairy Free, Spicy, Quick, Healthy, No Salt, Keto
+- Add "tags" array with 2-4 classification tags ALWAYS IN ENGLISH based on the recipe characteristics
+- Possible tag categories (use these exact English terms): High Protein, Low Calorie, Low Carb, Vegetarian, Vegan, Gluten Free, Dairy Free, Spicy, Quick, Healthy, No Salt, Keto
+- IMPORTANT: Tags must be in English even if the recipe is in another language (this ensures consistent color coding in the UI)
 - Add "nutrition" object with approximate values per serving:
   * calories: approximate number (e.g., 350)
   * protein: grams of protein (e.g., 25)
