@@ -15,7 +15,8 @@ import { SubscriptionService } from './services/subscription.service';
 import { FirestoreService } from './services/firestore.service';
 import { AuthService } from './services/auth.service';
 import { TranslationService } from './services/translation.service';
-import { MealPlan, ShoppingItem, EMPTY_MEAL_PLAN, DAYS_OF_WEEK_KEYS } from './models/user.model';
+import { GamificationService } from './services/gamification.service';
+import { MealPlan, ShoppingItem, EMPTY_MEAL_PLAN, DAYS_OF_WEEK_KEYS, EMPTY_ACHIEVEMENTS } from './models/user.model';
 import { TranslatePipe } from './pipes/translate.pipe';
 
 
@@ -91,8 +92,7 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
             }
             @case ('profile') {
               <app-profile 
-                [points]="points()"
-                [level]="level()" />
+                [userData]="guestMode() ? null : firestoreService.currentUserData()" />
             }
           }
         </main>
@@ -345,9 +345,10 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
 export class AppComponent {
   private geminiService = inject(GeminiService);
   private subscriptionService = inject(SubscriptionService);
-  private firestoreService = inject(FirestoreService);
+  firestoreService = inject(FirestoreService);
   private authService = inject(AuthService);
   private translationService = inject(TranslationService);
+  private gamificationService = inject(GamificationService);
   
   // Expose Math to template
   Math = Math;
@@ -500,6 +501,8 @@ export class AppComponent {
       const currentLanguage = this.translationService.currentLanguage();
       const generatedRecipes = await this.geminiService.generateRecipes(ingredients, currentLanguage);
       this.recipes.set(generatedRecipes);
+      
+      await this.awardPoints(15, 'recipes_generated', 10);
     } catch (error) {
       console.error('Failed to generate recipes', error);
     } finally {
@@ -507,32 +510,16 @@ export class AppComponent {
     }
   }
 
-  onAddToShoppingList(missingIngredients: string[]) {
+  async onAddToShoppingList(missingIngredients: string[]) {
     this.mergeShoppingItems(missingIngredients);
+    
+    await this.awardPoints(10 * missingIngredients.length, 'shopping_items', missingIngredients.length);
+    
     this.changeView('shopping');
   }
 
-  onConfirmCooked(recipe: Recipe) {
-    const earnedPoints = 100;
-    
-    if (this.guestMode()) {
-      const newPoints = this.guestPoints() + earnedPoints;
-      const newLevel = Math.floor(newPoints / 500) + 1;
-      this.guestPoints.set(newPoints);
-      this.guestLevel.set(newLevel);
-    } else {
-      const user = this.userData();
-      if (!user) return;
-
-      const newPoints = user.points + earnedPoints;
-      const newLevel = Math.floor(newPoints / 500) + 1;
-
-      this.firestoreService.updateUser(user.uid, {
-        points: newPoints,
-        level: newLevel
-      });
-    }
-
+  async onConfirmCooked(recipe: Recipe) {
+    await this.awardPoints(25, 'recipes_cooked', 1);
     this.cookingRecipe.set(null);
   }
 
@@ -576,7 +563,7 @@ export class AppComponent {
     this.planningRecipe.set(recipe);
   }
 
-  assignRecipeToDay(day: string) {
+  async assignRecipeToDay(day: string) {
     const recipe = this.planningRecipe();
     if (!recipe) return;
 
@@ -587,6 +574,8 @@ export class AppComponent {
       ...plan,
       [dayKey]: [...plan[dayKey], recipe.title]
     });
+
+    await this.awardPoints(20, 'meal_plans', 1);
 
     this.planningRecipe.set(null);
   }
@@ -650,6 +639,60 @@ export class AppComponent {
         this.pendingIngredients.set(null);
       }
     }
+  }
+
+  private async awardPoints(points: number, statType: string, amount: number) {
+    if (this.guestMode()) {
+      const newPoints = this.guestPoints() + points;
+      const newLevel = this.gamificationService.calculateLevel(newPoints);
+      this.guestPoints.set(newPoints);
+      this.guestLevel.set(newLevel);
+      return;
+    }
+
+    const user = this.userData();
+    if (!user) return;
+
+    const achievements = user.achievements || EMPTY_ACHIEVEMENTS;
+    
+    const streakResult = this.gamificationService.updateStreak(
+      achievements.lastActiveDate,
+      achievements.currentStreak
+    );
+    
+    const updatedAchievements = {
+      ...achievements,
+      currentStreak: streakResult.newStreak,
+      longestStreak: Math.max(achievements.longestStreak, streakResult.newStreak),
+      lastActiveDate: new Date(),
+      recipesCooked: statType === 'recipes_cooked' ? achievements.recipesCooked + amount : achievements.recipesCooked,
+      recipesGenerated: statType === 'recipes_generated' ? achievements.recipesGenerated + amount : achievements.recipesGenerated,
+      shoppingItemsAdded: statType === 'shopping_items' ? achievements.shoppingItemsAdded + amount : achievements.shoppingItemsAdded,
+      mealPlansCreated: statType === 'meal_plans' ? achievements.mealPlansCreated + amount : achievements.mealPlansCreated,
+      portionsAdjusted: statType === 'portions_adjusted' ? achievements.portionsAdjusted + amount : achievements.portionsAdjusted,
+      languagesUsed: [...new Set([...achievements.languagesUsed, this.translationService.currentLanguage()])]
+    };
+    
+    const newAchievements = this.gamificationService.checkAchievements(updatedAchievements);
+    
+    if (newAchievements.length > 0) {
+      updatedAchievements.unlockedAchievements = [
+        ...updatedAchievements.unlockedAchievements,
+        ...newAchievements.map(a => a.id)
+      ];
+      
+      const achievementPoints = newAchievements.reduce((sum, a) => sum + a.points, 0);
+      points += achievementPoints;
+    }
+    
+    const totalPoints = user.points + points + streakResult.streakBonus;
+    const newLevel = this.gamificationService.calculateLevel(totalPoints);
+
+    await this.firestoreService.updateUser(user.uid, {
+      points: totalPoints,
+      level: newLevel,
+      achievements: updatedAchievements
+    });
   }
 
   private mergeShoppingItems(newItems: string[]) {
