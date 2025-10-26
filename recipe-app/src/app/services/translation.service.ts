@@ -127,7 +127,18 @@ export class TranslationService {
     nutrition_protein: 'Protein',
     nutrition_carbs: 'Carbs',
     nutrition_fat: 'Fat',
-    nutrition_per_serving: 'per serving'
+    nutrition_per_serving: 'per serving',
+    notif_ingredient_added: 'Ingredient added',
+    notif_recipe_generated: 'Recipe generated',
+    notif_recipe_cooked: 'Recipe cooked',
+    notif_meal_plan: 'Meal plan updated',
+    notif_shopping_item: 'Shopping item added',
+    notif_portions: 'Portions adjusted',
+    notif_achievement_unlocked: 'Achievement Unlocked!',
+    notif_level_up: 'Level Up!',
+    notif_streak_active: 'Streak Active!',
+    notif_days: 'consecutive days',
+    points_short: 'pts'
   };
 
   // Manual fallback translations (used if auto-translate fails)
@@ -185,7 +196,18 @@ export class TranslationService {
     adjust_servings: { en: 'Adjust Servings', es: 'Ajustar Porciones', fr: 'Ajuster les Portions', de: 'Portionen Anpassen', it: 'Regola Porzioni' },
     recipe_time: { en: 'Time', es: 'Tiempo', fr: 'Temps', de: 'Zeit', it: 'Tempo' },
     recipe_servings: { en: 'Servings', es: 'Porciones', fr: 'Portions', de: 'Portionen', it: 'Porzioni' },
-    recipe_start_cooking: { en: 'Start Cooking', es: 'Empezar a Cocinar', fr: 'Commencer à Cuisiner', de: 'Mit Kochen beginnen', it: 'Inizia a Cucinare' }
+    recipe_start_cooking: { en: 'Start Cooking', es: 'Empezar a Cocinar', fr: 'Commencer à Cuisiner', de: 'Mit Kochen beginnen', it: 'Inizia a Cucinare' },
+    notif_ingredient_added: { en: 'Ingredient added', es: 'Ingrediente agregado', fr: 'Ingrédient ajouté', de: 'Zutat hinzugefügt', it: 'Ingrediente aggiunto' },
+    notif_recipe_generated: { en: 'Recipe generated', es: 'Receta generada', fr: 'Recette générée', de: 'Rezept generiert', it: 'Ricetta generata' },
+    notif_recipe_cooked: { en: 'Recipe cooked', es: 'Receta cocinada', fr: 'Recette cuisinée', de: 'Rezept gekocht', it: 'Ricetta cucinata' },
+    notif_meal_plan: { en: 'Meal plan updated', es: 'Plan de comidas actualizado', fr: 'Plan de repas mis à jour', de: 'Essensplan aktualisiert', it: 'Piano pasti aggiornato' },
+    notif_shopping_item: { en: 'Shopping item added', es: 'Artículo agregado', fr: 'Article ajouté', de: 'Artikel hinzugefügt', it: 'Articolo aggiunto' },
+    notif_portions: { en: 'Portions adjusted', es: 'Porciones ajustadas', fr: 'Portions ajustées', de: 'Portionen angepasst', it: 'Porzioni regolate' },
+    notif_achievement_unlocked: { en: 'Achievement Unlocked!', es: '¡Logro Desbloqueado!', fr: 'Succès Débloqué!', de: 'Erfolg Freigeschaltet!', it: 'Obiettivo Sbloccato!' },
+    notif_level_up: { en: 'Level Up!', es: '¡Subiste de Nivel!', fr: 'Niveau Supérieur!', de: 'Levelaufstieg!', it: 'Livello Superiore!' },
+    notif_streak_active: { en: 'Streak Active!', es: '¡Racha Activa!', fr: 'Série Active!', de: 'Streak Aktiv!', it: 'Striscia Attiva!' },
+    notif_days: { en: 'consecutive days', es: 'días consecutivos', fr: 'jours consécutifs', de: 'aufeinanderfolgende Tage', it: 'giorni consecutivi' },
+    points_short: { en: 'pts', es: 'pts', fr: 'pts', de: 'Pkt', it: 'pt' }
   };
 
   // Cache for auto-translated texts

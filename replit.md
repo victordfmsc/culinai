@@ -28,6 +28,7 @@ A comprehensive gamification system encourages user engagement. It includes:
 -   **Levels**: 31 progressive levels, from Apprentice Chef to Culinary Legend, based on accumulated points.
 -   **Daily Streaks**: Tracks consecutive daily usage, offering bonus points at milestones (7 and 30 days).
 -   **Profile Dashboard**: Displays user avatar (animated based on level), progress to the next level, key statistics, and achievement showcases.
+-   **Real-time Notifications**: Toast notifications appear when earning points, unlocking achievements, leveling up, or reaching streak milestones. Notifications are color-coded, auto-dismiss after 3-4 seconds, and support all 5 languages.
 
 ## Backend Architecture
 

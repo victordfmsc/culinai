@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../services/notification.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   template: `
     <div class="fixed top-4 right-4 z-50 space-y-3 pointer-events-none">
       @for (notification of notificationService.notifications(); track notification.id) {
@@ -34,7 +35,7 @@ import { NotificationService } from '../../services/notification.service';
           @if (notification.points) {
             <div class="mt-2 text-right">
               <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">
-                +{{ notification.points }} pts
+                +{{ notification.points }} {{ 'points_short' | translate }}
               </span>
             </div>
           }

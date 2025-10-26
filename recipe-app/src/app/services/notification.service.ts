@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { TranslationService } from './translation.service';
 
 export interface Notification {
   id: string;
@@ -14,6 +15,7 @@ export interface Notification {
   providedIn: 'root'
 })
 export class NotificationService {
+  private translationService = inject(TranslationService);
   notifications = signal<Notification[]>([]);
 
   showNotification(notification: Omit<Notification, 'id'>) {
@@ -36,7 +38,7 @@ export class NotificationService {
   showPointsGained(points: number, reason: string) {
     this.showNotification({
       type: 'points',
-      title: `+${points} puntos`,
+      title: `+${points} ${this.translationService.translate('points').toLowerCase()}`,
       message: reason,
       icon: '⭐',
       points
@@ -44,10 +46,11 @@ export class NotificationService {
   }
 
   showAchievementUnlocked(achievementTitle: string, achievementIcon: string, points: number) {
+    const ptsLabel = this.translationService.translate('points_short');
     this.showNotification({
       type: 'achievement',
-      title: '¡Logro desbloqueado!',
-      message: `${achievementIcon} ${achievementTitle} (+${points} pts)`,
+      title: this.translationService.translate('notif_achievement_unlocked'),
+      message: `${achievementIcon} ${achievementTitle} (+${points} ${ptsLabel})`,
       icon: '🏆',
       points,
       duration: 4000
@@ -57,18 +60,20 @@ export class NotificationService {
   showLevelUp(newLevel: number, levelTitle: string) {
     this.showNotification({
       type: 'level',
-      title: '¡Subiste de nivel!',
-      message: `Nivel ${newLevel}: ${levelTitle}`,
+      title: this.translationService.translate('notif_level_up'),
+      message: `${this.translationService.translate('level')} ${newLevel}: ${levelTitle}`,
       icon: '🎉',
       duration: 4000
     });
   }
 
   showStreakBonus(streak: number, points: number) {
+    const daysWord = this.translationService.translate('notif_days');
+    const ptsLabel = this.translationService.translate('points_short');
     this.showNotification({
       type: 'streak',
-      title: '¡Racha activa!',
-      message: `${streak} días consecutivos (+${points} pts)`,
+      title: this.translationService.translate('notif_streak_active'),
+      message: `${streak} ${daysWord} (+${points} ${ptsLabel})`,
       icon: '🔥',
       points,
       duration: 3500
