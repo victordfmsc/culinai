@@ -7,6 +7,8 @@ import { FridgeComponent } from './components/fridge/fridge.component';
 import { SuggestionsComponent } from './components/suggestions/suggestions.component';
 import { ShoppingListComponent } from './components/shopping-list/shopping-list.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { NotificationComponent } from './components/notification/notification.component';
+import { NotificationService } from './services/notification.service';
 import { PaywallComponent } from './components/paywall/paywall.component';
 import { LanguageSelectorComponent } from './components/language-selector/language-selector.component';
 
@@ -33,6 +35,7 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
     SuggestionsComponent,
     ShoppingListComponent,
     ProfileComponent,
+    NotificationComponent,
     PaywallComponent,
     LanguageSelectorComponent,
     TranslatePipe,
@@ -92,7 +95,7 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
             }
             @case ('profile') {
               <app-profile 
-                [userData]="guestMode() ? null : firestoreService.currentUserData()" />
+                [userData]="userData()" />
             }
           }
         </main>
@@ -127,6 +130,8 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
             (purchaseSuccess)="onPurchaseSuccess()"
             (close)="showPaywall.set(false)" />
         }
+
+        <app-notifications />
 
         @if (planningRecipe(); as recipe) {
           <div class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 transition-opacity duration-300">
@@ -391,6 +396,7 @@ export class AppComponent {
   private authService = inject(AuthService);
   private translationService = inject(TranslationService);
   private gamificationService = inject(GamificationService);
+  private notificationService = inject(NotificationService);
   
   // Expose Math to template
   Math = Math;
@@ -783,6 +789,7 @@ export class AppComponent {
   private async awardPremiumAchievement() {
     if (this.guestMode()) {
       this.guestPoints.update(p => p + 200);
+      this.notificationService.showAchievementUnlocked('Premium Chef', '👑', 200);
       console.log('✅ Premium Chef achievement awarded in guest mode! +200 points');
       return;
     }
@@ -804,8 +811,15 @@ export class AppComponent {
     for (const achievement of newAchievements) {
       userData.achievements.unlockedAchievements.push(achievement.id);
       bonusPoints += achievement.points;
+      
+      this.notificationService.showAchievementUnlocked(
+        this.translationService.translate(achievement.titleKey),
+        achievement.icon,
+        achievement.points
+      );
     }
 
+    const oldLevel = userData.level;
     userData.points += bonusPoints;
     userData.level = this.gamificationService.calculateLevel(userData.points);
 
@@ -815,15 +829,43 @@ export class AppComponent {
       achievements: userData.achievements
     });
 
+    if (userData.level > oldLevel) {
+      const levelInfo = this.gamificationService.getLevelInfo(userData.points);
+      this.notificationService.showLevelUp(
+        userData.level,
+        this.translationService.translate(levelInfo.titleKey)
+      );
+    }
+
     console.log(`✅ Premium Chef achievement awarded! +${bonusPoints} points`);
   }
 
   private async awardPoints(points: number, statType: string, amount: number) {
     if (this.guestMode()) {
-      const newPoints = this.guestPoints() + points;
+      const oldPoints = this.guestPoints();
+      const oldLevel = this.guestLevel();
+      const newPoints = oldPoints + points;
       const newLevel = this.gamificationService.calculateLevel(newPoints);
+      
       this.guestPoints.set(newPoints);
       this.guestLevel.set(newLevel);
+      
+      const reasonMap: { [key: string]: string } = {
+        'ingredients': 'Ingredient added',
+        'recipes_generated': 'Recipe generated',
+        'recipes_cooked': 'Recipe cooked',
+        'meal_plans': 'Meal plan added',
+        'shopping_items': 'Shopping item added',
+        'portions_adjusted': 'Portions adjusted'
+      };
+      
+      this.notificationService.showPointsGained(points, reasonMap[statType] || 'Action completed');
+      
+      if (newLevel > oldLevel) {
+        const levelInfo = this.gamificationService.getLevelInfo(newPoints);
+        this.notificationService.showLevelUp(newLevel, levelInfo.titleKey);
+      }
+      
       return;
     }
 
@@ -863,9 +905,33 @@ export class AppComponent {
       
       const achievementPoints = newAchievements.reduce((sum, a) => sum + a.points, 0);
       points += achievementPoints;
+      
+      for (const achievement of newAchievements) {
+        this.notificationService.showAchievementUnlocked(
+          this.translationService.translate(achievement.titleKey),
+          achievement.icon,
+          achievement.points
+        );
+      }
+    }
+    
+    const reasonMap: { [key: string]: string } = {
+      'ingredients': this.translationService.translate('notif_ingredient_added'),
+      'recipes_generated': this.translationService.translate('notif_recipe_generated'),
+      'recipes_cooked': this.translationService.translate('notif_recipe_cooked'),
+      'meal_plans': this.translationService.translate('notif_meal_plan'),
+      'shopping_items': this.translationService.translate('notif_shopping_item'),
+      'portions_adjusted': this.translationService.translate('notif_portions')
+    };
+    
+    this.notificationService.showPointsGained(points, reasonMap[statType] || 'Action completed');
+    
+    if (streakResult.streakBonus > 0) {
+      this.notificationService.showStreakBonus(streakResult.newStreak, streakResult.streakBonus);
     }
     
     const totalPoints = user.points + points + streakResult.streakBonus;
+    const oldLevel = user.level;
     const newLevel = this.gamificationService.calculateLevel(totalPoints);
 
     await this.firestoreService.updateUser(user.uid, {
@@ -873,6 +939,14 @@ export class AppComponent {
       level: newLevel,
       achievements: updatedAchievements
     });
+    
+    if (newLevel > oldLevel) {
+      const levelInfo = this.gamificationService.getLevelInfo(totalPoints);
+      this.notificationService.showLevelUp(
+        newLevel,
+        this.translationService.translate(levelInfo.titleKey)
+      );
+    }
   }
 
   private mergeShoppingItems(newItems: string[]) {
