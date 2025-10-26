@@ -110,7 +110,24 @@ export class TranslationService {
     challenge_meal_planner_title: 'Perfect Planner',
     challenge_meal_planner_desc: 'Complete your weekly meal plan',
     challenge_shopping_efficient_title: 'Efficient Shopper',
-    challenge_shopping_efficient_desc: 'Add 10 items to shopping list'
+    challenge_shopping_efficient_desc: 'Add 10 items to shopping list',
+    tag_high_protein: 'High Protein',
+    tag_low_calorie: 'Low Calorie',
+    tag_low_carb: 'Low Carb',
+    tag_vegetarian: 'Vegetarian',
+    tag_vegan: 'Vegan',
+    tag_gluten_free: 'Gluten Free',
+    tag_dairy_free: 'Dairy Free',
+    tag_spicy: 'Spicy',
+    tag_quick: 'Quick',
+    tag_healthy: 'Healthy',
+    tag_no_salt: 'No Salt',
+    tag_keto: 'Keto',
+    nutrition_calories: 'Calories',
+    nutrition_protein: 'Protein',
+    nutrition_carbs: 'Carbs',
+    nutrition_fat: 'Fat',
+    nutrition_per_serving: 'per serving'
   };
 
   // Manual fallback translations (used if auto-translate fails)

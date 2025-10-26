@@ -10,6 +10,13 @@ export interface Recipe {
   prepTime: string;
   servings: number;
   adjustedServings?: number;
+  tags?: string[];
+  nutrition?: {
+    calories: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+  };
 }
 
 @Injectable({
