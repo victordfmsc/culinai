@@ -27,8 +27,8 @@ A comprehensive gamification system encourages user engagement. It includes:
 -   **Points System**: Points are awarded for various user actions (e.g., adding ingredients, generating recipes, cooking).
 -   **Levels**: 31 progressive levels, from Apprentice Chef to Culinary Legend, based on accumulated points.
 -   **Daily Streaks**: Tracks consecutive daily usage, offering bonus points at milestones (7 and 30 days).
--   **Profile Dashboard**: Displays user avatar (animated based on level), progress to the next level, key statistics, and achievement showcases.
--   **Real-time Notifications**: Toast notifications appear when earning points, unlocking achievements, leveling up, or reaching streak milestones. Notifications are color-coded, auto-dismiss after 3-4 seconds, and support all 5 languages.
+-   **Profile Dashboard**: Displays user avatar (animated based on level), progress to the next level, key statistics, and achievement showcases. ProfileComponent uses reactive signals to update in real-time when user data changes.
+-   **Real-time Notifications**: Toast notifications appear when earning points, unlocking achievements, leveling up, or reaching streak milestones. Notifications are color-coded by type (yellow for points, purple for achievements, green for level-up, orange for streaks), auto-dismiss after 3-4 seconds with manual close option, stack vertically in top-right corner, and feature slide-in animations. All notification text is fully localized through TranslationService across all 5 languages (including dynamic point badges displaying "pts" in English/Spanish/French, "Pkt" in German, "pt" in Italian).
 
 ## Backend Architecture
 
