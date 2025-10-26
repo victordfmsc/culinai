@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Recipe } from '../../services/gemini.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -29,7 +29,33 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
                 
                 <div class="flex justify-between text-xs text-gray-500 mb-4">
                   <span>⏱️ {{ recipe.prepTime }}</span>
-                  <span>🍽️ {{ recipe.servings }} {{ 'suggestions_servings' | translate }}</span>
+                  <span>🍽️ {{ getAdjustedServings(recipe) }} {{ 'suggestions_servings' | translate }}</span>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                  <label class="block text-xs font-semibold text-gray-700 mb-2">
+                    {{ 'adjust_servings' | translate }}
+                  </label>
+                  <div class="flex items-center gap-2">
+                    <button 
+                      (click)="adjustServings(recipe, Math.max(1, getAdjustedServings(recipe) - 1))"
+                      class="w-8 h-8 rounded-full bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors text-sm">
+                      −
+                    </button>
+                    <input 
+                      type="range" 
+                      min="1" 
+                      max="12" 
+                      [value]="getAdjustedServings(recipe)"
+                      (input)="adjustServings(recipe, +$any($event.target).value)"
+                      class="flex-1 h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer">
+                    <button 
+                      (click)="adjustServings(recipe, Math.min(12, getAdjustedServings(recipe) + 1))"
+                      class="w-8 h-8 rounded-full bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors text-sm">
+                      +
+                    </button>
+                    <span class="text-lg font-bold text-indigo-600 min-w-[2rem] text-center">{{ getAdjustedServings(recipe) }}</span>
+                  </div>
                 </div>
 
                 <div class="space-y-2">
@@ -46,7 +72,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
                     {{ 'suggestions_plan' | translate }}
                   </button>
                   <button
-                    (click)="addToShoppingList.emit(recipe.ingredients)"
+                    (click)="addToShoppingList.emit(getScaledIngredients(recipe))"
                     class="w-full py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors"
                   >
                     {{ 'suggestions_add_shopping' | translate }}
@@ -66,4 +92,39 @@ export class SuggestionsComponent {
   @Output() cookRecipe = new EventEmitter<Recipe>();
   @Output() planRecipeRequest = new EventEmitter<Recipe>();
   @Output() addToShoppingList = new EventEmitter<string[]>();
+  
+  Math = Math;
+  
+  adjustServings(recipe: Recipe, newServings: number) {
+    recipe.adjustedServings = newServings;
+  }
+  
+  getAdjustedServings(recipe: Recipe): number {
+    return recipe.adjustedServings || recipe.servings;
+  }
+  
+  scaleIngredient(ingredient: string, originalServings: number, newServings: number): string {
+    const scaleFactor = newServings / originalServings;
+    
+    const numberMatch = ingredient.match(/^(\d+(?:[.,]\d+)?)\s+(.+)/);
+    if (numberMatch) {
+      const quantity = parseFloat(numberMatch[1].replace(',', '.'));
+      const rest = numberMatch[2];
+      const scaledQuantity = Math.round(quantity * scaleFactor * 10) / 10;
+      return `${scaledQuantity} ${rest}`;
+    }
+    
+    return ingredient;
+  }
+  
+  getScaledIngredients(recipe: Recipe): string[] {
+    const newServings = this.getAdjustedServings(recipe);
+    if (newServings === recipe.servings) {
+      return recipe.ingredients;
+    }
+    
+    return recipe.ingredients.map(ingredient => 
+      this.scaleIngredient(ingredient, recipe.servings, newServings)
+    );
+  }
 }

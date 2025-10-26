@@ -9,6 +9,7 @@ export interface Recipe {
   instructions: string[];
   prepTime: string;
   servings: number;
+  adjustedServings?: number;
 }
 
 @Injectable({
