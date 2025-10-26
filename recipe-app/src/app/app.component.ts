@@ -124,8 +124,7 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
 
         @if (showPaywall()) {
           <app-paywall 
-            (startTrial)="onStartTrial()"
-            (restorePurchases)="onRestorePurchases()"
+            (purchaseSuccess)="onPurchaseSuccess()"
             (close)="showPaywall.set(false)" />
         }
 
@@ -526,7 +525,7 @@ export class AppComponent {
   }
 
   handleFindRecipesRequest(ingredients: string) {
-    if (this.isSubscribed()) {
+    if (this.subscriptionService.canGenerateRecipes) {
       this.onFindRecipes(ingredients);
     } else {
       this.pendingIngredients.set(ingredients);
@@ -545,7 +544,16 @@ export class AppComponent {
       const generatedRecipes = await this.geminiService.generateRecipes(ingredients, currentLanguage);
       this.recipes.set(generatedRecipes);
       
-      await this.awardPoints(15, 'recipes_generated', 10);
+      this.subscriptionService.incrementRecipesGenerated();
+      
+      await this.awardPoints(15, 'recipes_generated', 1);
+      
+      if (!this.guestMode() && this.firestoreService.currentUserData()) {
+        const userData = this.firestoreService.currentUserData()!;
+        await this.firestoreService.updateUserData(userData.uid, { 
+          achievements: userData.achievements 
+        });
+      }
     } catch (error) {
       console.error('Failed to generate recipes', error);
     } finally {
@@ -756,32 +764,52 @@ export class AppComponent {
     });
   }
 
-  async onStartTrial() {
-    await this.subscriptionService.startTrial();
+  async onPurchaseSuccess() {
+    this.showPaywall.set(false);
     
-    if (this.subscriptionService.isSubscribed()) {
-      this.showPaywall.set(false);
-      
-      const pending = this.pendingIngredients();
-      if (pending) {
-        this.onFindRecipes(pending);
-        this.pendingIngredients.set(null);
-      }
+    await this.awardPremiumAchievement();
+    
+    const pending = this.pendingIngredients();
+    if (pending) {
+      this.onFindRecipes(pending);
+      this.pendingIngredients.set(null);
     }
   }
 
-  async onRestorePurchases() {
-    const restored = await this.subscriptionService.restorePurchases();
-    
-    if (restored) {
-      this.showPaywall.set(false);
-      
-      const pending = this.pendingIngredients();
-      if (pending) {
-        this.onFindRecipes(pending);
-        this.pendingIngredients.set(null);
-      }
+  private async awardPremiumAchievement() {
+    if (this.guestMode()) {
+      return;
     }
+
+    const userData = this.firestoreService.currentUserData();
+    if (!userData || !userData.achievements) {
+      return;
+    }
+
+    if (userData.achievements.premiumSubscribed === 1) {
+      return;
+    }
+
+    userData.achievements.premiumSubscribed = 1;
+
+    const newAchievements = this.gamificationService.checkAchievements(userData.achievements);
+    
+    for (const achievement of newAchievements) {
+      userData.achievements.unlockedAchievements.push(achievement.id);
+      this.points.update(p => p + achievement.points);
+      userData.points += achievement.points;
+    }
+
+    this.level.set(this.gamificationService.calculateLevel(userData.points));
+    userData.level = this.level();
+
+    await this.firestoreService.updateUserData(userData.uid, {
+      points: userData.points,
+      level: userData.level,
+      achievements: userData.achievements
+    });
+
+    console.log('✅ Premium Chef achievement awarded! +200 points');
   }
 
   private async awardPoints(points: number, statType: string, amount: number) {

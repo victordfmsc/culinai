@@ -10,11 +10,33 @@ export class SubscriptionService {
   isSubscribed = signal(false);
   isInitialized = signal(false);
   offerings = signal<PurchasesOfferings | null>(null);
+  recipesGenerated = signal(0);
   
   private readonly ENTITLEMENT_ID = 'premium';
+  private readonly FREE_RECIPE_LIMIT = 3;
+
+  get canGenerateRecipes() {
+    return this.isSubscribed() || this.recipesGenerated() < this.FREE_RECIPE_LIMIT;
+  }
+
+  get remainingFreeRecipes() {
+    return Math.max(0, this.FREE_RECIPE_LIMIT - this.recipesGenerated());
+  }
+
+  get shouldShowPaywall() {
+    return !this.isSubscribed() && this.recipesGenerated() >= this.FREE_RECIPE_LIMIT;
+  }
 
   constructor() {
     this.initializeRevenueCat();
+  }
+
+  setRecipesGenerated(count: number): void {
+    this.recipesGenerated.set(count);
+  }
+
+  incrementRecipesGenerated(): void {
+    this.recipesGenerated.update(count => count + 1);
   }
 
   private async initializeRevenueCat() {
