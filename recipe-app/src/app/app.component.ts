@@ -717,6 +717,10 @@ export class AppComponent {
     const volumeUnits = ['ml', 'l', 'cup', 'cups', 'taza', 'tazas', 'tasse', 'tasses', 'Tasse', 'Tassen', 'tazza', 'tazze',
       'liter', 'liters', 'litro', 'litros', 'litre', 'litres', 'Liter', 'milliliter', 'milliliters'];
     
+    // Spoon units (small volume measures)
+    const spoonUnits = ['tbsp', 'tsp', 'cda', 'cdas', 'cdta', 'cdtas', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons',
+      'cuillère', 'cuillères', 'Esslöffel', 'Teelöffel', 'cucchiaio', 'cucchiai', 'cucchiaino', 'cucchiaini'];
+    
     // Descriptive phrases to remove (in multiple languages)
     const descriptors = [
       // English
@@ -794,6 +798,7 @@ export class AppComponent {
       
       const isVolumeUnit = volumeUnits.some(v => v.toLowerCase() === unitLower);
       const isWeightUnit = weightUnits.some(w => w.toLowerCase() === unitLower);
+      const isSpoonUnit = spoonUnits.some(s => s.toLowerCase() === unitLower);
       
       // Discard invalid unit combinations
       if ((isProtein || isVegetable) && isVolumeUnit) {
@@ -801,6 +806,9 @@ export class AppComponent {
         unit = null;
       } else if (isLiquid && isWeightUnit) {
         // Liquid measured in grams - discard unit, keep only quantity
+        unit = null;
+      } else if (isLiquid && isSpoonUnit && quantity !== null && quantity > 10) {
+        // Liquid measured in spoons with quantity > 10 - too much, discard unit
         unit = null;
       }
     }
