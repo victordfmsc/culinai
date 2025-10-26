@@ -31,8 +31,9 @@ import { TranslationService } from '../../services/translation.service';
                 @if (recipe.tags && recipe.tags.length > 0) {
                   <div class="flex flex-wrap gap-2 mb-3">
                     @for (tag of recipe.tags; track tag) {
-                      <span [class]="getTagClass(tag)" class="px-2 py-1 text-xs font-semibold rounded-full">
-                        {{ translateTag(tag) }}
+                      <span [class]="getTagClass(tag)" class="px-2 py-1 text-xs font-semibold rounded-full flex items-center gap-1">
+                        <span>{{ getTagIcon(tag) }}</span>
+                        <span>{{ translateTag(tag) }}</span>
                       </span>
                     }
                   </div>
@@ -166,6 +167,46 @@ export class SuggestionsComponent {
       return this.translationService.translate(translationKey);
     }
     return tag;
+  }
+  
+  getTagIcon(tag: string): string {
+    const tagLower = tag.toLowerCase();
+    
+    if (tagLower.includes('protein')) {
+      return '💪';
+    }
+    if (tagLower.includes('low cal')) {
+      return '🔥';
+    }
+    if (tagLower.includes('vegan')) {
+      return '🌱';
+    }
+    if (tagLower.includes('vegetarian')) {
+      return '🥬';
+    }
+    if (tagLower.includes('low carb') || tagLower.includes('keto')) {
+      return '🥑';
+    }
+    if (tagLower.includes('gluten')) {
+      return '🌾';
+    }
+    if (tagLower.includes('spicy')) {
+      return '🌶️';
+    }
+    if (tagLower.includes('quick')) {
+      return '⚡';
+    }
+    if (tagLower.includes('healthy')) {
+      return '❤️';
+    }
+    if (tagLower.includes('no salt')) {
+      return '⭕';
+    }
+    if (tagLower.includes('dairy')) {
+      return '🌿';
+    }
+    
+    return '🏷️';
   }
   
   getTagClass(tag: string): string {

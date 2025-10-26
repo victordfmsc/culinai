@@ -22,17 +22,18 @@ The project's ambition is to provide a comprehensive, intelligent, and user-frie
   - **Display Locations**:
     - Recipe suggestion cards: Tags as colorful badges + calories next to prep time
     - Cooking modal: Full nutritional panel with all macros + tag badges
-  - **Tag Color System**:
-    - 🔵 Blue: High Protein / Proteínico
-    - 🟢 Green: Low Calorie / Hipocalórico
-    - 🟣 Purple: Low Carb / Keto
-    - 🟡 Yellow: Gluten Free / Sin Gluten
-    - 🔴 Red: Spicy / Picante
-    - 🟠 Orange: Quick / Rápido
-    - 🔷 Teal: Healthy / Saludable
-    - 🔶 Cyan: No Salt / Sin Sal
-    - 💚 Emerald: Vegetarian / Vegan
-    - 🩷 Pink: Dairy Free / Sin Lácteos
+  - **Tag System with Themed Icons**:
+    - 💪 🔵 Blue: High Protein / Proteínico
+    - 🔥 🟢 Green: Low Calorie / Hipocalórico
+    - 🥑 🟣 Purple: Low Carb / Keto
+    - 🌾 🟡 Yellow: Gluten Free / Sin Gluten
+    - 🌶️ 🔴 Red: Spicy / Picante
+    - ⚡ 🟠 Orange: Quick / Rápido
+    - ❤️ 🔷 Teal: Healthy / Saludable
+    - ⭕ 🔶 Cyan: No Salt / Sin Sal (restriction icon)
+    - 🌱🥬 💚 Emerald: Vegetarian / Vegan
+    - 🌿 🩷 Pink: Dairy Free / Sin Lácteos (plant-based icon)
+  - **Visual Enhancement**: Each tag displays with its themed emoji icon for instant recognition
 
 - 🎮 **Complete Gamification System "Chef Master"**:
   - **10 Achievements** across 3 tiers (Beginner, Experienced, Master)
