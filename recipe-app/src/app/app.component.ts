@@ -640,28 +640,51 @@ export class AppComponent {
     // Ingredient categories (multilingual)
     const proteinKeywords = [
       // English
-      'chicken', 'beef', 'pork', 'fish', 'salmon', 'tuna', 'turkey', 'lamb', 'shrimp', 'meat', 'steak',
+      'chicken', 'beef', 'pork', 'fish', 'salmon', 'tuna', 'turkey', 'lamb', 'shrimp', 'meat', 'steak', 'bacon', 'ham',
       // Spanish
-      'pollo', 'carne', 'cerdo', 'pescado', 'salmón', 'atún', 'pavo', 'cordero', 'camarón', 'bistec', 'res',
+      'pollo', 'carne', 'cerdo', 'pescado', 'salmón', 'atún', 'pavo', 'cordero', 'camarón', 'bistec', 'res', 'tocino', 'jamón',
       // French
-      'poulet', 'bœuf', 'porc', 'poisson', 'saumon', 'thon', 'dinde', 'agneau', 'crevette', 'viande',
+      'poulet', 'bœuf', 'porc', 'poisson', 'saumon', 'thon', 'dinde', 'agneau', 'crevette', 'viande', 'bacon', 'jambon',
       // German
-      'Hähnchen', 'Rindfleisch', 'Schweinefleisch', 'Fisch', 'Lachs', 'Thunfisch', 'Pute', 'Lamm', 'Garnele', 'Fleisch',
+      'Hähnchen', 'Rindfleisch', 'Schweinefleisch', 'Fisch', 'Lachs', 'Thunfisch', 'Pute', 'Lamm', 'Garnele', 'Fleisch', 'Speck', 'Schinken',
       // Italian
-      'pollo', 'manzo', 'maiale', 'pesce', 'salmone', 'tonno', 'tacchino', 'agnello', 'gamberetto', 'carne'
+      'pollo', 'manzo', 'maiale', 'pesce', 'salmone', 'tonno', 'tacchino', 'agnello', 'gamberetto', 'carne', 'pancetta', 'prosciutto'
+    ];
+    
+    const vegetableKeywords = [
+      // English
+      'tomato', 'tomatoes', 'onion', 'onions', 'carrot', 'carrots', 'potato', 'potatoes', 'pepper', 'peppers',
+      'broccoli', 'spinach', 'lettuce', 'cabbage', 'celery', 'cucumber', 'zucchini', 'eggplant', 'mushroom', 'mushrooms',
+      'garlic', 'corn', 'peas', 'beans', 'cauliflower', 'asparagus', 'kale', 'squash',
+      // Spanish
+      'tomate', 'tomates', 'cebolla', 'cebollas', 'zanahoria', 'zanahorias', 'papa', 'papas', 'patata', 'patatas',
+      'pimiento', 'pimientos', 'brócoli', 'espinaca', 'lechuga', 'repollo', 'apio', 'pepino', 'calabacín', 'berenjena',
+      'champiñón', 'champiñones', 'ajo', 'maíz', 'guisantes', 'frijoles', 'coliflor', 'espárrago', 'calabaza',
+      // French
+      'tomate', 'tomates', 'oignon', 'oignons', 'carotte', 'carottes', 'pomme de terre', 'poivron', 'poivrons',
+      'brocoli', 'épinard', 'laitue', 'chou', 'céleri', 'concombre', 'courgette', 'aubergine', 'champignon', 'champignons',
+      'ail', 'maïs', 'pois', 'haricots', 'chou-fleur', 'asperge', 'courge',
+      // German
+      'Tomate', 'Tomaten', 'Zwiebel', 'Zwiebeln', 'Karotte', 'Karotten', 'Kartoffel', 'Kartoffeln', 'Paprika',
+      'Brokkoli', 'Spinat', 'Salat', 'Kohl', 'Sellerie', 'Gurke', 'Zucchini', 'Aubergine', 'Pilz', 'Pilze',
+      'Knoblauch', 'Mais', 'Erbsen', 'Bohnen', 'Blumenkohl', 'Spargel', 'Kürbis',
+      // Italian
+      'pomodoro', 'pomodori', 'cipolla', 'cipolle', 'carota', 'carote', 'patata', 'patate', 'peperone', 'peperoni',
+      'broccoli', 'spinaci', 'lattuga', 'cavolo', 'sedano', 'cetriolo', 'zucchina', 'melanzana', 'fungo', 'funghi',
+      'aglio', 'mais', 'piselli', 'fagioli', 'cavolfiore', 'asparagi', 'zucca'
     ];
     
     const liquidKeywords = [
       // English
-      'water', 'milk', 'broth', 'stock', 'juice', 'oil', 'wine', 'cream', 'sauce',
+      'water', 'milk', 'broth', 'stock', 'juice', 'oil', 'wine', 'cream', 'sauce', 'vinegar', 'soy sauce',
       // Spanish
-      'agua', 'leche', 'caldo', 'jugo', 'aceite', 'vino', 'crema', 'salsa',
+      'agua', 'leche', 'caldo', 'jugo', 'aceite', 'vino', 'crema', 'salsa', 'vinagre', 'salsa de soja',
       // French
-      'eau', 'lait', 'bouillon', 'jus', 'huile', 'vin', 'crème', 'sauce',
+      'eau', 'lait', 'bouillon', 'jus', 'huile', 'vin', 'crème', 'sauce', 'vinaigre', 'sauce soja',
       // German
-      'Wasser', 'Milch', 'Brühe', 'Saft', 'Öl', 'Wein', 'Sahne', 'Soße',
+      'Wasser', 'Milch', 'Brühe', 'Saft', 'Öl', 'Wein', 'Sahne', 'Soße', 'Essig', 'Sojasoße',
       // Italian
-      'acqua', 'latte', 'brodo', 'succo', 'olio', 'vino', 'panna', 'salsa'
+      'acqua', 'latte', 'brodo', 'succo', 'olio', 'vino', 'panna', 'salsa', 'aceto', 'salsa di soia'
     ];
     
     // Common units in multiple languages
@@ -764,16 +787,17 @@ export class AppComponent {
       const ingredientLower = baseIngredient.toLowerCase();
       const unitLower = unit.toLowerCase();
       
-      // Check if it's a protein (should use weight, not volume)
+      // Check ingredient category
       const isProtein = proteinKeywords.some(keyword => ingredientLower.includes(keyword));
+      const isVegetable = vegetableKeywords.some(keyword => ingredientLower.includes(keyword));
       const isLiquid = liquidKeywords.some(keyword => ingredientLower.includes(keyword));
       
       const isVolumeUnit = volumeUnits.some(v => v.toLowerCase() === unitLower);
       const isWeightUnit = weightUnits.some(w => w.toLowerCase() === unitLower);
       
       // Discard invalid unit combinations
-      if (isProtein && isVolumeUnit) {
-        // Protein measured in cups/tazas/liters - discard unit, keep only quantity
+      if ((isProtein || isVegetable) && isVolumeUnit) {
+        // Protein/vegetables measured in cups/tazas/liters - discard unit, keep only quantity
         unit = null;
       } else if (isLiquid && isWeightUnit) {
         // Liquid measured in grams - discard unit, keep only quantity
