@@ -178,8 +178,14 @@ The application integrates with Google's Gemini API (gemini-1.5-flash model) to 
 **Nutritional Analysis**: Each generated recipe includes:
 - Classification tags (2-4 per recipe) based on dietary characteristics
 - Approximate nutritional values per serving: calories, protein, carbs, fat
-- Tags are generated in the user's selected language
+- Tags are generated in English by Gemini for consistent color-coding, then translated for display
 - Nutritional data helps users make informed dietary choices
+
+**Tag System Design**:
+- Gemini generates tags in English (e.g., "High Protein", "Low Calorie", "Vegan")
+- Frontend translates tags to user's language using translation service
+- Color-coding logic uses English tags for consistency across all languages
+- This ensures reliable badge styling regardless of output language
 
 ## Data Models
 
