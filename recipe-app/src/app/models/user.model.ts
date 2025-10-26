@@ -51,5 +51,6 @@ export const EMPTY_ACHIEVEMENTS: UserAchievements = {
   shoppingItemsAdded: 0,
   languagesUsed: [],
   portionsAdjusted: 0,
+  premiumSubscribed: 0,
   weeklyChallenge: undefined
 };

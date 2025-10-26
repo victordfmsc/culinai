@@ -33,6 +33,7 @@ export interface UserAchievements {
   shoppingItemsAdded: number;
   languagesUsed: string[];
   portionsAdjusted: number;
+  premiumSubscribed: number;
   weeklyChallenge?: WeeklyChallenge;
 }
 

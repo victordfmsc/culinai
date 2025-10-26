@@ -660,6 +660,8 @@ export class AppComponent {
       achievements.currentStreak
     );
     
+    const isPremiumSubscribed = this.subscriptionService.isSubscribed();
+    
     const updatedAchievements = {
       ...achievements,
       currentStreak: streakResult.newStreak,
@@ -670,7 +672,8 @@ export class AppComponent {
       shoppingItemsAdded: statType === 'shopping_items' ? achievements.shoppingItemsAdded + amount : achievements.shoppingItemsAdded,
       mealPlansCreated: statType === 'meal_plans' ? achievements.mealPlansCreated + amount : achievements.mealPlansCreated,
       portionsAdjusted: statType === 'portions_adjusted' ? achievements.portionsAdjusted + amount : achievements.portionsAdjusted,
-      languagesUsed: [...new Set([...achievements.languagesUsed, this.translationService.currentLanguage()])]
+      languagesUsed: [...new Set([...achievements.languagesUsed, this.translationService.currentLanguage()])],
+      premiumSubscribed: isPremiumSubscribed ? 1 : 0
     };
     
     const newAchievements = this.gamificationService.checkAchievements(updatedAchievements);

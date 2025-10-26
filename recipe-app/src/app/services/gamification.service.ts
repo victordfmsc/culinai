@@ -70,7 +70,7 @@ export class GamificationService {
           currentValue = userAchievements.portionsAdjusted;
           break;
         case 'premium_subscription':
-          currentValue = 0;
+          currentValue = userAchievements.premiumSubscribed || 0;
           break;
       }
       
@@ -178,6 +178,9 @@ export class GamificationService {
         break;
       case 'portions_adjusted':
         currentValue = userAchievements.portionsAdjusted;
+        break;
+      case 'premium_subscription':
+        currentValue = userAchievements.premiumSubscribed || 0;
         break;
     }
     

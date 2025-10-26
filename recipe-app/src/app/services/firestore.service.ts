@@ -34,7 +34,22 @@ export class FirestoreService {
       const snapshot = await getDoc(userDoc);
       
       if (snapshot.exists()) {
-        this.currentUserData.set(snapshot.data() as UserData);
+        const data = snapshot.data() as any;
+        
+        if (data.achievements) {
+          if (data.achievements.lastActiveDate?.toDate) {
+            data.achievements.lastActiveDate = data.achievements.lastActiveDate.toDate();
+          }
+          if (data.achievements.weeklyChallenge?.weekStartDate?.toDate) {
+            data.achievements.weeklyChallenge.weekStartDate = data.achievements.weeklyChallenge.weekStartDate.toDate();
+          }
+        }
+        
+        if (data.createdAt?.toDate) {
+          data.createdAt = data.createdAt.toDate();
+        }
+        
+        this.currentUserData.set(data as UserData);
       } else {
         console.log('User document not found, might be a new user');
       }
