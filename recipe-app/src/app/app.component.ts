@@ -551,6 +551,13 @@ export class AppComponent {
       this.subscriptionService.incrementRecipesGenerated();
       
       await this.awardPoints(15, 'recipes_generated', 1);
+      
+      if (!this.guestMode() && this.firestoreService.currentUserData()) {
+        const userData = this.firestoreService.currentUserData()!;
+        await this.firestoreService.updateUser(userData.uid, { 
+          achievements: userData.achievements 
+        });
+      }
     } catch (error) {
       console.error('Failed to generate recipes', error);
     } finally {
