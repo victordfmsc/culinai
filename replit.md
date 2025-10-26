@@ -14,6 +14,7 @@ This is a recipe management application built with Angular 19 that helps users m
   - Prevents nonsensical extractions like "pulgada de..." or "de hierbas secas"
 - ✅ **Unit Preservation & Display**: Shopping list displays proper units (g, kg, l, ml, cups, tbsp, etc.) instead of just multipliers for measurable ingredients
 - ✅ **Multi-Language Unit Recognition**: Supports units in 5 languages (cup/taza/tasse, gram/gramo/gramme, etc.)
+- ✅ **Smart Unit Validation**: System validates unit-ingredient compatibility and discards invalid combinations (e.g., "2 cups carne" becomes "2× carne" instead of "2 cups carne" since meat should use weight units)
 - ✅ **Multi-Language Descriptor Removal** (only for numeric quantities):
   - 🇬🇧 English: "chopped", "diced", "cut into", "bite-sized", etc.
   - 🇪🇸 Spanish: "picado", "cortado en", "tamaño de un bocado", etc.

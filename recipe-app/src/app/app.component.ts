@@ -637,6 +637,33 @@ export class AppComponent {
   }
   
   private parseIngredient(text: string): { quantity: number | null, unit: string | null, ingredient: string, baseIngredient: string, hasNumericQuantity: boolean } {
+    // Ingredient categories (multilingual)
+    const proteinKeywords = [
+      // English
+      'chicken', 'beef', 'pork', 'fish', 'salmon', 'tuna', 'turkey', 'lamb', 'shrimp', 'meat', 'steak',
+      // Spanish
+      'pollo', 'carne', 'cerdo', 'pescado', 'salmón', 'atún', 'pavo', 'cordero', 'camarón', 'bistec', 'res',
+      // French
+      'poulet', 'bœuf', 'porc', 'poisson', 'saumon', 'thon', 'dinde', 'agneau', 'crevette', 'viande',
+      // German
+      'Hähnchen', 'Rindfleisch', 'Schweinefleisch', 'Fisch', 'Lachs', 'Thunfisch', 'Pute', 'Lamm', 'Garnele', 'Fleisch',
+      // Italian
+      'pollo', 'manzo', 'maiale', 'pesce', 'salmone', 'tonno', 'tacchino', 'agnello', 'gamberetto', 'carne'
+    ];
+    
+    const liquidKeywords = [
+      // English
+      'water', 'milk', 'broth', 'stock', 'juice', 'oil', 'wine', 'cream', 'sauce',
+      // Spanish
+      'agua', 'leche', 'caldo', 'jugo', 'aceite', 'vino', 'crema', 'salsa',
+      // French
+      'eau', 'lait', 'bouillon', 'jus', 'huile', 'vin', 'crème', 'sauce',
+      // German
+      'Wasser', 'Milch', 'Brühe', 'Saft', 'Öl', 'Wein', 'Sahne', 'Soße',
+      // Italian
+      'acqua', 'latte', 'brodo', 'succo', 'olio', 'vino', 'panna', 'salsa'
+    ];
+    
     // Common units in multiple languages
     const units = [
       // English
@@ -658,6 +685,14 @@ export class AppComponent {
       'tazza', 'tazze', 'cucchiaio', 'cucchiai', 'cucchiaino', 'cucchiaini', 'grammo', 'grammi',
       'litro', 'litri', 'spicchio', 'spicchi', 'fetta', 'fette', 'scatola', 'scatole', 'unità'
     ];
+    
+    // Weight units (for proteins, solid foods)
+    const weightUnits = ['g', 'kg', 'gram', 'grams', 'gramo', 'gramos', 'kilo', 'kilos', 'kilogram', 'kilograms',
+      'gramme', 'grammes', 'Gramm', 'Kilogramm', 'grammo', 'grammi', 'oz', 'lb', 'lbs', 'ounce', 'ounces', 'pound', 'pounds'];
+    
+    // Volume units (for liquids)
+    const volumeUnits = ['ml', 'l', 'cup', 'cups', 'taza', 'tazas', 'tasse', 'tasses', 'Tasse', 'Tassen', 'tazza', 'tazze',
+      'liter', 'liters', 'litro', 'litros', 'litre', 'litres', 'Liter', 'milliliter', 'milliliters'];
     
     // Descriptive phrases to remove (in multiple languages)
     const descriptors = [
@@ -722,6 +757,28 @@ export class AppComponent {
     const words = baseIngredient.split(/\s+/);
     if (words.length > 3) {
       baseIngredient = words.slice(0, 2).join(' ');
+    }
+    
+    // Validate unit against ingredient type
+    if (unit) {
+      const ingredientLower = baseIngredient.toLowerCase();
+      const unitLower = unit.toLowerCase();
+      
+      // Check if it's a protein (should use weight, not volume)
+      const isProtein = proteinKeywords.some(keyword => ingredientLower.includes(keyword));
+      const isLiquid = liquidKeywords.some(keyword => ingredientLower.includes(keyword));
+      
+      const isVolumeUnit = volumeUnits.some(v => v.toLowerCase() === unitLower);
+      const isWeightUnit = weightUnits.some(w => w.toLowerCase() === unitLower);
+      
+      // Discard invalid unit combinations
+      if (isProtein && isVolumeUnit) {
+        // Protein measured in cups/tazas/liters - discard unit, keep only quantity
+        unit = null;
+      } else if (isLiquid && isWeightUnit) {
+        // Liquid measured in grams - discard unit, keep only quantity
+        unit = null;
+      }
     }
     
     // Determine if we have a meaningful numeric quantity
