@@ -138,7 +138,23 @@ export class TranslationService {
     notif_level_up: 'Level Up!',
     notif_streak_active: 'Streak Active!',
     notif_days: 'consecutive days',
-    points_short: 'pts'
+    points_short: 'pts',
+    onboarding_skip: 'Skip',
+    onboarding_welcome_title: 'Welcome to Chef AI!',
+    onboarding_welcome_desc: 'Your intelligent cooking assistant that helps you create amazing meals with what you have',
+    onboarding_fridge_title: 'Manage Your Fridge',
+    onboarding_fridge_desc: 'Add your ingredients and let AI generate personalized recipes instantly',
+    onboarding_recipes: 'recipes',
+    onboarding_plan_title: 'Plan & Organize',
+    onboarding_plan_desc: 'Create weekly meal plans and smart shopping lists automatically',
+    onboarding_meal_plan: 'Meal Plan',
+    onboarding_shopping: 'Shopping List',
+    onboarding_gamification_title: 'Level Up Your Skills',
+    onboarding_gamification_desc: 'Unlock achievements, earn points, and track your culinary journey',
+    onboarding_gamification_features: 'Points • Achievements • Levels • Streaks',
+    onboarding_back: 'Back',
+    onboarding_next: 'Next',
+    onboarding_start: 'Get Started'
   };
 
   // Manual fallback translations (used if auto-translate fails)

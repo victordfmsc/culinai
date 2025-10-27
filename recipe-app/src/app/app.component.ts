@@ -8,6 +8,7 @@ import { SuggestionsComponent } from './components/suggestions/suggestions.compo
 import { ShoppingListComponent } from './components/shopping-list/shopping-list.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { NotificationComponent } from './components/notification/notification.component';
+import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { NotificationService } from './services/notification.service';
 import { PaywallComponent } from './components/paywall/paywall.component';
 import { LanguageSelectorComponent } from './components/language-selector/language-selector.component';
@@ -36,11 +37,14 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
     ShoppingListComponent,
     ProfileComponent,
     NotificationComponent,
+    OnboardingComponent,
     PaywallComponent,
     LanguageSelectorComponent,
     TranslatePipe,
   ],
   template: `
+    <app-onboarding />
+    
     @if (isAuthenticated()) {
       <div class="min-h-screen bg-gray-100 font-sans flex flex-col">
         <header class="bg-white shadow-md sticky top-0 z-10">
