@@ -207,7 +207,23 @@ export class TranslationService {
     notif_level_up: { en: 'Level Up!', es: '¡Subiste de Nivel!', fr: 'Niveau Supérieur!', de: 'Levelaufstieg!', it: 'Livello Superiore!' },
     notif_streak_active: { en: 'Streak Active!', es: '¡Racha Activa!', fr: 'Série Active!', de: 'Streak Aktiv!', it: 'Striscia Attiva!' },
     notif_days: { en: 'consecutive days', es: 'días consecutivos', fr: 'jours consécutifs', de: 'aufeinanderfolgende Tage', it: 'giorni consecutivi' },
-    points_short: { en: 'pts', es: 'pts', fr: 'pts', de: 'Pkt', it: 'pt' }
+    points_short: { en: 'pts', es: 'pts', fr: 'pts', de: 'Pkt', it: 'pt' },
+    onboarding_skip: { en: 'Skip', es: 'Saltar', fr: 'Passer', de: 'Überspringen', it: 'Salta' },
+    onboarding_welcome_title: { en: 'Welcome to Chef AI!', es: '¡Bienvenido a Chef AI!', fr: 'Bienvenue à Chef AI!', de: 'Willkommen bei Chef AI!', it: 'Benvenuto in Chef AI!' },
+    onboarding_welcome_desc: { en: 'Your intelligent cooking assistant that helps you create amazing meals with what you have', es: 'Tu asistente inteligente de cocina que te ayuda a crear comidas increíbles con lo que tienes', fr: 'Votre assistant de cuisine intelligent qui vous aide à créer des repas incroyables avec ce que vous avez', de: 'Ihr intelligenter Kochassistent, der Ihnen hilft, fantastische Mahlzeiten mit dem zu kreieren, was Sie haben', it: 'Il tuo assistente di cucina intelligente che ti aiuta a creare pasti straordinari con ciò che hai' },
+    onboarding_fridge_title: { en: 'Manage Your Fridge', es: 'Gestiona tu Nevera', fr: 'Gérez votre Frigo', de: 'Verwalten Sie Ihren Kühlschrank', it: 'Gestisci il tuo Frigo' },
+    onboarding_fridge_desc: { en: 'Add your ingredients and let AI generate personalized recipes instantly', es: 'Agrega tus ingredientes y deja que la IA genere recetas personalizadas al instante', fr: 'Ajoutez vos ingrédients et laissez l\'IA générer des recettes personnalisées instantanément', de: 'Fügen Sie Ihre Zutaten hinzu und lassen Sie die KI sofort personalisierte Rezepte generieren', it: 'Aggiungi i tuoi ingredienti e lascia che l\'IA generi ricette personalizzate all\'istante' },
+    onboarding_recipes: { en: 'recipes', es: 'recetas', fr: 'recettes', de: 'Rezepte', it: 'ricette' },
+    onboarding_plan_title: { en: 'Plan & Organize', es: 'Planifica y Organiza', fr: 'Planifiez et Organisez', de: 'Planen & Organisieren', it: 'Pianifica e Organizza' },
+    onboarding_plan_desc: { en: 'Create weekly meal plans and smart shopping lists automatically', es: 'Crea planes semanales de comidas y listas de compras inteligentes automáticamente', fr: 'Créez des plans de repas hebdomadaires et des listes de courses intelligentes automatiquement', de: 'Erstellen Sie automatisch wöchentliche Essenspläne und intelligente Einkaufslisten', it: 'Crea piani pasto settimanali e liste della spesa intelligenti automaticamente' },
+    onboarding_meal_plan: { en: 'Meal Plan', es: 'Plan de Comidas', fr: 'Plan de Repas', de: 'Essensplan', it: 'Piano Pasti' },
+    onboarding_shopping: { en: 'Shopping List', es: 'Lista de Compras', fr: 'Liste de Courses', de: 'Einkaufsliste', it: 'Lista Spesa' },
+    onboarding_gamification_title: { en: 'Level Up Your Skills', es: 'Sube de Nivel', fr: 'Montez de Niveau', de: 'Steigern Sie Ihre Fähigkeiten', it: 'Aumenta le tue Abilità' },
+    onboarding_gamification_desc: { en: 'Unlock achievements, earn points, and track your culinary journey', es: 'Desbloquea logros, gana puntos y sigue tu viaje culinario', fr: 'Débloquez des succès, gagnez des points et suivez votre parcours culinaire', de: 'Schalten Sie Erfolge frei, verdienen Sie Punkte und verfolgen Sie Ihre kulinarische Reise', it: 'Sblocca obiettivi, guadagna punti e traccia il tuo percorso culinario' },
+    onboarding_gamification_features: { en: 'Points • Achievements • Levels • Streaks', es: 'Puntos • Logros • Niveles • Rachas', fr: 'Points • Succès • Niveaux • Séries', de: 'Punkte • Erfolge • Level • Streaks', it: 'Punti • Obiettivi • Livelli • Streaks' },
+    onboarding_back: { en: 'Back', es: 'Atrás', fr: 'Retour', de: 'Zurück', it: 'Indietro' },
+    onboarding_next: { en: 'Next', es: 'Siguiente', fr: 'Suivant', de: 'Weiter', it: 'Avanti' },
+    onboarding_start: { en: 'Get Started', es: '¡Empezar!', fr: 'Commencer', de: 'Loslegen', it: 'Inizia' }
   };
 
   // Cache for auto-translated texts
