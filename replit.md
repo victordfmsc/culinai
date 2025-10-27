@@ -32,13 +32,15 @@ A comprehensive gamification system encourages user engagement. It includes:
 
 ### Interactive Onboarding Experience
 
-A first-time user onboarding flow introduces the app's core features before the authentication screen. The onboarding consists of 4 interactive slides that explain:
+A first-time user onboarding flow introduces the app's core features before the authentication screen. The onboarding starts with a language selector, then proceeds through 4 informational slides:
+
+-   **Language Selection** (Slide 0): Users choose their preferred language from 5 options (English, Español, Français, Deutsch, Italiano) with flag icons. Upon selection, the language is saved and the onboarding automatically advances to the next slide, displaying all subsequent content in the chosen language.
 -   **Welcome**: Introduction to Chef AI as an intelligent cooking assistant
 -   **Fridge Management**: How to add ingredients and generate AI-powered recipes instantly
 -   **Planning & Organization**: Weekly meal planning and smart shopping list features
 -   **Gamification**: Achievements, points, levels, and daily streaks system
 
-The onboarding features smooth slide transitions, progress indicators (dots), navigation buttons (Next/Back), and a persistent Skip button in the top-right corner. It appears only on the first visit, with completion state persisted in localStorage via `OnboardingService`. All onboarding content is fully translated across all 5 supported languages (en, es, fr, de, it) through the `TranslationService`.
+The onboarding features smooth slide transitions, progress indicators (dots for slides 1-4), navigation buttons (Next/Back starting from slide 1), and a Skip button in the top-right corner (visible from slide 1 onwards). It appears only on the first visit, with completion state persisted in localStorage via `OnboardingService`. All onboarding content is fully translated across all 5 supported languages through the `TranslationService`.
 
 ## Backend Architecture
 
