@@ -1,6 +1,6 @@
 # Overview
 
-This project, "Chef AI," is an Angular 19 recipe management application designed to enhance the home cooking experience. It enables users to manage fridge ingredients, discover AI-generated recipes, plan meals, and create smart shopping lists. Key features include a comprehensive gamification system, dynamic portion adjustment, multilingual support, and a premium subscription model. The application integrates with Google's Gemini AI for recipe generation and Firebase for authentication and data persistence. It is deployable as both a web and mobile application via Capacitor. The project aims to provide an intelligent, user-friendly platform that leverages AI and gamification to assist users in their culinary journey.
+This project, "Chef AI," is an Angular 19 recipe management application designed to enhance the home cooking experience. It enables users to manage fridge ingredients, discover AI-generated recipes, plan meals, and create smart shopping lists. Key features include a comprehensive gamification system, dynamic portion adjustment, multilingual support, a premium subscription model, and an interactive onboarding experience. The application integrates with Google's Gemini AI for recipe generation and Firebase for authentication and data persistence. It is deployable as both a web and mobile application via Capacitor. The project aims to provide an intelligent, user-friendly platform that leverages AI and gamification to assist users in their culinary journey.
 
 # User Preferences
 
@@ -29,6 +29,16 @@ A comprehensive gamification system encourages user engagement. It includes:
 -   **Daily Streaks**: Tracks consecutive daily usage, offering bonus points at milestones (7 and 30 days).
 -   **Profile Dashboard**: Displays user avatar (animated based on level), progress to the next level, key statistics, and achievement showcases. ProfileComponent uses reactive signals to update in real-time when user data changes.
 -   **Real-time Notifications**: Toast notifications appear when earning points, unlocking achievements, leveling up, or reaching streak milestones. Notifications are color-coded by type (yellow for points, purple for achievements, green for level-up, orange for streaks), auto-dismiss after 3-4 seconds with manual close option, stack vertically in top-right corner, and feature slide-in animations. All notification text is fully localized through TranslationService across all 5 languages (including dynamic point badges displaying "pts" in English/Spanish/French, "Pkt" in German, "pt" in Italian).
+
+### Interactive Onboarding Experience
+
+A first-time user onboarding flow introduces the app's core features before the authentication screen. The onboarding consists of 4 interactive slides that explain:
+-   **Welcome**: Introduction to Chef AI as an intelligent cooking assistant
+-   **Fridge Management**: How to add ingredients and generate AI-powered recipes instantly
+-   **Planning & Organization**: Weekly meal planning and smart shopping list features
+-   **Gamification**: Achievements, points, levels, and daily streaks system
+
+The onboarding features smooth slide transitions, progress indicators (dots), navigation buttons (Next/Back), and a persistent Skip button in the top-right corner. It appears only on the first visit, with completion state persisted in localStorage via `OnboardingService`. All onboarding content is fully translated across all 5 supported languages (en, es, fr, de, it) through the `TranslationService`.
 
 ## Backend Architecture
 
