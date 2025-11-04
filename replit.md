@@ -19,8 +19,10 @@ The application integrates RevenueCat for subscription management across web and
 **Configuration Details:**
 - RevenueCat API Key: `goog_VQfWXrZVpHQbWSUNaScmoQflDDn` (configured for Android and Web)
 - Target Offering ID: `ofrng0c6cce3960` (loaded specifically in `RevenueCatService.getOfferings()`)
+- Product IDs: `prod639e144080` (0,99€/month), `prod952e6667f9` (3,99€/year)
 - Paywall UI: Professional gradient design with animations, fully translated across all 5 languages (18 new translation keys added to `TranslationService`)
 - Premium Benefits: Unlimited recipe generation, +200 bonus points, "Premium Chef" achievement, advanced meal planning, exclusive badge, priority support
+- Web Demo Mode: Shows demo pricing in euros for testing UI/UX; real RevenueCat integration works only on Android/iOS devices
 
 ### Dynamic Portion Adjustment
 
