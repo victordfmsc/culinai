@@ -45,6 +45,12 @@ export class RevenueCatService {
 
   async getOfferings(offeringId?: string): Promise<PurchasesOfferings | null> {
     try {
+      // In web mode, return demo offerings
+      if (Capacitor.getPlatform() === 'web') {
+        console.log('🌐 Web mode: Returning demo offerings');
+        return this.createDemoOfferings(offeringId);
+      }
+
       if (!this.isConfigured) {
         await this.configure();
       }
@@ -72,6 +78,61 @@ export class RevenueCatService {
       console.error('Error fetching offerings:', error);
       return null;
     }
+  }
+
+  private createDemoOfferings(offeringId?: string): PurchasesOfferings {
+    // Create demo packages for web testing
+    const demoPackages: any[] = [
+      {
+        identifier: 'monthly_premium',
+        packageType: 'MONTHLY',
+        product: {
+          identifier: 'premium_monthly',
+          description: 'Premium Chef Monthly',
+          title: 'Premium Chef',
+          price: 9.99,
+          priceString: '$9.99',
+          currencyCode: 'USD',
+          introPrice: null,
+          subscriptionPeriod: 'P1M'
+        },
+        offeringIdentifier: offeringId || 'default'
+      },
+      {
+        identifier: 'annual_premium',
+        packageType: 'ANNUAL',
+        product: {
+          identifier: 'premium_annual',
+          description: 'Premium Chef Annual',
+          title: 'Premium Chef (Annual)',
+          price: 79.99,
+          priceString: '$79.99',
+          currencyCode: 'USD',
+          introPrice: null,
+          subscriptionPeriod: 'P1Y'
+        },
+        offeringIdentifier: offeringId || 'default'
+      }
+    ];
+
+    const currentOffering: any = {
+      identifier: offeringId || 'default',
+      serverDescription: 'Demo offering for web testing',
+      metadata: {},
+      availablePackages: demoPackages,
+      lifetime: null,
+      annual: demoPackages[1],
+      sixMonth: null,
+      threeMonth: null,
+      twoMonth: null,
+      monthly: demoPackages[0],
+      weekly: null
+    };
+
+    return {
+      all: {},
+      current: currentOffering
+    };
   }
 
   async getCustomerInfo(): Promise<CustomerInfo | null> {
@@ -117,6 +178,15 @@ export class RevenueCatService {
 
   async purchasePackage(packageToPurchase: PurchasesPackage): Promise<boolean> {
     try {
+      // In web mode, simulate successful purchase
+      if (Capacitor.getPlatform() === 'web') {
+        console.log('🌐 Web mode: Simulating purchase for', packageToPurchase.product.title);
+        // Simulate a delay like a real purchase
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        console.log('✅ Demo purchase successful - Premium unlocked (web demo mode)');
+        return true;
+      }
+
       if (!this.isConfigured) {
         await this.configure();
       }
@@ -144,6 +214,14 @@ export class RevenueCatService {
 
   async restorePurchases(): Promise<boolean> {
     try {
+      // In web mode, simulate restore
+      if (Capacitor.getPlatform() === 'web') {
+        console.log('🌐 Web mode: Simulating restore purchases');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('No active subscriptions found (web demo mode)');
+        return false;
+      }
+
       if (!this.isConfigured) {
         await this.configure();
       }
