@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RevenueCatService } from '../../services/revenuecat.service';
 import { TranslationService } from '../../services/translation.service';
@@ -200,6 +200,7 @@ export class PaywallComponent implements OnInit {
 
   private revenueCatService = inject(RevenueCatService);
   private translationService = inject(TranslationService);
+  private cdr = inject(ChangeDetectorRef);
 
   packages: PurchasesPackage[] = [];
   selectedPackage: PurchasesPackage | null = null;
@@ -236,6 +237,10 @@ export class PaywallComponent implements OnInit {
         const annual = this.packages.find(p => p.packageType === 'ANNUAL');
         this.selectedPackage = annual || this.packages[0] || null;
         console.log('✅ Selected package:', this.selectedPackage);
+        
+        // Force change detection to update UI
+        this.cdr.detectChanges();
+        console.log('🔄 Change detection triggered - UI should update now');
       } else {
         console.error('❌ No packages found in offerings');
         this.error = this.translationService.translate('paywall_no_plans');
@@ -245,6 +250,8 @@ export class PaywallComponent implements OnInit {
       this.error = this.translationService.translate('paywall_error');
     } finally {
       this.loading = false;
+      // Force final change detection
+      this.cdr.detectChanges();
     }
   }
 
