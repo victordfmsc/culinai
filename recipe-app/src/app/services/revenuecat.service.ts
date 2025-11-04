@@ -43,7 +43,7 @@ export class RevenueCatService {
     }
   }
 
-  async getOfferings(): Promise<PurchasesOfferings | null> {
+  async getOfferings(offeringId?: string): Promise<PurchasesOfferings | null> {
     try {
       if (!this.isConfigured) {
         await this.configure();
@@ -51,6 +51,22 @@ export class RevenueCatService {
 
       const offerings = await Purchases.getOfferings();
       this.currentOfferings = offerings;
+      
+      // If specific offering ID is requested, verify it exists
+      if (offeringId && offerings.all) {
+        const specificOffering = offerings.all[offeringId];
+        if (specificOffering) {
+          console.log(`✅ Found specific offering: ${offeringId}`);
+          // Return offerings with the specific one as current
+          return {
+            ...offerings,
+            current: specificOffering
+          };
+        } else {
+          console.warn(`⚠️ Offering ${offeringId} not found, using default current offering`);
+        }
+      }
+      
       return offerings;
     } catch (error) {
       console.error('Error fetching offerings:', error);

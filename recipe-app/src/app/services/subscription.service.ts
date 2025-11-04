@@ -13,7 +13,7 @@ export class SubscriptionService {
   recipesGenerated = signal(0);
   
   private readonly ENTITLEMENT_ID = 'premium';
-  private readonly FREE_RECIPE_LIMIT = 3;
+  private readonly FREE_RECIPE_LIMIT = 0;
 
   get canGenerateRecipes() {
     return this.isSubscribed() || this.recipesGenerated() < this.FREE_RECIPE_LIMIT;

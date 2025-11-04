@@ -156,7 +156,25 @@ export class TranslationService {
     onboarding_gamification_features: 'Points • Achievements • Levels • Streaks',
     onboarding_back: 'Back',
     onboarding_next: 'Next',
-    onboarding_start: 'Get Started'
+    onboarding_start: 'Get Started',
+    paywall_title: 'Unlock Premium Chef',
+    paywall_subtitle: 'Subscribe to generate unlimited AI recipes',
+    paywall_loading: 'Loading plans...',
+    paywall_best_value: '💰 Best Value',
+    paywall_benefits_title: '🏆 Premium Benefits:',
+    paywall_benefit_1: '✓ Unlimited AI recipe generation',
+    paywall_benefit_2: '✓ +200 bonus points & "Premium Chef" achievement',
+    paywall_benefit_3: '✓ Advanced meal planning features',
+    paywall_benefit_4: '✓ Exclusive premium badge in profile',
+    paywall_benefit_5: '✓ Priority customer support',
+    paywall_subscribe_button: 'Subscribe Now',
+    paywall_processing: 'Processing...',
+    paywall_restore_button: 'Restore Purchases',
+    paywall_restoring: 'Restoring...',
+    paywall_maybe_later: 'Maybe Later',
+    paywall_no_plans: 'No subscription plans available at the moment.',
+    paywall_error: 'Failed to load subscription plans. Please check your connection.',
+    paywall_terms: 'Subscriptions auto-renew. Cancel anytime from your account settings.'
   };
 
   // Manual fallback translations (used if auto-translate fails)
@@ -243,7 +261,25 @@ export class TranslationService {
     onboarding_gamification_features: { en: 'Points • Achievements • Levels • Streaks', es: 'Puntos • Logros • Niveles • Rachas', fr: 'Points • Succès • Niveaux • Séries', de: 'Punkte • Erfolge • Level • Streaks', it: 'Punti • Obiettivi • Livelli • Streaks' },
     onboarding_back: { en: 'Back', es: 'Atrás', fr: 'Retour', de: 'Zurück', it: 'Indietro' },
     onboarding_next: { en: 'Next', es: 'Siguiente', fr: 'Suivant', de: 'Weiter', it: 'Avanti' },
-    onboarding_start: { en: 'Get Started', es: '¡Empezar!', fr: 'Commencer', de: 'Loslegen', it: 'Inizia' }
+    onboarding_start: { en: 'Get Started', es: '¡Empezar!', fr: 'Commencer', de: 'Loslegen', it: 'Inizia' },
+    paywall_title: { en: 'Unlock Premium Chef', es: 'Desbloquear Chef Premium', fr: 'Débloquer Chef Premium', de: 'Premium Chef Freischalten', it: 'Sblocca Chef Premium' },
+    paywall_subtitle: { en: 'Subscribe to generate unlimited AI recipes', es: 'Suscríbete para generar recetas ilimitadas con IA', fr: 'Abonnez-vous pour générer des recettes illimitées avec IA', de: 'Abonnieren Sie, um unbegrenzte KI-Rezepte zu generieren', it: 'Abbonati per generare ricette illimitate con IA' },
+    paywall_loading: { en: 'Loading plans...', es: 'Cargando planes...', fr: 'Chargement des plans...', de: 'Pläne werden geladen...', it: 'Caricamento piani...' },
+    paywall_best_value: { en: '💰 Best Value', es: '💰 Mejor Valor', fr: '💰 Meilleur Prix', de: '💰 Bester Wert', it: '💰 Miglior Valore' },
+    paywall_benefits_title: { en: '🏆 Premium Benefits:', es: '🏆 Beneficios Premium:', fr: '🏆 Avantages Premium:', de: '🏆 Premium-Vorteile:', it: '🏆 Vantaggi Premium:' },
+    paywall_benefit_1: { en: '✓ Unlimited AI recipe generation', es: '✓ Generación ilimitada de recetas con IA', fr: '✓ Génération illimitée de recettes IA', de: '✓ Unbegrenzte KI-Rezeptgenerierung', it: '✓ Generazione illimitata di ricette IA' },
+    paywall_benefit_2: { en: '✓ +200 bonus points & "Premium Chef" achievement', es: '✓ +200 puntos y logro "Chef Premium"', fr: '✓ +200 points bonus et succès "Chef Premium"', de: '✓ +200 Bonuspunkte & "Premium Chef" Erfolg', it: '✓ +200 punti bonus e obiettivo "Chef Premium"' },
+    paywall_benefit_3: { en: '✓ Advanced meal planning features', es: '✓ Funciones avanzadas de planificación de comidas', fr: '✓ Fonctionnalités avancées de planification de repas', de: '✓ Erweiterte Essensplanungsfunktionen', it: '✓ Funzioni avanzate di pianificazione pasti' },
+    paywall_benefit_4: { en: '✓ Exclusive premium badge in profile', es: '✓ Insignia premium exclusiva en perfil', fr: '✓ Badge premium exclusif dans le profil', de: '✓ Exklusives Premium-Abzeichen im Profil', it: '✓ Badge premium esclusivo nel profilo' },
+    paywall_benefit_5: { en: '✓ Priority customer support', es: '✓ Soporte prioritario', fr: '✓ Support client prioritaire', de: '✓ Prioritärer Kundensupport', it: '✓ Supporto clienti prioritario' },
+    paywall_subscribe_button: { en: 'Subscribe Now', es: 'Suscribirse Ahora', fr: "S'abonner Maintenant", de: 'Jetzt Abonnieren', it: 'Abbonati Ora' },
+    paywall_processing: { en: 'Processing...', es: 'Procesando...', fr: 'Traitement...', de: 'Verarbeitung...', it: 'Elaborazione...' },
+    paywall_restore_button: { en: 'Restore Purchases', es: 'Restaurar Compras', fr: 'Restaurer les Achats', de: 'Käufe Wiederherstellen', it: 'Ripristina Acquisti' },
+    paywall_restoring: { en: 'Restoring...', es: 'Restaurando...', fr: 'Restauration...', de: 'Wiederherstellung...', it: 'Ripristino...' },
+    paywall_maybe_later: { en: 'Maybe Later', es: 'Quizás Después', fr: 'Peut-être Plus Tard', de: 'Vielleicht Später', it: 'Forse Dopo' },
+    paywall_no_plans: { en: 'No subscription plans available at the moment.', es: 'No hay planes de suscripción disponibles en este momento.', fr: "Aucun plan d'abonnement disponible pour le moment.", de: 'Derzeit keine Abonnementpläne verfügbar.', it: 'Nessun piano di abbonamento disponibile al momento.' },
+    paywall_error: { en: 'Failed to load subscription plans. Please check your connection.', es: 'Error al cargar planes de suscripción. Verifica tu conexión.', fr: "Échec du chargement des plans d'abonnement. Vérifiez votre connexion.", de: 'Fehler beim Laden der Abonnementpläne. Bitte überprüfen Sie Ihre Verbindung.', it: 'Impossibile caricare i piani di abbonamento. Verifica la connessione.' },
+    paywall_terms: { en: 'Subscriptions auto-renew. Cancel anytime from your account settings.', es: 'Las suscripciones se renuevan automáticamente. Cancela en cualquier momento desde la configuración de tu cuenta.', fr: "Les abonnements se renouvellent automatiquement. Annulez à tout moment depuis les paramètres de votre compte.", de: 'Abonnements werden automatisch verlängert. Jederzeit in Ihren Kontoeinstellungen kündbar.', it: "Gli abbonamenti si rinnovano automaticamente. Annulla in qualsiasi momento dalle impostazioni dell'account." }
   };
 
   // Cache for auto-translated texts
