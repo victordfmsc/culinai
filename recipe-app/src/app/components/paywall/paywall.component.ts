@@ -223,14 +223,21 @@ export class PaywallComponent implements OnInit {
       // Request specific offering by ID
       const offerings = await this.revenueCatService.getOfferings(this.OFFERING_ID);
       
-      if (offerings?.current?.availablePackages) {
+      console.log('🔍 Offerings received:', offerings);
+      console.log('🔍 Current offering:', offerings?.current);
+      console.log('🔍 Available packages:', offerings?.current?.availablePackages);
+      
+      if (offerings?.current?.availablePackages && offerings.current.availablePackages.length > 0) {
         this.packages = offerings.current.availablePackages;
         console.log(`📦 Loaded ${this.packages.length} packages from offering ${this.OFFERING_ID}`);
+        console.log('📦 Packages:', this.packages);
         
         // Select the annual package by default (best value), or first package
         const annual = this.packages.find(p => p.packageType === 'ANNUAL');
         this.selectedPackage = annual || this.packages[0] || null;
+        console.log('✅ Selected package:', this.selectedPackage);
       } else {
+        console.error('❌ No packages found in offerings');
         this.error = this.translationService.translate('paywall_no_plans');
       }
     } catch (err: any) {
