@@ -44,8 +44,9 @@ export class SubscriptionService {
       const platform = Capacitor.getPlatform();
       
       if (platform === 'web') {
-        console.log('RevenueCat: Running in web browser (demo mode)');
-        this.isSubscribed.set(true);
+        console.log('RevenueCat: Running in web browser (paywall enabled, FREE_RECIPE_LIMIT =', this.FREE_RECIPE_LIMIT, ')');
+        // Don't auto-subscribe in web mode - let the FREE_RECIPE_LIMIT control the paywall
+        this.isSubscribed.set(false);
         this.isInitialized.set(true);
         return;
       }
