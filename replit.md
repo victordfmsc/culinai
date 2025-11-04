@@ -14,7 +14,13 @@ The frontend is built with Angular 19, utilizing standalone components and react
 
 ### RevenueCat Subscription System
 
-The application integrates RevenueCat for subscription management across web and mobile platforms. Users have a free tier limit of 3 recipe generations, after which a paywall is displayed. The `SubscriptionService` manages this limit, tracks generated recipes in Firebase UserAchievements, and controls access to premium features. Upon subscription, a "Premium Chef" achievement is unlocked as part of the gamification system. Platform-specific configurations are in place for Android and Web.
+The application integrates RevenueCat for subscription management across web and mobile platforms. **Users must subscribe immediately** (FREE_RECIPE_LIMIT = 0) to generate any AI recipes. The paywall appears when clicking "Find Recipes" for the first time. The `SubscriptionService` manages this subscription requirement, tracks generated recipes in Firebase UserAchievements, and controls access to premium features. Upon subscription, a "Premium Chef" achievement is unlocked as part of the gamification system.
+
+**Configuration Details:**
+- RevenueCat API Key: `goog_VQfWXrZVpHQbWSUNaScmoQflDDn` (configured for Android and Web)
+- Target Offering ID: `ofrng0c6cce3960` (loaded specifically in `RevenueCatService.getOfferings()`)
+- Paywall UI: Professional gradient design with animations, fully translated across all 5 languages (18 new translation keys added to `TranslationService`)
+- Premium Benefits: Unlimited recipe generation, +200 bonus points, "Premium Chef" achievement, advanced meal planning, exclusive badge, priority support
 
 ### Dynamic Portion Adjustment
 
