@@ -81,33 +81,33 @@ export class RevenueCatService {
   }
 
   private createDemoOfferings(offeringId?: string): PurchasesOfferings {
-    // Create demo packages for web testing
+    // Create demo packages for web testing with real product IDs and prices
     const demoPackages: any[] = [
       {
-        identifier: 'monthly_premium',
+        identifier: 'prod639e144080',
         packageType: 'MONTHLY',
         product: {
-          identifier: 'premium_monthly',
-          description: 'Premium Chef Monthly',
-          title: 'Premium Chef',
-          price: 9.99,
-          priceString: '$9.99',
-          currencyCode: 'USD',
+          identifier: 'prod639e144080',
+          description: 'Premium Chef Mensual - Recetas ilimitadas',
+          title: 'Premium Chef Mensual',
+          price: 0.99,
+          priceString: '0,99 €',
+          currencyCode: 'EUR',
           introPrice: null,
           subscriptionPeriod: 'P1M'
         },
         offeringIdentifier: offeringId || 'default'
       },
       {
-        identifier: 'annual_premium',
+        identifier: 'prod952e6667f9',
         packageType: 'ANNUAL',
         product: {
-          identifier: 'premium_annual',
-          description: 'Premium Chef Annual',
-          title: 'Premium Chef (Annual)',
-          price: 79.99,
-          priceString: '$79.99',
-          currencyCode: 'USD',
+          identifier: 'prod952e6667f9',
+          description: 'Premium Chef Anual - Recetas ilimitadas (Ahorra 67%)',
+          title: 'Premium Chef Anual',
+          price: 3.99,
+          priceString: '3,99 €',
+          currencyCode: 'EUR',
           introPrice: null,
           subscriptionPeriod: 'P1Y'
         },
