@@ -1,4 +1,7 @@
 import {
+  __rest
+} from "./chunk-IYEYSCYL.js";
+import {
   Component,
   ErrorFactory,
   FirebaseError,
@@ -30,9 +33,6 @@ import {
   registerVersion,
   updateEmulatorBanner
 } from "./chunk-Q4JMTUHG.js";
-import {
-  __rest
-} from "./chunk-IYEYSCYL.js";
 import {
   __async,
   __superGet

@@ -47,7 +47,7 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
     
     @if (isAuthenticated()) {
       <div class="min-h-screen bg-gray-100 font-sans flex flex-col">
-        <header class="bg-white shadow-md sticky top-0 z-10">
+        <header class="bg-white shadow-md sticky top-0 z-10 safe-top">
           <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
               <svg class="h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -104,7 +104,7 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
           }
         </main>
 
-        <nav class="sticky bottom-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+        <nav class="sticky bottom-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] safe-bottom">
           <div class="container mx-auto flex justify-around">
             <button [class]="navButtonClass('home')" (click)="changeView('home')">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
