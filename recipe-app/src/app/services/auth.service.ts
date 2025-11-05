@@ -13,12 +13,13 @@ import {
 import { FirestoreService } from './firestore.service';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBYcruBDN5mbfnqJ2HnAyH4MSosKRODwRg",
+  apiKey: "AIzaSyAmuCpF-38om69YwJeQhjt_JNWXeVa1Abw",
   authDomain: "chef-ai-b08d8.firebaseapp.com",
   projectId: "chef-ai-b08d8",
   storageBucket: "chef-ai-b08d8.firebasestorage.app",
   messagingSenderId: "204589480105",
-  appId: "1:204589480105:web:c4772a58aa9b2a30e211b8"
+  appId: "1:204589480105:web:6652f0f7ced50ce2e211b8",
+  measurementId: "G-RQM9Y3KHS9"
 };
 
 @Injectable({
