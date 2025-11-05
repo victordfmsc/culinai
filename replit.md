@@ -76,6 +76,17 @@ Key data models include:
 
 The mobile application utilizes Capacitor for cross-platform deployment, targeting Android. It wraps the Angular web application, providing a native-like experience. The Android project is configured for import into Android Studio, using Firebase SDKs for native authentication and data persistence.
 
+### Safe Area Insets for Android
+
+The application implements safe area handling to prevent UI elements from overlapping with Android system bars (status bar, navigation buttons, notches, punch-holes). The implementation uses:
+-   **CSS Environment Variables**: Global CSS variables (`--safe-area-inset-top`, `--safe-area-inset-bottom`) with `env()` fallbacks
+-   **Utility Classes**: `.safe-top` and `.safe-bottom` classes apply `padding-top` and `padding-bottom` using `max(env(safe-area-inset-*), 0px)`
+-   **Header Protection**: Header has `safe-top` class to respect status bar and notches
+-   **Navigation Protection**: Bottom navigation has `safe-bottom` class to respect gesture navigation and button bars
+-   **StatusBar Plugin**: `@capacitor/status-bar` (v7.0.3) configured in `main.ts` with light style and `overlay: false`
+-   **Viewport Configuration**: `viewport-fit=cover` meta tag enables safe area detection on devices with notches
+-   **Cross-Platform**: Web browsers render 0px padding (no-op), while Android automatically calculates correct spacing
+
 # External Dependencies
 
 -   **Firebase Services**: Firebase App, Firebase Auth, Cloud Firestore (Project ID: `chef-ai-b08d8`).
@@ -83,5 +94,5 @@ The mobile application utilizes Capacitor for cross-platform deployment, targeti
 -   **Google Cloud Translation API**: For dynamic text translation in `AutoTranslateService`.
 -   **Angular Ecosystem**: `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` (v19.0.0).
 -   **TailwindCSS**: Utility-first CSS framework (v3.4.0).
--   **Capacitor**: `@capacitor/cli` and `@capacitor/core` (v7.4.3) for mobile development.
+-   **Capacitor**: `@capacitor/cli` and `@capacitor/core` (v7.4.3) for mobile development; `@capacitor/status-bar` (v7.0.3) for safe area handling.
 -   **RevenueCat**: `@revenuecat/purchases-capacitor` for subscription management and in-app purchases.
