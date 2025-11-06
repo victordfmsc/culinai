@@ -55,27 +55,41 @@ export class RevenueCatService {
         await this.configure();
       }
 
+      console.log('📡 Fetching offerings from RevenueCat...');
       const offerings = await Purchases.getOfferings();
       this.currentOfferings = offerings;
+      
+      console.log('📦 Raw offerings response:', offerings);
+      console.log('📦 All offerings:', offerings.all);
+      console.log('📦 Current offering:', offerings.current);
+      console.log('📦 Current offering packages:', offerings.current?.availablePackages);
+      
+      // List all available offering IDs
+      if (offerings.all) {
+        const allOfferingIds = Object.keys(offerings.all);
+        console.log('📋 Available offering IDs:', allOfferingIds);
+      }
       
       // If specific offering ID is requested, verify it exists
       if (offeringId && offerings.all) {
         const specificOffering = offerings.all[offeringId];
         if (specificOffering) {
           console.log(`✅ Found specific offering: ${offeringId}`);
+          console.log(`✅ Packages in offering:`, specificOffering.availablePackages);
           // Return offerings with the specific one as current
           return {
             ...offerings,
             current: specificOffering
           };
         } else {
-          console.warn(`⚠️ Offering ${offeringId} not found, using default current offering`);
+          console.warn(`⚠️ Offering ${offeringId} not found in available offerings`);
+          console.warn(`⚠️ Using default current offering instead`);
         }
       }
       
       return offerings;
     } catch (error) {
-      console.error('Error fetching offerings:', error);
+      console.error('❌ Error fetching offerings:', error);
       return null;
     }
   }
