@@ -51,10 +51,10 @@ localPort = 44911
 externalPort = 3003
 
 [deployment]
-deploymentTarget = "autoscale"
-publicDir = "Chefai"
+deploymentTarget = "static"
+publicDir = "recipe-app/dist/recipe-app/browser"
 run = ["bash", "-c", "npx http-server recipe-app/dist/recipe-app/browser -p 5000 --proxy http://localhost:5000?"]
-build = ["bash", "-c", "cd recipe-app && npm run build"]
+build = ["sh", "-c", "cd recipe-app && npm run build"]
 
 [nix]
 channel = "stable-25_05"
