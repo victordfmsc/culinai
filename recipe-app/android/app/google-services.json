@@ -12,7 +12,20 @@
           "package_name": "com.daiary.chefai"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "204589480105-7mikpvndjjg28dtigav7a9gv9amq0gm6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.daiary.chefai",
+            "certificate_hash": "cfb836ce3d745e3aff68147e48f5bc777baa8bb1"
+          }
+        },
+        {
+          "client_id": "204589480105-6tjghat06m2kcuopbtvd1gvaio2s56p9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBYcruBDN5mbfnqJ2HnAyH4MSosKRODwRg"
@@ -20,7 +33,41 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "204589480105-6tjghat06m2kcuopbtvd1gvaio2s56p9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:204589480105:android:82d759e71c801f22e211b8",
+        "android_client_info": {
+          "package_name": "com.daiary.chefai2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "204589480105-6tjghat06m2kcuopbtvd1gvaio2s56p9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYcruBDN5mbfnqJ2HnAyH4MSosKRODwRg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "204589480105-6tjghat06m2kcuopbtvd1gvaio2s56p9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

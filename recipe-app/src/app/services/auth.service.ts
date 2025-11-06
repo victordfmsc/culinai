@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
   signInWithPopup, 
+  signInWithCredential,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -10,6 +11,8 @@ import {
   onAuthStateChanged,
   User
 } from 'firebase/auth';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { Capacitor } from '@capacitor/core';
 import { FirestoreService } from './firestore.service';
 
 const firebaseConfig = {
@@ -44,11 +47,19 @@ export class AuthService {
 
   async loginWithGoogle() {
     try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(this.auth, provider);
-      console.log('Logged in with Google:', result.user.email);
+      const platform = Capacitor.getPlatform();
+      
+      if (platform === 'android' || platform === 'ios') {
+        const result = await FirebaseAuthentication.signInWithGoogle();
+        console.log('Logged in with Google (native):', result.user?.email);
+      } else {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(this.auth, provider);
+        console.log('Logged in with Google (web):', result.user.email);
+      }
     } catch (error) {
       console.error('Google login failed:', error);
+      throw error;
     }
   }
 
