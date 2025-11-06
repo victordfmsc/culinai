@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserData, EMPTY_ACHIEVEMENTS } from '../../models/user.model';
 import { GamificationService } from '../../services/gamification.service';
@@ -156,11 +156,21 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
           </div>
         }
       </div>
+
+      <!-- Privacy Policy Link -->
+      <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+        <button 
+          (click)="viewPrivacyPolicy.emit()" 
+          class="text-indigo-600 hover:text-indigo-800 underline transition-colors font-medium">
+          Política de Privacidad
+        </button>
+      </div>
     </div>
   `
 })
 export class ProfileComponent {
   @Input() userData: UserData | null = null;
+  @Output() viewPrivacyPolicy = new EventEmitter<void>();
   
   private gamificationService = inject(GamificationService);
   

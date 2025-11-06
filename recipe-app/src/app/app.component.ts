@@ -7,6 +7,7 @@ import { FridgeComponent } from './components/fridge/fridge.component';
 import { SuggestionsComponent } from './components/suggestions/suggestions.component';
 import { ShoppingListComponent } from './components/shopping-list/shopping-list.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { PrivacyPolicyComponent } from './components/privacy-policy/privacy-policy.component';
 import { NotificationComponent } from './components/notification/notification.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { NotificationService } from './services/notification.service';
@@ -23,7 +24,7 @@ import { MealPlan, ShoppingItem, EMPTY_MEAL_PLAN, DAYS_OF_WEEK_KEYS, EMPTY_ACHIE
 import { TranslatePipe } from './pipes/translate.pipe';
 
 
-type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
+type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile' | 'privacy';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +37,7 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
     SuggestionsComponent,
     ShoppingListComponent,
     ProfileComponent,
+    PrivacyPolicyComponent,
     NotificationComponent,
     OnboardingComponent,
     PaywallComponent,
@@ -99,7 +101,12 @@ type View = 'home' | 'fridge' | 'suggestions' | 'shopping' | 'profile';
             }
             @case ('profile') {
               <app-profile 
-                [userData]="userData()" />
+                [userData]="userData()"
+                (viewPrivacyPolicy)="changeView('privacy')" />
+            }
+            @case ('privacy') {
+              <app-privacy-policy 
+                (goBack)="changeView('profile')" />
             }
           }
         </main>

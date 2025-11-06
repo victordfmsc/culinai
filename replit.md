@@ -1,6 +1,6 @@
 # Overview
 
-This project, "Chef AI," is an Angular 19 recipe management application designed to enhance the home cooking experience. It enables users to manage fridge ingredients, discover AI-generated recipes, plan meals, and create smart shopping lists. Key features include a comprehensive gamification system, dynamic portion adjustment, multilingual support, a premium subscription model, and an interactive onboarding experience. The application integrates with Google's Gemini AI for recipe generation and Firebase for authentication and data persistence. It is deployable as both a web and mobile application via Capacitor. The project aims to provide an intelligent, user-friendly platform that leverages AI and gamification to assist users in their culinary journey.
+This project, "Chef AI," is an Angular 19 recipe management application designed to enhance the home cooking experience. It enables users to manage fridge ingredients, discover AI-generated recipes, plan meals, and create smart shopping lists. Key features include a comprehensive gamification system, dynamic portion adjustment, multilingual support, a premium subscription model, an interactive onboarding experience, and a privacy policy page. The application integrates with Google's Gemini AI for recipe generation and Firebase for authentication and data persistence. It is deployable as both a web and mobile application via Capacitor. The project aims to provide an intelligent, user-friendly platform that leverages AI and gamification to assist users in their culinary journey.
 
 # User Preferences
 
@@ -37,6 +37,10 @@ A comprehensive gamification system encourages user engagement. It includes:
 -   **Daily Streaks**: Tracks consecutive daily usage, offering bonus points at milestones (7 and 30 days).
 -   **Profile Dashboard**: Displays user avatar (animated based on level), progress to the next level, key statistics, and achievement showcases. ProfileComponent uses reactive signals to update in real-time when user data changes.
 -   **Real-time Notifications**: Toast notifications appear when earning points, unlocking achievements, leveling up, or reaching streak milestones. Notifications are color-coded by type (yellow for points, purple for achievements, green for level-up, orange for streaks), auto-dismiss after 3-4 seconds with manual close option, stack vertically in top-right corner, and feature slide-in animations. All notification text is fully localized through TranslationService across all 5 languages (including dynamic point badges displaying "pts" in English/Spanish/French, "Pkt" in German, "pt" in Italian).
+
+### Privacy Policy
+
+A dedicated Privacy Policy page is accessible from the Profile section via a clickable link. The policy page displays Kineti Apps' privacy information in Spanish, including data collection practices, usage, security measures, user rights, and contact information (victordfmsc@gmail.com). The page includes a back button to return to the Profile view. The privacy policy is required for Google Play Store compliance.
 
 ### Interactive Onboarding Experience
 
