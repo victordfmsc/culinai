@@ -50,9 +50,26 @@ export class AuthService {
       const platform = Capacitor.getPlatform();
       
       if (platform === 'android' || platform === 'ios') {
+        // Native authentication with Firebase Authentication plugin
+        // Web Client ID is automatically read from google-services.json
         const result = await FirebaseAuthentication.signInWithGoogle();
-        console.log('Logged in with Google (native):', result.user?.email);
+        
+        console.log('Native Google sign-in successful:', result.user?.email);
+        
+        // Sync native auth with Firebase Auth SDK using credential
+        if (result.credential?.idToken) {
+          const credential = GoogleAuthProvider.credential(
+            result.credential.idToken,
+            result.credential.accessToken
+          );
+          
+          const userCredential = await signInWithCredential(this.auth, credential);
+          console.log('Firebase Auth synchronized with native auth:', userCredential.user.email);
+        } else {
+          console.warn('No idToken received from native authentication');
+        }
       } else {
+        // Web authentication with popup
         const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(this.auth, provider);
         console.log('Logged in with Google (web):', result.user.email);
