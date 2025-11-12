@@ -29,6 +29,13 @@ export const EMPTY_MEAL_PLAN: MealPlan = {
   sunday: []
 };
 
+export interface SubscriptionData {
+  isPremium: boolean;
+  expirationDate?: Date | null;
+  productIdentifier?: string | null;
+  lastUpdated: Date;
+}
+
 export interface UserData {
   uid: string;
   email: string;
@@ -38,6 +45,7 @@ export interface UserData {
   shoppingList: ShoppingItem[];
   createdAt: Date;
   achievements?: UserAchievements;
+  subscription?: SubscriptionData;
 }
 
 export const EMPTY_ACHIEVEMENTS: UserAchievements = {

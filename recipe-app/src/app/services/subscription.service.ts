@@ -1,7 +1,9 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { Purchases, LOG_LEVEL, CustomerInfo, PurchasesOfferings } from '@revenuecat/purchases-capacitor';
 import { Capacitor } from '@capacitor/core';
 import { environment } from '../../environments/environment';
+import { FirestoreService } from './firestore.service';
+import { LoggerService } from './logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +16,8 @@ export class SubscriptionService {
   
   private readonly ENTITLEMENT_ID = 'premium';
   private readonly FREE_RECIPE_LIMIT = 0;
+  private firestoreService = inject(FirestoreService);
+  private logger = inject(LoggerService);
 
   get canGenerateRecipes() {
     return this.isSubscribed() || this.recipesGenerated() < this.FREE_RECIPE_LIMIT;
@@ -85,13 +89,15 @@ export class SubscriptionService {
     }
   }
 
-  async checkSubscriptionStatus(): Promise<void> {
+  async checkSubscriptionStatus(): Promise<boolean> {
     try {
       const customerInfo = await Purchases.getCustomerInfo();
       this.updateSubscriptionStatus(customerInfo.customerInfo);
+      return this.isSubscribed();
     } catch (error) {
-      console.error('Failed to check subscription status:', error);
+      this.logger.error('SubscriptionService', 'Failed to check subscription status', error as Error);
       this.isSubscribed.set(false);
+      return false;
     }
   }
 
@@ -172,10 +178,31 @@ export class SubscriptionService {
 
   async identifyUser(userId: string): Promise<void> {
     try {
+      const cachedUserData = this.firestoreService.currentUserData();
+      
+      if (cachedUserData?.subscription) {
+        this.isSubscribed.set(cachedUserData.subscription.isPremium);
+        this.logger.info('SubscriptionService', 'Loaded subscription from Firestore', {
+          uid: userId,
+          isPremium: cachedUserData.subscription.isPremium,
+          expiresAt: cachedUserData.subscription.expirationDate?.toISOString()
+        });
+      }
+      
       await Purchases.logIn({ appUserID: userId });
-      await this.checkSubscriptionStatus();
+      
+      const freshStatus = await this.checkSubscriptionStatus();
+      
+      if (cachedUserData?.subscription && cachedUserData.subscription.isPremium !== freshStatus) {
+        this.logger.warn('SubscriptionService', 'Subscription status mismatch', {
+          uid: userId,
+          firestore: cachedUserData.subscription.isPremium,
+          revenueCat: freshStatus,
+          resolution: 'Using RevenueCat as source of truth'
+        });
+      }
     } catch (error) {
-      console.error('Failed to identify user:', error);
+      this.logger.error('SubscriptionService', 'Failed to identify user', error as Error, { uid: userId });
     }
   }
 

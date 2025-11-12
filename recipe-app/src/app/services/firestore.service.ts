@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import { 
   getFirestore, 
@@ -6,9 +6,11 @@ import {
   getDoc, 
   setDoc, 
   updateDoc,
+  Timestamp,
   Firestore
 } from 'firebase/firestore';
-import { UserData, EMPTY_MEAL_PLAN, EMPTY_ACHIEVEMENTS } from '../models/user.model';
+import { UserData, EMPTY_MEAL_PLAN, EMPTY_ACHIEVEMENTS, SubscriptionData } from '../models/user.model';
+import { LoggerService } from './logger.service';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAmuCpF-38om69YwJeQhjt_JNWXeVa1Abw",
@@ -26,6 +28,7 @@ const firebaseConfig = {
 export class FirestoreService {
   private app = initializeApp(firebaseConfig, 'firestore-app');
   private db: Firestore = getFirestore(this.app);
+  private logger = inject(LoggerService);
   
   currentUserData = signal<UserData | null>(null);
 
@@ -50,12 +53,27 @@ export class FirestoreService {
           data.createdAt = data.createdAt.toDate();
         }
         
+        if (data.subscription) {
+          if (data.subscription.expirationDate?.toDate) {
+            data.subscription.expirationDate = data.subscription.expirationDate.toDate();
+          }
+          if (data.subscription.lastUpdated?.toDate) {
+            data.subscription.lastUpdated = data.subscription.lastUpdated.toDate();
+          }
+        }
+        
         this.currentUserData.set(data as UserData);
+        
+        this.logger.info('FirestoreService', 'User data loaded', {
+          uid,
+          hasPremium: data.subscription?.isPremium || false,
+          expiresAt: data.subscription?.expirationDate?.toISOString()
+        });
       } else {
-        console.log('User document not found, might be a new user');
+        this.logger.info('FirestoreService', 'User document not found', { uid });
       }
     } catch (error) {
-      console.error('Failed to load user data:', error);
+      this.logger.error('FirestoreService', 'Failed to load user data', error as Error, { uid });
     }
   }
 
@@ -91,6 +109,41 @@ export class FirestoreService {
       }
     } catch (error) {
       console.error('Failed to update user:', error);
+    }
+  }
+
+  async updateUserSubscription(uid: string, subscription: SubscriptionData): Promise<void> {
+    try {
+      const userDoc = doc(this.db, 'users', uid);
+      
+      const subscriptionForFirestore = {
+        isPremium: subscription.isPremium,
+        expirationDate: subscription.expirationDate ? Timestamp.fromDate(subscription.expirationDate) : null,
+        productIdentifier: subscription.productIdentifier || null,
+        lastUpdated: Timestamp.fromDate(subscription.lastUpdated)
+      };
+      
+      await updateDoc(userDoc, {
+        subscription: subscriptionForFirestore
+      });
+      
+      const current = this.currentUserData();
+      if (current) {
+        this.currentUserData.set({ ...current, subscription });
+      }
+      
+      this.logger.info('FirestoreService', 'Subscription updated in Firestore', {
+        uid,
+        isPremium: subscription.isPremium,
+        productId: subscription.productIdentifier,
+        expiresAt: subscription.expirationDate?.toISOString()
+      });
+    } catch (error) {
+      this.logger.error('FirestoreService', 'Failed to update subscription', error as Error, {
+        uid,
+        isPremium: subscription.isPremium
+      });
+      throw error;
     }
   }
 

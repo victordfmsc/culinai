@@ -1,7 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Purchases, PurchasesOfferings, CustomerInfo, PurchasesPackage } from '@revenuecat/purchases-capacitor';
 import { Capacitor } from '@capacitor/core';
 import { environment } from '../../environments/environment';
+import { LoggerService } from './logger.service';
+import { FirestoreService } from './firestore.service';
+import { SubscriptionData } from '../models/user.model';
 
 export interface SubscriptionStatus {
   isPremium: boolean;
@@ -15,6 +18,9 @@ export interface SubscriptionStatus {
 export class RevenueCatService {
   private isConfigured = false;
   private currentOfferings: PurchasesOfferings | null = null;
+  private logger = inject(LoggerService);
+  private firestoreService = inject(FirestoreService);
+  private currentUserId: string | null = null;
 
   constructor() {}
 
@@ -263,10 +269,54 @@ export class RevenueCatService {
       }
 
       await Purchases.logIn({ appUserID: userID });
-      console.log('✅ RevenueCat user ID set:', userID);
+      this.currentUserId = userID;
+      
+      this.logger.info('RevenueCatService', 'User ID set', { uid: userID });
+      
+      this.setupCustomerInfoListener(userID);
     } catch (error) {
-      console.error('Error setting user ID:', error);
+      this.logger.error('RevenueCatService', 'Error setting user ID', error as Error, { uid: userID });
     }
+  }
+
+  private setupCustomerInfoListener(uid: string): void {
+    if (Capacitor.getPlatform() === 'web') {
+      this.logger.info('RevenueCatService', 'Skipping listener setup in web mode');
+      return;
+    }
+
+    Purchases.addCustomerInfoUpdateListener(async (customerInfo) => {
+      this.logger.info('RevenueCatService', 'Customer info updated', {
+        uid,
+        hasPremium: customerInfo.entitlements.active['premium'] !== undefined
+      });
+
+      const subscriptionData = this.mapCustomerInfoToSubscription(customerInfo);
+      
+      try {
+        await this.firestoreService.updateUserSubscription(uid, subscriptionData);
+      } catch (error) {
+        this.logger.error('RevenueCatService', 'Failed to sync subscription to Firestore', error as Error, {
+          uid,
+          isPremium: subscriptionData.isPremium
+        });
+      }
+    });
+
+    this.logger.info('RevenueCatService', 'Customer info listener attached', { uid });
+  }
+
+  private mapCustomerInfoToSubscription(customerInfo: CustomerInfo): SubscriptionData {
+    const premiumEntitlement = customerInfo.entitlements.active['premium'];
+    
+    return {
+      isPremium: premiumEntitlement !== undefined,
+      expirationDate: premiumEntitlement?.expirationDate 
+        ? new Date(premiumEntitlement.expirationDate) 
+        : null,
+      productIdentifier: premiumEntitlement?.productIdentifier || null,
+      lastUpdated: new Date()
+    };
   }
 
   async logout(): Promise<void> {
@@ -276,9 +326,11 @@ export class RevenueCatService {
       }
 
       await Purchases.logOut();
-      console.log('✅ RevenueCat user logged out');
+      this.currentUserId = null;
+      
+      this.logger.info('RevenueCatService', 'User logged out');
     } catch (error) {
-      console.error('Error logging out:', error);
+      this.logger.error('RevenueCatService', 'Error logging out', error as Error);
     }
   }
 }
