@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { environment } from '../../environments/environment';
 import { FirestoreService } from './firestore.service';
 import { LoggerService } from './logger.service';
+import { RevenueCatService } from './revenuecat.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ export class SubscriptionService {
   private readonly FREE_RECIPE_LIMIT = 0;
   private firestoreService = inject(FirestoreService);
   private logger = inject(LoggerService);
+  private revenueCatService = inject(RevenueCatService);
 
   get canGenerateRecipes() {
     return this.isSubscribed() || this.recipesGenerated() < this.FREE_RECIPE_LIMIT;
@@ -189,7 +191,7 @@ export class SubscriptionService {
         });
       }
       
-      await Purchases.logIn({ appUserID: userId });
+      await this.revenueCatService.setUserID(userId);
       
       const freshStatus = await this.checkSubscriptionStatus();
       
@@ -208,10 +210,11 @@ export class SubscriptionService {
 
   async logoutUser(): Promise<void> {
     try {
-      await Purchases.logOut();
+      await this.revenueCatService.logout();
       this.isSubscribed.set(false);
+      this.logger.info('SubscriptionService', 'User logged out from subscription');
     } catch (error) {
-      console.error('Failed to logout user:', error);
+      this.logger.error('SubscriptionService', 'Failed to logout user', error as Error);
     }
   }
 }
