@@ -1,0 +1,191 @@
+SOLUCIÓN PARA ERROR "The requested action is invalid" EN GOOGLE SIGN-IN
+🔍 PROBLEMA IDENTIFICADO​
+El error ocurre en la sincronización de credenciales entre Capacitor Firebase Authentication y Firebase SDK. El código actual intenta usar FirebaseAuthentication.signInWithGoogle() pero no valida correctamente la respuesta ni maneja la conversión de credenciales apropiadamente.
+
+Causas Raíz:
+Falta de validación del idToken después de obtener credenciales nativas
+
+Incorrecto orden de operaciones en la sincronización
+
+Sin manejo de errores específicos de Capacitor
+
+Estado incompatible entre plataformas (Android vs Web)
+
+✅ SOLUCIÓN COMPLETA
+Reemplaza tu función loginWithGoogle() en auth.service.ts con este código corregido:
+
+typescript
+// recipe-app/src/app/services/auth.service.ts
+
+async loginWithGoogle(): Promise<void> {
+  const platform = Capacitor.getPlatform();
+  this.logger.info('AuthService', 'Starting Google authentication', { platform });
+
+  try {
+    if (platform === 'android' || platform === 'ios') {
+      // ✅ RUTA NATIVA - Capacitor Firebase
+      await this.nativeGoogleSignIn();
+    } else {
+      // ✅ RUTA WEB - Firebase popup
+      await this.webGoogleSignIn();
+    }
+
+    this.logger.info('AuthService', 'Google sign-in successful');
+  } catch (error: any) {
+    this.logger.error('AuthService', 'Google sign-in failed', {
+      errorCode: error.code,
+      errorMessage: error.message,
+      platform
+    });
+    throw error;
+  }
+}
+
+/**
+ * ✅ NATIVA - Usa Capacitor Firebase Authentication plugin
+ */
+private async nativeGoogleSignIn(): Promise<void> {
+  try {
+    // Paso 1: Obtener resultado del plugin nativo
+    const result = await FirebaseAuthentication.signInWithGoogle();
+    
+    this.logger.debug('AuthService', 'Native sign-in result received', {
+      hasResult: !!result,
+      hasUser: !!result?.user,
+      hasIdToken: !!result?.idToken
+    });
+
+    // Paso 2: VALIDAR que tenemos credenciales válidas
+    if (!result?.idToken) {
+      throw new Error(
+        'Google authentication failed: Missing idToken from native plugin. ' +
+        'Ensure Google Sign-In is configured in Firebase Console with correct SHA-1'
+      );
+    }
+
+    // Paso 3: Crear credencial de Firebase
+    const credential = GoogleAuthProvider.credential(
+      result.idToken,
+      result.accessToken // puede ser undefined
+    );
+
+    // Paso 4: Sincronizar con Firebase Auth SDK
+    const userCredential = await signInWithCredential(this.auth, credential);
+    
+    this.logger.info('AuthService', 'Firebase Auth synchronized', {
+      uid: userCredential.user.uid,
+      email: userCredential.user.email
+    });
+
+    // Paso 5: Cargar datos del usuario
+    await this.firestoreService.loadUserData(userCredential.user.uid);
+
+  } catch (error: any) {
+    // Errores específicos del plugin Capacitor
+    if (error.message?.includes('12501')) {
+      throw new Error(
+        'Google Sign-In cancelado por el usuario o error de configuración. ' +
+        'Verifica que Google Cloud Console tenga configurado el OAuth2.0 correctamente.'
+      );
+    }
+    if (error.message?.includes('invalid')) {
+      throw new Error(
+        'Error de credencial inválida. Verifica que el SHA-1 en Firebase Console ' +
+        'coincida con el de tu certificado de firma. Ejecuta: npm run obtener-sha1'
+      );
+    }
+    throw error;
+  }
+}
+
+/**
+ * ✅ WEB - Usa Firebase Auth SDK popup
+ */
+private async webGoogleSignIn(): Promise<void> {
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.addScope('profile');
+    provider.addScope('email');
+    
+    // Usar popup en web (más confiable que redirect)
+    const result = await signInWithPopup(this.auth, provider);
+    
+    this.logger.info('AuthService', 'Web pop-up sign-in successful', {
+      uid: result.user.uid,
+      email: result.user.email
+    });
+
+    // Cargar datos del usuario
+    await this.firestoreService.loadUserData(result.user.uid);
+
+  } catch (error: any) {
+    if (error.code === 'auth/popup-blocked') {
+      throw new Error('Pop-up bloqueado. Por favor, permitir pop-ups para esta app.');
+    }
+    if (error.code === 'auth/popup-closed-by-user') {
+      this.logger.info('AuthService', 'User closed popup');
+      throw new Error('Autenticación cancelada por el usuario');
+    }
+    throw error;
+  }
+}
+🔧 CAMBIOS ADICIONALES NECESARIOS
+1️⃣ Actualiza las importaciones en auth.service.ts
+typescript
+import {
+  Auth,
+  getAuth,
+  signInWithPopup,
+  signInWithCredential,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signOut,
+  User,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from 'firebase/auth';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { Capacitor } from '@capacitor/core';
+2️⃣ Verifica capacitor.config.ts
+typescript
+// Debe incluir:
+const config: CapacitorConfig = {
+  plugins: {
+    FirebaseAuthentication: {
+      skipNativeAuth: false, // ✅ IMPORTANTE
+      providers: ['google'], // Incluir google
+    },
+  },
+};
+3️⃣ Configura Firebase Console
+Ve a Authentication > Sign-in method > Google
+
+Asegúrate que está HABILITADO
+
+Verifica que tu SHA-1 esté correctamente agregado en Google Cloud Console
+
+Para obtener SHA-1 ejecuta: npm run obtener-sha1
+
+4️⃣ Agrega logging mejorado
+typescript
+// En auth.service.ts, inyecta LoggerService
+constructor(
+  private logger: LoggerService,
+  private firestoreService: FirestoreService
+) {}
+📱 PASOS PARA PROBAR
+bash
+# 1. Genera el SHA-1 correcto
+npm run obtener-sha1
+
+# 2. Copia el SHA-1 a Firebase Console
+
+# 3. Sincroniza Capacitor
+npx cap sync android
+# o
+npx cap sync ios
+
+# 4. Ejecuta en Android/iOS
+npm run android:run
+# o
+npm run ios:run
