@@ -60,6 +60,30 @@ Firebase serves as the core backend, providing:
 -   **Authentication**: Google OAuth and email/password authentication with robust error handling. Native authentication for Android/iOS uses `@capacitor-firebase/authentication` with mandatory credential synchronization via `signInWithCredential`. The system validates credentials before proceeding, preventing crashes from missing tokens, and provides user-friendly error messages in Spanish for common failures (popup closed, network errors, missing credentials). A guest mode allows unauthenticated exploration with in-memory data.
 -   **Cloud Firestore**: Data persistence for user data, meal plans, shopping lists, and achievements. Dates stored as Timestamps are automatically converted to JavaScript Date objects.
 
+### Structured Logging System
+
+The application implements a centralized `LoggerService` for production-grade logging with contextual metadata. The logging system provides:
+
+-   **Log Levels**: `DEBUG`, `INFO`, `WARN`, and `ERROR` with automatic filtering based on environment (production shows WARN+ only)
+-   **Structured Metadata**: All logs include timestamps, categories, and contextual data (e.g., user IDs, error codes, platform info)
+-   **Visual Indicators**: Emoji prefixes (🔍 DEBUG, ✅ INFO, ⚠️ WARN, ❌ ERROR) for quick visual scanning
+-   **Error Context**: Error logs automatically capture error messages, stack traces, and custom metadata
+-   **Production Monitoring**: Hooks for external monitoring services (Sentry, LogRocket) on ERROR-level logs
+-   **Service Integration**: All critical services (AuthService, RevenueCatService, GeminiService) use structured logging with consistent categorization
+
+Example usage:
+```typescript
+this.logger.info('AuthService', 'User authenticated', {
+  uid: user.uid,
+  email: user.email,
+  provider: user.providerData[0]?.providerId
+});
+this.logger.error('AuthService', 'Google login failed', error, {
+  errorCode: error.code,
+  platform: Capacitor.getPlatform()
+});
+```
+
 ### Gamification Data Model
 `UserAchievements` stores: `unlockedAchievements`, `currentStreak`, `longestStreak`, `lastActiveDate`, `recipesCooked`, `recipesGenerated`, `mealPlansCreated`, `shoppingItemsAdded`, `languagesUsed`, `portionsAdjusted`, and `premiumSubscribed`.
 
