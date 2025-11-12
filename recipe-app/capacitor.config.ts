@@ -3,7 +3,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.daiary.chefai',
+  appId: 'com.daiary.chefai2',
   appName: 'Chef AI',
   webDir: 'dist/recipe-app/browser',
   plugins: {
