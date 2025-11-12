@@ -1,5 +1,6 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, effect } from '@angular/core';
 import { AutoTranslateService } from './auto-translate.service';
+import { LoggerService } from './logger.service';
 
 type Language = 'en' | 'es' | 'fr' | 'de' | 'it';
 
@@ -13,6 +14,18 @@ interface Translations {
 export class TranslationService {
   currentLanguage = signal<Language>('en');
   private autoTranslate = inject(AutoTranslateService);
+  private logger = inject(LoggerService);
+  private prefetchedLanguages = new Set<Language>();
+  
+  constructor() {
+    // Prefetch translations when language changes
+    effect(() => {
+      const lang = this.currentLanguage();
+      if (lang !== 'en' && !this.prefetchedLanguages.has(lang)) {
+        this.prefetchCommonTranslations(lang);
+      }
+    });
+  }
 
   // Base translations in English - will be auto-translated to other languages
   private baseTranslations: { [key: string]: string } = {
@@ -318,6 +331,64 @@ export class TranslationService {
   }
 
   /**
+   * Prefetch common UI translations using batch API for better performance
+   */
+  private async prefetchCommonTranslations(lang: Language): Promise<void> {
+    if (this.prefetchedLanguages.has(lang)) {
+      return;
+    }
+
+    const commonKeys = [
+      // Navigation & Core UI
+      'app_title', 'points', 'level', 'logout', 'cancel',
+      'nav_home', 'nav_fridge', 'nav_recipes', 'nav_shopping', 'nav_profile',
+      
+      // Login & Auth
+      'login_welcome', 'login_prompt', 'login_with_google', 'login_email_continue',
+      'login_signin_button', 'login_signup_button', 'login_skip',
+      
+      // Common Actions
+      'fridge_find', 'suggestions_cook', 'suggestions_plan', 'suggestions_add_shopping',
+      'cooked_button', 'adjust_servings', 'recipe_start_cooking',
+      
+      // Days of week
+      'day_monday', 'day_tuesday', 'day_wednesday', 'day_thursday',
+      'day_friday', 'day_saturday', 'day_sunday',
+      
+      // Notifications
+      'notif_achievement_unlocked', 'notif_level_up', 'notif_streak_active'
+    ];
+
+    const textsToTranslate = commonKeys
+      .map(key => this.baseTranslations[key])
+      .filter(text => text !== undefined);
+
+    this.logger.info('TranslationService', 'Prefetching common translations', {
+      language: lang,
+      keysCount: textsToTranslate.length
+    });
+
+    try {
+      const startTime = performance.now();
+      await this.autoTranslate.translateBatch(textsToTranslate, lang, 'en');
+      const duration = performance.now() - startTime;
+      
+      this.prefetchedLanguages.add(lang);
+      
+      this.logger.info('TranslationService', 'Prefetch completed', {
+        language: lang,
+        translatedCount: textsToTranslate.length,
+        durationMs: Math.round(duration)
+      });
+    } catch (error: any) {
+      this.logger.error('TranslationService', 'Prefetch failed', error, {
+        language: lang,
+        keysCount: textsToTranslate.length
+      });
+    }
+  }
+
+  /**
    * Async version that uses Google Translate API for any text
    * This is useful for dynamic content like recipe names, user input, etc.
    */
@@ -334,7 +405,11 @@ export class TranslationService {
     if (!this.translationCache.has(cacheKey)) {
       const translationPromise = this.autoTranslate.translate(text, lang, 'en')
         .catch(error => {
-          console.warn('Auto-translation failed, clearing cache and using original text:', error);
+          this.logger.warn('TranslationService', 'Auto-translation failed', {
+            text: text.substring(0, 50),
+            targetLang: lang,
+            errorMessage: error.message
+          });
           this.translationCache.delete(cacheKey);
           throw error;
         });
@@ -343,8 +418,11 @@ export class TranslationService {
 
     try {
       return await this.translationCache.get(cacheKey)!;
-    } catch (error) {
-      console.error('Translation failed:', error);
+    } catch (error: any) {
+      this.logger.error('TranslationService', 'Translation failed', error, {
+        text: text.substring(0, 50),
+        targetLang: lang
+      });
       return text; // Fallback to original
     }
   }
@@ -360,16 +438,31 @@ export class TranslationService {
       return texts;
     }
 
+    this.logger.debug('TranslationService', 'Batch translation requested', {
+      textsCount: texts.length,
+      targetLang: lang
+    });
+
     try {
       return await this.autoTranslate.translateBatch(texts, lang, 'en');
-    } catch (error) {
-      console.error('Batch translation failed:', error);
+    } catch (error: any) {
+      this.logger.error('TranslationService', 'Batch translation failed', error, {
+        textsCount: texts.length,
+        targetLang: lang
+      });
       return texts; // Fallback to originals
     }
   }
 
   setLanguage(lang: Language) {
+    const previousLang = this.currentLanguage();
     this.currentLanguage.set(lang);
+    
+    this.logger.info('TranslationService', 'Language changed', {
+      from: previousLang,
+      to: lang,
+      cacheStats: this.autoTranslate.getCacheStats()
+    });
   }
 
   /**
@@ -378,6 +471,9 @@ export class TranslationService {
   clearCache(): void {
     this.translationCache.clear();
     this.autoTranslate.clearCache();
+    this.prefetchedLanguages.clear();
+    
+    this.logger.info('TranslationService', 'All caches cleared');
   }
 
   /**
@@ -386,7 +482,8 @@ export class TranslationService {
   getCacheStats() {
     return {
       service: this.autoTranslate.getCacheStats(),
-      local: { entries: this.translationCache.size }
+      local: { entries: this.translationCache.size },
+      prefetched: Array.from(this.prefetchedLanguages)
     };
   }
 }

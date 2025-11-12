@@ -69,7 +69,7 @@ The application implements a centralized `LoggerService` for production-grade lo
 -   **Visual Indicators**: Emoji prefixes (🔍 DEBUG, ✅ INFO, ⚠️ WARN, ❌ ERROR) for quick visual scanning
 -   **Error Context**: Error logs automatically capture error messages, stack traces, and custom metadata
 -   **Production Monitoring**: Hooks for external monitoring services (Sentry, LogRocket) on ERROR-level logs
--   **Service Integration**: All critical services (AuthService, RevenueCatService, GeminiService) use structured logging with consistent categorization
+-   **Service Integration**: All critical services (AuthService, TranslationService, AutoTranslateService) use structured logging with consistent categorization
 
 Example usage:
 ```typescript
@@ -82,6 +82,33 @@ this.logger.error('AuthService', 'Google login failed', error, {
   errorCode: error.code,
   platform: Capacitor.getPlatform()
 });
+```
+
+### Optimized Translation System
+
+The translation system implements intelligent caching and prefetching to minimize API calls and improve performance:
+
+**AutoTranslateService optimizations:**
+-   **Dual-layer cache**: In-memory cache with persistent localStorage backup
+-   **Normalized cache keys**: Include source language, target language, and trimmed text to prevent duplicates
+-   **Debounced persistence**: localStorage writes are debounced (500ms) to reduce main-thread blocking
+-   **Cache hit/miss tracking**: Real-time statistics with hit rate calculation for monitoring
+-   **Batch translation support**: Efficient API usage by translating multiple texts in a single request
+
+**TranslationService enhancements:**
+-   **Automatic prefetching**: Common UI translations (navigation, auth, actions, notifications) are batch-loaded when language changes
+-   **Smart prefetch strategy**: Uses Angular signals effect to detect language changes and triggers one-time prefetch per language
+-   **Performance monitoring**: Tracks prefetch duration and logs metrics for observability
+-   **Comprehensive logging**: All translation operations logged with LoggerService for debugging and monitoring
+
+Cache statistics example:
+```typescript
+{
+  hits: 1247,
+  misses: 53,
+  entries: 152,
+  size: "23.45 KB (95.9% hit rate)"
+}
 ```
 
 ### Gamification Data Model

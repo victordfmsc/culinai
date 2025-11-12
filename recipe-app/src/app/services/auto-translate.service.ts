@@ -1,11 +1,17 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../environments/environment';
+import { LoggerService } from './logger.service';
 
 export interface TranslationCache {
-  [key: string]: {
-    [targetLang: string]: string;
-  };
+  [key: string]: string;
+}
+
+export interface CacheStats {
+  hits: number;
+  misses: number;
+  entries: number;
+  size: string;
 }
 
 @Injectable({
@@ -13,18 +19,31 @@ export interface TranslationCache {
 })
 export class AutoTranslateService {
   private platformId = inject(PLATFORM_ID);
+  private logger = inject(LoggerService);
   private isBrowser: boolean;
   private apiKey: string = environment.googleTranslateApiKey;
   private cache: TranslationCache = {};
   private readonly CACHE_KEY = 'translation_cache';
   private readonly API_URL = 'https://translation.googleapis.com/language/translate/v2';
+  
+  // Cache statistics for monitoring
+  private cacheHits = 0;
+  private cacheMisses = 0;
+  
+  // Throttle cache saves to avoid repeated localStorage writes
+  private saveCacheTimeout: any = null;
+  private readonly SAVE_DEBOUNCE_MS = 500;
 
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
       this.loadCache();
     }
-    console.log('AutoTranslate Service initialized with API key:', this.apiKey ? '✓' : '✗');
+    this.logger.info('AutoTranslateService', 'Service initialized', {
+      hasApiKey: !!this.apiKey,
+      cacheEntries: Object.keys(this.cache).length,
+      platform: this.isBrowser ? 'browser' : 'server'
+    });
   }
 
   /**
@@ -36,15 +55,25 @@ export class AutoTranslateService {
       return text;
     }
 
+    // Normalize and create cache key
+    const cacheKey = this.getCacheKey(text, sourceLang, targetLang);
+    
     // Check cache first
-    const cacheKey = `${text}|${sourceLang}`;
-    if (this.cache[cacheKey]?.[ targetLang]) {
-      return this.cache[cacheKey][targetLang];
+    if (this.cache[cacheKey]) {
+      this.cacheHits++;
+      this.logger.debug('AutoTranslateService', 'Cache hit', {
+        text: text.substring(0, 50),
+        targetLang,
+        cacheKey
+      });
+      return this.cache[cacheKey];
     }
+
+    this.cacheMisses++;
 
     // If no API key, return original text
     if (!this.apiKey || this.apiKey === 'placeholder-will-be-replaced') {
-      console.warn('Google Translate API key not configured');
+      this.logger.warn('AutoTranslateService', 'API key not configured', { targetLang });
       return text;
     }
 
@@ -71,15 +100,23 @@ export class AutoTranslateService {
       const translatedText = data.data.translations[0].translatedText;
 
       // Cache the result
-      if (!this.cache[cacheKey]) {
-        this.cache[cacheKey] = {};
-      }
-      this.cache[cacheKey][targetLang] = translatedText;
-      this.saveCache();
+      this.cache[cacheKey] = translatedText;
+      this.debouncedSaveCache();
+
+      this.logger.debug('AutoTranslateService', 'Translation cached', {
+        text: text.substring(0, 50),
+        targetLang,
+        translated: translatedText.substring(0, 50)
+      });
 
       return translatedText;
-    } catch (error) {
-      console.error('Translation error:', error);
+    } catch (error: any) {
+      this.logger.error('AutoTranslateService', 'Translation failed', error, {
+        text: text.substring(0, 50),
+        targetLang,
+        sourceLang,
+        errorStatus: error.message
+      });
       return text; // Fallback to original text
     }
   }
@@ -96,24 +133,42 @@ export class AutoTranslateService {
     // Check which texts need translation
     const needsTranslation: { index: number; text: string }[] = [];
     const results: string[] = new Array(texts.length);
+    let cachedCount = 0;
 
     texts.forEach((text, index) => {
-      const cacheKey = `${text}|${sourceLang}`;
-      if (this.cache[cacheKey]?.[targetLang]) {
-        results[index] = this.cache[cacheKey][targetLang];
+      const cacheKey = this.getCacheKey(text, sourceLang, targetLang);
+      if (this.cache[cacheKey]) {
+        results[index] = this.cache[cacheKey];
+        cachedCount++;
       } else {
         needsTranslation.push({ index, text });
       }
     });
 
+    this.cacheHits += cachedCount;
+    this.cacheMisses += needsTranslation.length;
+
     // If everything is cached, return immediately
     if (needsTranslation.length === 0) {
+      this.logger.debug('AutoTranslateService', 'Batch fully cached', {
+        totalTexts: texts.length,
+        targetLang
+      });
       return results;
     }
 
+    this.logger.info('AutoTranslateService', 'Batch translation started', {
+      totalTexts: texts.length,
+      cached: cachedCount,
+      toTranslate: needsTranslation.length,
+      targetLang
+    });
+
     // If no API key, return original texts
     if (!this.apiKey || this.apiKey === 'placeholder-will-be-replaced') {
-      console.warn('Google Translate API key not configured');
+      this.logger.warn('AutoTranslateService', 'Batch translation skipped: no API key', {
+        textsCount: needsTranslation.length
+      });
       needsTranslation.forEach(({ index, text }) => {
         results[index] = text;
       });
@@ -146,19 +201,24 @@ export class AutoTranslateService {
       needsTranslation.forEach(({ index, text }, i) => {
         const translatedText = translations[i].translatedText;
         results[index] = translatedText;
-
-        const cacheKey = `${text}|${sourceLang}`;
-        if (!this.cache[cacheKey]) {
-          this.cache[cacheKey] = {};
-        }
-        this.cache[cacheKey][targetLang] = translatedText;
+        const cacheKey = this.getCacheKey(text, sourceLang, targetLang);
+        this.cache[cacheKey] = translatedText;
       });
 
-      this.saveCache();
+      this.debouncedSaveCache();
+      
+      this.logger.info('AutoTranslateService', 'Batch translation completed', {
+        translatedCount: needsTranslation.length,
+        targetLang
+      });
+      
       return results;
     } catch (error: any) {
-      console.error('Batch translation error:', error);
-      console.error('Error details:', error.message, error.stack);
+      this.logger.error('AutoTranslateService', 'Batch translation failed', error, {
+        textsCount: needsTranslation.length,
+        targetLang,
+        errorStatus: error.message
+      });
       // Fallback to original texts for failed translations
       needsTranslation.forEach(({ index, text }) => {
         results[index] = text;
@@ -172,6 +232,7 @@ export class AutoTranslateService {
    */
   async detectLanguage(text: string): Promise<string> {
     if (!this.apiKey || this.apiKey === 'placeholder-will-be-replaced') {
+      this.logger.warn('AutoTranslateService', 'Language detection skipped: no API key');
       return 'en'; // Default fallback
     }
 
@@ -192,9 +253,16 @@ export class AutoTranslateService {
       }
 
       const data = await response.json();
-      return data.data.detections[0][0].language;
-    } catch (error) {
-      console.error('Language detection error:', error);
+      const detectedLang = data.data.detections[0][0].language;
+      
+      this.logger.debug('AutoTranslateService', 'Language detected', {
+        text: text.substring(0, 50),
+        detectedLang
+      });
+      
+      return detectedLang;
+    } catch (error: any) {
+      this.logger.error('AutoTranslateService', 'Language detection failed', error);
       return 'en'; // Fallback
     }
   }
@@ -203,23 +271,58 @@ export class AutoTranslateService {
    * Clear translation cache
    */
   clearCache(): void {
+    const oldEntries = Object.keys(this.cache).length;
     this.cache = {};
+    this.cacheHits = 0;
+    this.cacheMisses = 0;
+    
     if (this.isBrowser) {
       localStorage.removeItem(this.CACHE_KEY);
     }
-    console.log('Translation cache cleared');
+    
+    this.logger.info('AutoTranslateService', 'Cache cleared', {
+      entriesRemoved: oldEntries
+    });
   }
 
   /**
    * Get cache statistics
    */
-  getCacheStats(): { entries: number; size: string } {
+  getCacheStats(): CacheStats {
     const entries = Object.keys(this.cache).length;
     const size = new Blob([JSON.stringify(this.cache)]).size;
+    const hitRate = this.cacheHits + this.cacheMisses > 0 
+      ? (this.cacheHits / (this.cacheHits + this.cacheMisses) * 100).toFixed(1)
+      : '0';
+    
     return {
+      hits: this.cacheHits,
+      misses: this.cacheMisses,
       entries,
-      size: `${(size / 1024).toFixed(2)} KB`
+      size: `${(size / 1024).toFixed(2)} KB (${hitRate}% hit rate)`
     };
+  }
+
+  /**
+   * Create normalized cache key
+   */
+  private getCacheKey(text: string, sourceLang: string, targetLang: string): string {
+    // Normalize text: trim whitespace, preserve case for proper nouns
+    const normalizedText = text.trim();
+    return `${normalizedText}|${sourceLang}|${targetLang}`;
+  }
+
+  /**
+   * Debounced cache save to avoid repeated localStorage writes
+   */
+  private debouncedSaveCache(): void {
+    if (this.saveCacheTimeout) {
+      clearTimeout(this.saveCacheTimeout);
+    }
+    
+    this.saveCacheTimeout = setTimeout(() => {
+      this.saveCache();
+    }, this.SAVE_DEBOUNCE_MS);
   }
 
   private loadCache(): void {
@@ -231,10 +334,14 @@ export class AutoTranslateService {
       const cached = localStorage.getItem(this.CACHE_KEY);
       if (cached) {
         this.cache = JSON.parse(cached);
-        console.log('Translation cache loaded:', this.getCacheStats());
+        const stats = this.getCacheStats();
+        this.logger.info('AutoTranslateService', 'Cache loaded from localStorage', {
+          entries: stats.entries,
+          size: stats.size
+        });
       }
-    } catch (error) {
-      console.error('Failed to load translation cache:', error);
+    } catch (error: any) {
+      this.logger.error('AutoTranslateService', 'Failed to load cache', error);
       this.cache = {};
     }
   }
@@ -246,8 +353,11 @@ export class AutoTranslateService {
     
     try {
       localStorage.setItem(this.CACHE_KEY, JSON.stringify(this.cache));
-    } catch (error) {
-      console.error('Failed to save translation cache:', error);
+      this.logger.debug('AutoTranslateService', 'Cache saved to localStorage', {
+        entries: Object.keys(this.cache).length
+      });
+    } catch (error: any) {
+      this.logger.error('AutoTranslateService', 'Failed to save cache', error);
     }
   }
 }
