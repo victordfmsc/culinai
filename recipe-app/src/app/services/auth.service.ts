@@ -38,7 +38,7 @@ export class AuthService {
     private firestoreService: FirestoreService,
     private logger: LoggerService
   ) {
-    onAuthStateChanged(this.auth, (user) => {
+    onAuthStateChanged(this.auth, (user: User | null) => {
       this.currentUser.set(user);
       if (user) {
         this.logger.info('AuthService', 'User authenticated', {
