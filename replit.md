@@ -72,7 +72,7 @@ Capacitor is used for cross-platform deployment, specifically targeting Android,
 
 # External Dependencies
 
--   **Firebase Services**: Firebase App, Firebase Auth, Cloud Firestore (Project ID: `chef-ai-64400`, migrated from `chef-ai-b08d8` on 2025-11-12).
+-   **Firebase Services**: Firebase App, Firebase Auth, Cloud Firestore (Project ID: `chef-ai-64400`, migrated from `chef-ai-b08d8` on 2025-11-12). Uses Firebase v11.10.0 with modular SDK.
 -   **Android Package Name**: `com.daiary.chefai2` (changed from `com.daiary.chefai` due to Firebase registration conflict).
 -   **Google Generative AI**: `@google/generative-ai` (v0.21.0), utilizing the `gemini-1.5-flash` model.
 -   **Google Cloud Translation API**: For dynamic text translation.
@@ -80,3 +80,39 @@ Capacitor is used for cross-platform deployment, specifically targeting Android,
 -   **TailwindCSS**: Utility-first CSS framework (v3.4.0).
 -   **Capacitor**: `@capacitor/cli`, `@capacitor/core` (v7.4.3), and `@capacitor/status-bar` (v7.0.3).
 -   **RevenueCat**: `@revenuecat/purchases-capacitor` for subscription management.
+
+# Local Development and Compilation
+
+## TypeScript Configuration for Firebase v11
+
+Firebase v11 with the modular SDK requires specific TypeScript import patterns to avoid namespace errors. Type imports use the `type` keyword with aliases:
+
+```typescript
+import type { User as FirebaseUser } from 'firebase/auth';
+import type { Firestore } from 'firebase/firestore';
+```
+
+The `tsconfig.json` includes `allowSyntheticDefaultImports: true` for better module compatibility.
+
+## Android Compilation Guide
+
+Two comprehensive guides are available for local Android compilation:
+
+1. **GUIA-INSTALACION-LOCAL.md** - Detailed step-by-step guide covering:
+   - Prerequisites (Node.js, Android Studio, Java JDK)
+   - Installation steps with environment variables setup
+   - APK generation (debug and release)
+   - Device installation methods
+   - Troubleshooting common errors
+   - Required API keys and Firebase configuration
+
+2. **recipe-app/COMPILAR-ANDROID.md** - Quick reference guide with:
+   - Critical warnings (OneDrive space issues, .env file requirements)
+   - Fast-track compilation steps
+   - Common errors and quick solutions
+   - Device installation tips
+
+**Critical Requirements:**
+- Project must NOT be stored in OneDrive due to large `node_modules` size (~600MB)
+- `.env` file required with API keys: GEMINI_API_KEY, GOOGLE_TRANSLATE_API_KEY, REVENUECAT_ANDROID_API_KEY, REVENUECAT_WEB_API_KEY
+- Compilation flow: `npm install` → `npm run build` → `npx cap sync android` → Android Studio build
