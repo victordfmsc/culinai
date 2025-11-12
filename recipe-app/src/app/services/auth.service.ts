@@ -17,13 +17,12 @@ import { FirestoreService } from './firestore.service';
 import { LoggerService } from './logger.service';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAmuCpF-38om69YwJeQhjt_JNWXeVa1Abw",
-  authDomain: "chef-ai-b08d8.firebaseapp.com",
-  projectId: "chef-ai-b08d8",
-  storageBucket: "chef-ai-b08d8.firebasestorage.app",
-  messagingSenderId: "204589480105",
-  appId: "1:204589480105:web:6652f0f7ced50ce2e211b8",
-  measurementId: "G-RQM9Y3KHS9"
+  apiKey: "AIzaSyCKkzsv9lVnk2JBxnIOxS50hBbhLM6_PnA",
+  authDomain: "chef-ai-64400.firebaseapp.com",
+  projectId: "chef-ai-64400",
+  storageBucket: "chef-ai-64400.firebasestorage.app",
+  messagingSenderId: "63707537027",
+  appId: "1:63707537027:web:94c61cffe03283800745b6"
 };
 
 @Injectable({
