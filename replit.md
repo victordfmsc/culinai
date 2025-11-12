@@ -73,6 +73,7 @@ Capacitor is used for cross-platform deployment, specifically targeting Android,
 # External Dependencies
 
 -   **Firebase Services**: Firebase App, Firebase Auth, Cloud Firestore (Project ID: `chef-ai-64400`, migrated from `chef-ai-b08d8` on 2025-11-12).
+-   **Android Package Name**: `com.daiary.chefai2` (changed from `com.daiary.chefai` due to Firebase registration conflict).
 -   **Google Generative AI**: `@google/generative-ai` (v0.21.0), utilizing the `gemini-1.5-flash` model.
 -   **Google Cloud Translation API**: For dynamic text translation.
 -   **Angular Ecosystem**: `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/platform-browser` (v19.0.0).

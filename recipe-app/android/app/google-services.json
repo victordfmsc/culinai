@@ -12,7 +12,12 @@
           "package_name": "com.daiary.chefai2"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "63707537027-kqh7vq43f43esaeba32muespe0o5cjei.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDxcbMtys_GP7zOalA1wCyLEj7OpOTxjNI"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "63707537027-kqh7vq43f43esaeba32muespe0o5cjei.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
