@@ -54,29 +54,44 @@ export class AuthService {
         // Web Client ID is automatically read from google-services.json
         const result = await FirebaseAuthentication.signInWithGoogle();
         
+        console.log('Native Google sign-in result received');
+        
+        // Validate credential before proceeding
+        if (!result?.credential?.idToken) {
+          const errorMsg = 'Google authentication failed: Missing credential or idToken';
+          console.error(errorMsg, result);
+          throw new Error(errorMsg);
+        }
+        
         console.log('Native Google sign-in successful:', result.user?.email);
         
         // Sync native auth with Firebase Auth SDK using credential
-        if (result.credential?.idToken) {
-          const credential = GoogleAuthProvider.credential(
-            result.credential.idToken,
-            result.credential.accessToken
-          );
-          
-          const userCredential = await signInWithCredential(this.auth, credential);
-          console.log('Firebase Auth synchronized with native auth:', userCredential.user.email);
-        } else {
-          console.warn('No idToken received from native authentication');
-        }
+        const credential = GoogleAuthProvider.credential(
+          result.credential.idToken,
+          result.credential.accessToken
+        );
+        
+        const userCredential = await signInWithCredential(this.auth, credential);
+        console.log('✅ Firebase Auth synchronized with native auth:', userCredential.user.email);
       } else {
         // Web authentication with popup
         const provider = new GoogleAuthProvider();
         const result = await signInWithPopup(this.auth, provider);
-        console.log('Logged in with Google (web):', result.user.email);
+        console.log('✅ Logged in with Google (web):', result.user.email);
       }
-    } catch (error) {
-      console.error('Google login failed:', error);
-      throw error;
+    } catch (error: any) {
+      console.error('❌ Google login failed:', error);
+      
+      // Provide user-friendly error messages
+      if (error.code === 'auth/popup-closed-by-user') {
+        throw new Error('Autenticación cancelada por el usuario');
+      } else if (error.code === 'auth/network-request-failed') {
+        throw new Error('Error de red. Verifica tu conexión a internet');
+      } else if (error.message?.includes('Missing credential')) {
+        throw new Error('Error de autenticación. Por favor, intenta de nuevo');
+      } else {
+        throw new Error(`Autenticación fallida: ${error.message || 'Error desconocido'}`);
+      }
     }
   }
 

@@ -57,7 +57,7 @@ The onboarding features smooth slide transitions, progress indicators (dots for 
 ## Backend Architecture
 
 Firebase serves as the core backend, providing:
--   **Authentication**: Google OAuth and email/password authentication. A guest mode allows unauthenticated exploration with in-memory data.
+-   **Authentication**: Google OAuth and email/password authentication with robust error handling. Native authentication for Android/iOS uses `@capacitor-firebase/authentication` with mandatory credential synchronization via `signInWithCredential`. The system validates credentials before proceeding, preventing crashes from missing tokens, and provides user-friendly error messages in Spanish for common failures (popup closed, network errors, missing credentials). A guest mode allows unauthenticated exploration with in-memory data.
 -   **Cloud Firestore**: Data persistence for user data, meal plans, shopping lists, and achievements. Dates stored as Timestamps are automatically converted to JavaScript Date objects.
 
 ### Gamification Data Model
