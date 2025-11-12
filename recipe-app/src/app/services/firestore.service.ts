@@ -6,9 +6,9 @@ import {
   getDoc, 
   setDoc, 
   updateDoc,
-  Timestamp,
-  Firestore
+  Timestamp
 } from 'firebase/firestore';
+import type { Firestore } from 'firebase/firestore';
 import { UserData, EMPTY_MEAL_PLAN, EMPTY_ACHIEVEMENTS, SubscriptionData } from '../models/user.model';
 import { LoggerService } from './logger.service';
 

@@ -8,9 +8,9 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
-  onAuthStateChanged,
-  User
+  onAuthStateChanged
 } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
 import { FirestoreService } from './firestore.service';
@@ -32,13 +32,13 @@ export class AuthService {
   private app = initializeApp(firebaseConfig);
   private auth = getAuth(this.app);
   
-  currentUser = signal<User | null>(null);
+  currentUser = signal<FirebaseUser | null>(null);
 
   constructor(
     private firestoreService: FirestoreService,
     private logger: LoggerService
   ) {
-    onAuthStateChanged(this.auth, (user: User | null) => {
+    onAuthStateChanged(this.auth, (user: FirebaseUser | null) => {
       this.currentUser.set(user);
       if (user) {
         this.logger.info('AuthService', 'User authenticated', {
