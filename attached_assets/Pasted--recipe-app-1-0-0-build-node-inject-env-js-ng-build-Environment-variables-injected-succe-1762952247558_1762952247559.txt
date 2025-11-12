@@ -1,0 +1,95 @@
+> recipe-app@1.0.0 build
+> node inject-env.js && ng build
+
+✅ Environment variables injected successfully
+   - Gemini API Key: ✗ Missing
+   - Google Translate API Key: ✗ Missing
+   - RevenueCat Android: ✗ Missing
+   - RevenueCat Web: ✗ Missing
+   - RevenueCat iOS: ✗ Missing
+Application bundle generation failed. [21.807 seconds]
+
+X [ERROR] TS7016: Could not find a declaration file for module 'firebase/app'. 'D:/culfinal/CodeSculptor/recipe-app/node_modules/firebase/app/dist/esm/index.esm.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/firebase` if it exists or add a new declaration (.d.ts) file containing `declare module 'firebase/app';` [plugin angular-compiler]
+
+    src/app/services/auth.service.ts:2:30:
+      2 │ import { initializeApp } from 'firebase/app';
+        ╵                               ~~~~~~~~~~~~~~
+
+
+X [ERROR] TS7016: Could not find a declaration file for module 'firebase/auth'. 'D:/culfinal/CodeSculptor/recipe-app/node_modules/firebase/auth/dist/esm/index.esm.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/firebase` if it exists or add a new declaration (.d.ts) file containing `declare module 'firebase/auth';` [plugin angular-compiler]
+
+    src/app/services/auth.service.ts:13:7:
+      13 │ } from 'firebase/auth';
+         ╵        ~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS7006: Parameter 'user' implicitly has an 'any' type. [plugin angular-compiler]
+
+    src/app/services/auth.service.ts:41:35:
+      41 │     onAuthStateChanged(this.auth, (user) => {
+         ╵                                    ~~~~
+
+
+X [ERROR] TS7016: Could not find a declaration file for module 'firebase/app'. 'D:/culfinal/CodeSculptor/recipe-app/node_modules/firebase/app/dist/esm/index.esm.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/firebase` if it exists or add a new declaration (.d.ts) file containing `declare module 'firebase/app';` [plugin angular-compiler]
+
+    src/app/services/firestore.service.ts:2:30:
+      2 │ import { initializeApp } from 'firebase/app';
+        ╵                               ~~~~~~~~~~~~~~
+
+
+X [ERROR] TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/culfinal/CodeSculptor/recipe-app/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/firebase` if it exists or add a new declaration (.d.ts) file containing `declare module 'firebase/firestore';` [plugin angular-compiler]
+
+    src/app/services/firestore.service.ts:11:7:
+      11 │ } from 'firebase/firestore';
+         ╵        ~~~~~~~~~~~~~~~~~~~~
+
+
+
+✅ Environment variables injected successfully
+   - Gemini API Key: ✗ Missing
+   - Google Translate API Key: ✗ Missing
+   - RevenueCat Android: ✗ Missing
+   - RevenueCat Web: ✗ Missing
+   - RevenueCat iOS: ✗ Missing
+Application bundle generation failed. [12.850 seconds]
+
+X [ERROR] TS7016: Could not find a declaration file for module 'firebase/app'. 'D:/culfinal/CodeSculptor/recipe-app/node_modules/firebase/app/dist/esm/index.esm.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/firebase` if it exists or add a new declaration (.d.ts) file containing `declare module 'firebase/app';` [plugin angular-compiler]
+
+    src/app/services/auth.service.ts:2:30:
+      2 │ import { initializeApp } from 'firebase/app';
+        ╵                               ~~~~~~~~~~~~~~
+
+
+X [ERROR] TS7016: Could not find a declaration file for module 'firebase/auth'. 'D:/culfinal/CodeSculptor/recipe-app/node_modules/firebase/auth/dist/esm/index.esm.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/firebase` if it exists or add a new declaration (.d.ts) file containing `declare module 'firebase/auth';` [plugin angular-compiler]
+
+    src/app/services/auth.service.ts:13:7:
+      13 │ } from 'firebase/auth';
+         ╵        ~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS7006: Parameter 'user' implicitly has an 'any' type. [plugin angular-compiler]
+
+    src/app/services/auth.service.ts:41:35:
+      41 │     onAuthStateChanged(this.auth, (user) => {
+         ╵                                    ~~~~
+
+
+X [ERROR] TS7016: Could not find a declaration file for module 'firebase/app'. 'D:/culfinal/CodeSculptor/recipe-app/node_modules/firebase/app/dist/esm/index.esm.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/firebase` if it exists or add a new declaration (.d.ts) file containing `declare module 'firebase/app';` [plugin angular-compiler]
+
+    src/app/services/firestore.service.ts:2:30:
+      2 │ import { initializeApp } from 'firebase/app';
+        ╵                               ~~~~~~~~~~~~~~
+
+
+X [ERROR] TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/culfinal/CodeSculptor/recipe-app/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/firebase` if it exists or add a new declaration (.d.ts) file containing `declare module 'firebase/firestore';` [plugin angular-compiler]
+
+    src/app/services/firestore.service.ts:11:7:
+      11 │ } from 'firebase/firestore';
