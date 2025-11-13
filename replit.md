@@ -24,6 +24,12 @@ Recipes feature real-time portion scaling (1-12 servings) on suggestion cards an
 
 The fridge component includes 15 optional dietary goal filters: Low Fat, Low Carb, Low Sugar, High Protein, Vegetarian, Vegan, Gluten Free, Dairy Free, Keto, Paleo, Low Calorie, Mediterranean, Heart Healthy, Diabetic Friendly, and Quick (Under 30 min). Selected goals are passed to the Gemini AI service to ensure all generated recipes strictly adhere to the specified dietary requirements. Goal labels are translated in the UI but sent to Gemini in English for consistency.
 
+**Flexible Search Options:**
+- Users can search with ingredients only (traditional approach)
+- Users can search with dietary goals only (generates recipes with any ingredients meeting the dietary requirements)
+- Users can combine both ingredients and dietary goals for precise results
+- The text input accepts both ingredient lists AND desired dish names (e.g., "paella", "chocolate cake", "quick pasta")
+
 ### Gamification System "Chef Master"
 
 A comprehensive gamification system encourages user engagement, featuring:
