@@ -60,7 +60,7 @@ export interface RecipeSearchParams {
 
         <button
           (click)="handleFindRecipes()"
-          [disabled]="!ingredients().trim()"
+          [disabled]="!canSearch()"
           class="w-full mt-4 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors"
         >
           {{ 'fridge_find' | translate }}
@@ -229,10 +229,15 @@ export class FridgeComponent implements OnInit {
     return `${baseClasses} bg-gray-100 text-gray-700 hover:bg-indigo-100 hover:text-indigo-700 hover:shadow-sm`;
   }
 
+  canSearch(): boolean {
+    return this.ingredients().trim().length > 0 || this.selectedGoals().length > 0;
+  }
+
   handleFindRecipes() {
-    if (this.ingredients().trim()) {
+    if (this.canSearch()) {
+      const ingredientsText = this.ingredients().trim() || 'any ingredients';
       this.findRecipes.emit({
-        ingredients: this.ingredients(),
+        ingredients: ingredientsText,
         dietaryGoals: this.selectedGoals()
       });
     }
