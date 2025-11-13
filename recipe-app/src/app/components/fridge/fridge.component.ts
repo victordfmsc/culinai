@@ -4,6 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { TranslationService } from '../../services/translation.service';
 
+export interface RecipeSearchParams {
+  ingredients: string;
+  dietaryGoals: string[];
+}
+
 @Component({
   selector: 'app-fridge',
   standalone: true,
@@ -13,6 +18,39 @@ import { TranslationService } from '../../services/translation.service';
       <div class="bg-white rounded-xl shadow-md p-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ 'nav_fridge' | translate }}</h2>
         <p class="text-gray-600 mb-6">{{ 'fridge_question' | translate }}</p>
+        
+        <!-- Dietary Goals Section -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-700 mb-3">
+            <span class="mr-2">🎯</span>{{ 'fridge_dietary_goals' | translate }}
+          </h3>
+          <p class="text-sm text-gray-600 mb-3">{{ 'fridge_dietary_goals_desc' | translate }}</p>
+          <div class="flex flex-wrap gap-2">
+            @for (goal of dietaryGoals; track goal.key) {
+              <button
+                (click)="toggleDietaryGoal(goal.key)"
+                [class]="getDietaryGoalClass(goal.key)"
+              >
+                <span class="mr-1">{{ goal.icon }}</span>
+                {{ goal.key | translate }}
+              </button>
+            }
+          </div>
+          @if (selectedGoals().length > 0) {
+            <div class="mt-3 flex items-center gap-2">
+              <span class="text-sm font-medium text-indigo-600">
+                {{ 'fridge_selected_goals' | translate }}:
+              </span>
+              <div class="flex flex-wrap gap-1">
+                @for (goal of selectedGoals(); track goal) {
+                  <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
+                    {{ goal | translate }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
         
         <textarea
           [(ngModel)]="ingredients"
@@ -46,11 +84,31 @@ import { TranslationService } from '../../services/translation.service';
   `
 })
 export class FridgeComponent implements OnInit {
-  @Output() findRecipes = new EventEmitter<string>();
+  @Output() findRecipes = new EventEmitter<RecipeSearchParams>();
   
   private translationService = inject(TranslationService);
   
   ingredients = signal('');
+  selectedGoals = signal<string[]>([]);
+  
+  // Dietary goals with icons and keys for translation
+  dietaryGoals = [
+    { key: 'goal_low_fat', icon: '🥗' },
+    { key: 'goal_low_carb', icon: '🥑' },
+    { key: 'goal_low_sugar', icon: '🍃' },
+    { key: 'goal_high_protein', icon: '💪' },
+    { key: 'goal_vegetarian', icon: '🌱' },
+    { key: 'goal_vegan', icon: '🌿' },
+    { key: 'goal_gluten_free', icon: '🌾' },
+    { key: 'goal_dairy_free', icon: '🥛' },
+    { key: 'goal_keto', icon: '🥓' },
+    { key: 'goal_paleo', icon: '🦴' },
+    { key: 'goal_low_calorie', icon: '⚖️' },
+    { key: 'goal_mediterranean', icon: '🫒' },
+    { key: 'goal_heart_healthy', icon: '❤️' },
+    { key: 'goal_diabetic_friendly', icon: '🩺' },
+    { key: 'goal_quick', icon: '⚡' }
+  ];
   
   // Expanded list of common ingredients
   commonIngredients = [
@@ -152,9 +210,31 @@ export class FridgeComponent implements OnInit {
     }
   }
 
+  toggleDietaryGoal(goalKey: string) {
+    const currentGoals = this.selectedGoals();
+    if (currentGoals.includes(goalKey)) {
+      this.selectedGoals.set(currentGoals.filter(g => g !== goalKey));
+    } else {
+      this.selectedGoals.set([...currentGoals, goalKey]);
+    }
+  }
+
+  getDietaryGoalClass(goalKey: string): string {
+    const isSelected = this.selectedGoals().includes(goalKey);
+    const baseClasses = 'px-3 py-2 rounded-full text-sm font-medium transition-all duration-200';
+    
+    if (isSelected) {
+      return `${baseClasses} bg-indigo-600 text-white shadow-md transform scale-105`;
+    }
+    return `${baseClasses} bg-gray-100 text-gray-700 hover:bg-indigo-100 hover:text-indigo-700 hover:shadow-sm`;
+  }
+
   handleFindRecipes() {
     if (this.ingredients().trim()) {
-      this.findRecipes.emit(this.ingredients());
+      this.findRecipes.emit({
+        ingredients: this.ingredients(),
+        dietaryGoals: this.selectedGoals()
+      });
     }
   }
 }

@@ -43,8 +43,8 @@ export class GeminiService {
     }
   }
 
-  async generateRecipes(ingredients: string, language: string = 'en'): Promise<Recipe[]> {
-    console.log('Generating 10 recipes for:', ingredients, 'in language:', language);
+  async generateRecipes(ingredients: string, language: string = 'en', dietaryGoals: string[] = []): Promise<Recipe[]> {
+    console.log('Generating 10 recipes for:', ingredients, 'in language:', language, 'with dietary goals:', dietaryGoals);
     
     // Language name mapping for better prompts
     const languageNames: { [key: string]: string } = {
@@ -57,10 +57,40 @@ export class GeminiService {
     
     const languageName = languageNames[language] || 'English';
     
+    // Map dietary goal keys to English descriptions for the AI prompt
+    const goalDescriptions: { [key: string]: string } = {
+      'goal_low_fat': 'Low in fats and oils',
+      'goal_low_carb': 'Low in carbohydrates',
+      'goal_low_sugar': 'Low in added sugars',
+      'goal_high_protein': 'High in protein',
+      'goal_vegetarian': 'Vegetarian (no meat or fish)',
+      'goal_vegan': 'Vegan (no animal products)',
+      'goal_gluten_free': 'Gluten-free',
+      'goal_dairy_free': 'Dairy-free (no milk products)',
+      'goal_keto': 'Keto-friendly (very low carb, high fat)',
+      'goal_paleo': 'Paleo (whole foods, no grains/legumes/dairy)',
+      'goal_low_calorie': 'Low in calories (under 400 per serving)',
+      'goal_mediterranean': 'Mediterranean diet style',
+      'goal_heart_healthy': 'Heart-healthy (low sodium, healthy fats)',
+      'goal_diabetic_friendly': 'Diabetic-friendly (low glycemic index)',
+      'goal_quick': 'Quick to prepare (under 30 minutes)'
+    };
+    
+    // Build dietary requirements string
+    let dietaryRequirements = '';
+    if (dietaryGoals.length > 0) {
+      const requirements = dietaryGoals.map(goal => goalDescriptions[goal] || goal).join(', ');
+      dietaryRequirements = `\n\nDIETARY REQUIREMENTS (ALL RECIPES MUST MEET THESE):
+- ${requirements}
+- Make sure EVERY recipe strictly follows these dietary restrictions
+- Adjust ingredients and cooking methods to meet these requirements
+- If a requirement conflicts with ingredients, substitute appropriately`;
+    }
+    
     // Always try Gemini first if available
     if (this.model) {
       try {
-        const prompt = `You are a professional chef teaching someone who has NEVER cooked this dish before. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.
+        const prompt = `You are a professional chef teaching someone who has NEVER cooked this dish before. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.${dietaryRequirements}
         
 Important rules:
 - WRITE EVERYTHING IN ${languageName.toUpperCase()} (recipe titles, descriptions, ingredients, instructions, tags - ALL TEXT)

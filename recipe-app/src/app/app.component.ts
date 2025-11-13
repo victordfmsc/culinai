@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { HomeComponent } from './components/home/home.component';
-import { FridgeComponent } from './components/fridge/fridge.component';
+import { FridgeComponent, RecipeSearchParams } from './components/fridge/fridge.component';
 import { SuggestionsComponent } from './components/suggestions/suggestions.component';
 import { ShoppingListComponent } from './components/shopping-list/shopping-list.component';
 import { ProfileComponent } from './components/profile/profile.component';
@@ -447,7 +447,7 @@ export class AppComponent {
 
   isSubscribed = this.subscriptionService.isSubscribed;
   showPaywall = signal(false);
-  pendingIngredients = signal<string | null>(null);
+  pendingIngredients = signal<RecipeSearchParams | null>(null);
 
   constructor() {
     this.setupStateSynchronization();
@@ -545,24 +545,28 @@ export class AppComponent {
     return this.currentView() === view ? `${baseClasses} ${activeClasses}` : baseClasses;
   }
 
-  handleFindRecipesRequest(ingredients: string) {
+  handleFindRecipesRequest(params: RecipeSearchParams) {
     if (this.subscriptionService.canGenerateRecipes) {
-      this.onFindRecipes(ingredients);
+      this.onFindRecipes(params);
     } else {
-      this.pendingIngredients.set(ingredients);
+      this.pendingIngredients.set(params);
       this.showPaywall.set(true);
     }
   }
 
-  async onFindRecipes(ingredients: string) {
-    this.ownedIngredients.set(ingredients);
+  async onFindRecipes(params: RecipeSearchParams) {
+    this.ownedIngredients.set(params.ingredients);
     this.isLoadingRecipes.set(true);
     this.recipes.set([]);
     this.changeView('suggestions');
     
     try {
       const currentLanguage = this.translationService.currentLanguage();
-      const generatedRecipes = await this.geminiService.generateRecipes(ingredients, currentLanguage);
+      const generatedRecipes = await this.geminiService.generateRecipes(
+        params.ingredients, 
+        currentLanguage,
+        params.dietaryGoals
+      );
       this.recipes.set(generatedRecipes);
       
       this.subscriptionService.incrementRecipesGenerated();
