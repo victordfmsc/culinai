@@ -20,6 +20,10 @@ The application integrates RevenueCat for subscription management across web and
 
 Recipes feature real-time portion scaling (1-12 servings) on suggestion cards and within the cooking modal. The scaling algorithm applies proportional adjustments to numeric quantities.
 
+### Dietary Goals System
+
+The fridge component includes 15 optional dietary goal filters: Low Fat, Low Carb, Low Sugar, High Protein, Vegetarian, Vegan, Gluten Free, Dairy Free, Keto, Paleo, Low Calorie, Mediterranean, Heart Healthy, Diabetic Friendly, and Quick (Under 30 min). Selected goals are passed to the Gemini AI service to ensure all generated recipes strictly adhere to the specified dietary requirements. Goal labels are translated in the UI but sent to Gemini in English for consistency.
+
 ### Gamification System "Chef Master"
 
 A comprehensive gamification system encourages user engagement, featuring:
@@ -57,7 +61,7 @@ The translation system includes an `AutoTranslateService` with a dual-layer (in-
 
 ## AI Recipe Generation
 
-The application uses Google's Gemini API (`gemini-1.5-flash`) to generate 10 unique, detailed, and beginner-friendly recipes per request in the user's selected language. Recipes include approximate nutritional values and 2-4 classification tags (e.g., "High Protein"), which are translated for display.
+The application uses Google's Gemini API (`gemini-1.5-flash`) to generate 10 unique, detailed, and beginner-friendly recipes per request in the user's selected language. Recipes include approximate nutritional values and 2-4 classification tags (e.g., "High Protein"), which are translated for display. The generation process accepts optional dietary goals that are strictly enforced in the AI prompt to ensure all recipes meet the specified requirements (e.g., vegan, gluten-free, low-carb).
 
 ## Data Models
 
@@ -65,6 +69,7 @@ Key data models include:
 -   **`UserData`**: Stores user-specific information, including points, level, meal plan, shopping list, and achievements.
 -   **`Recipe Model`**: Contains `title`, `description`, `ingredients`, `instructions`, `prepTime`, `servings`, `adjustedServings`, `tags`, and `nutrition` details.
 -   **`Meal Plan Structure`**: A seven-day structure containing recipe names.
+-   **`RecipeSearchParams`**: Interface containing `ingredients` (string) and `dietaryGoals` (string array) for AI recipe generation requests.
 
 ## Mobile Architecture
 
