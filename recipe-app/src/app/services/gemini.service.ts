@@ -239,23 +239,30 @@ YOU MUST USE ONLY THESE UNITS - NO OTHER UNITS ARE ALLOWED:
 - Spoons: tsp, tbsp (for spices, oil, small amounts)
 - Pieces: just the number (for eggs, onions, garlic cloves, etc.)
 
+🚫 NEVER EVER USE GENERIC NAMES 🚫
+- NEVER write "any ingredients" - ALWAYS specify EXACT ingredient name
+- NEVER write "2 cups any ingredients" - write "2 cups rice" or "2 cups flour"
+- NEVER write "1 lb any protein" - write "1 lb chicken" or "1 lb beef"
+- BE SPECIFIC: If you don't know what ingredient to use, pick a common one (chicken, rice, tomato, etc.)
+
 MANDATORY FORMAT: "quantity unit name" or "quantity name" (for pieces)
 ✅ CORRECT EXAMPLES:
-  - "200g chicken" (NOT "200g boneless chicken breast")
-  - "2 onions" (NOT "2 medium onions, diced")
+  - "200g chicken" (NOT "200g boneless chicken breast" or "200g any meat")
+  - "2 onions" (NOT "2 medium onions, diced" or "2 any vegetables")
   - "3 garlic cloves" (NOT "3 cloves fresh garlic, minced")
   - "1 tsp salt" (NOT "1 teaspoon sea salt")
-  - "250ml water" (NOT "1 cup water")
-  - "500g rice" (NOT "2 cups basmati rice")
+  - "250ml water" (NOT "1 cup water" or "1 cup any liquid")
+  - "500g rice" (NOT "2 cups basmati rice" or "2 cups any grain")
 
 ❌ ABSOLUTELY FORBIDDEN - NEVER USE THESE:
+  - "any ingredients", "any vegetables", "any protein", "any liquid", "any grain"
   - cups, tablespoons written out, teaspoons written out
   - inches, lbs, oz, pounds, ounces
   - "fresh", "ripe", "chopped", "diced", "minced" in ingredient names
   - Long descriptions like "cut into 1-inch pieces"
   - ANY measurement in cups or inches
 
-Keep ingredient names SHORT: maximum 2 words (e.g., "chicken", "olive oil", "brown rice")
+Keep ingredient names SHORT and SPECIFIC: maximum 2 words (e.g., "chicken", "olive oil", "brown rice")
 
 NUTRITIONAL INFORMATION REQUIREMENTS:
 - Add "tags" array with 2-4 classification tags ALWAYS IN ENGLISH based on the recipe characteristics
