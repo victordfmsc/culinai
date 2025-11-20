@@ -33,7 +33,7 @@ export class GeminiService {
     if (apiKey && apiKey.startsWith('AIza')) {
       try {
         this.genAI = new GoogleGenerativeAI(apiKey);
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
         console.log('✅ Gemini model ready!');
       } catch (error) {
         console.error('Failed to init Gemini:', error);
@@ -41,6 +41,86 @@ export class GeminiService {
     } else {
       console.log('No valid Gemini API key found');
     }
+  }
+
+  /**
+   * POST-PROCESSING: Force correct ingredient format
+   * Eliminates invalid formats and converts units to metric standard
+   */
+  private cleanIngredient(ingredient: string): string {
+    let clean = ingredient.trim();
+    
+    // Remove the "×" character that Gemini adds (e.g., "2× cup" → "2 cup")
+    clean = clean.replace(/×\s*/g, '');
+    
+    // Remove forbidden adjectives and descriptions
+    const forbiddenWords = ['fresh', 'ripe', 'chopped', 'diced', 'minced', 'sliced', 
+                            'cut', 'peeled', 'boneless', 'skinless', 'trimmed',
+                            'medium', 'large', 'small', 'finely', 'coarsely', 
+                            'into', 'pieces', 'inch', 'inches'];
+    
+    forbiddenWords.forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b,?\\s*`, 'gi');
+      clean = clean.replace(regex, ' ');
+    });
+    
+    // Convert cups to metric
+    // Liquid cups (water, milk, broth, oil) → 250ml
+    const liquidKeywords = ['water', 'milk', 'broth', 'stock', 'juice', 'oil', 'cream', 'wine', 'vinegar', 'sauce'];
+    const isLiquid = liquidKeywords.some(keyword => clean.toLowerCase().includes(keyword));
+    
+    clean = clean.replace(/(\d+(?:\/\d+)?)\s*cups?\b/gi, (match, num) => {
+      const quantity = this.parseFraction(num);
+      if (isLiquid) {
+        return `${Math.round(quantity * 250)}ml`;
+      } else {
+        return `${Math.round(quantity * 200)}g`;
+      }
+    });
+    
+    // Convert pounds (lbs) to grams
+    clean = clean.replace(/(\d+(?:\.\d+)?)\s*(?:lbs?|pounds?)\b/gi, (match, num) => {
+      return `${Math.round(parseFloat(num) * 450)}g`;
+    });
+    
+    // Convert ounces (oz) to grams
+    clean = clean.replace(/(\d+(?:\.\d+)?)\s*oz\b/gi, (match, num) => {
+      return `${Math.round(parseFloat(num) * 30)}g`;
+    });
+    
+    // Normalize spaces and remove extra commas
+    clean = clean.replace(/\s+/g, ' ').replace(/,+/g, ',').trim();
+    clean = clean.replace(/,\s*$/, ''); // Remove trailing comma
+    
+    // Simplify to maximum 2 words for ingredient name
+    // Extract quantity + unit first, then limit the rest
+    const parts = clean.split(' ');
+    if (parts.length > 4) {
+      // Keep first 2-3 parts (quantity + unit or quantity + unit + word) and last 1-2 words
+      const quantity = parts[0];
+      const hasUnit = /\d+(?:g|kg|ml|L|tsp|tbsp)$/.test(parts[1]);
+      
+      if (hasUnit) {
+        // Format: "200g chicken breast" → "200g chicken"
+        clean = `${parts[0]} ${parts[1]} ${parts[2] || ''}`.trim();
+      } else {
+        // Format: "2 large onions" → "2 onions"
+        clean = `${parts[0]} ${parts[parts.length - 1]}`;
+      }
+    }
+    
+    return clean;
+  }
+
+  /**
+   * Parse fractions like "1/2" to decimal
+   */
+  private parseFraction(str: string): number {
+    if (str.includes('/')) {
+      const [num, den] = str.split('/').map(Number);
+      return num / den;
+    }
+    return parseFloat(str);
   }
 
   async generateRecipes(ingredients: string, language: string = 'en', dietaryGoals: string[] = []): Promise<Recipe[]> {
@@ -196,7 +276,13 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
           try {
             const recipes = JSON.parse(jsonString);
             if (Array.isArray(recipes) && recipes.length > 0) {
-              console.log('✅ Generated', recipes.length, 'unique recipes with AI!');
+              // POST-PROCESSING: Clean ALL ingredients to force correct format
+              recipes.forEach(recipe => {
+                if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
+                  recipe.ingredients = recipe.ingredients.map((ing: string) => this.cleanIngredient(ing));
+                }
+              });
+              console.log('✅ Generated', recipes.length, 'unique recipes with AI (ingredients cleaned)!');
               return recipes.slice(0, 10);
             }
           } catch (e) {
