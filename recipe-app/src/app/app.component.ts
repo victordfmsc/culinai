@@ -932,20 +932,29 @@ export class AppComponent {
   }
 
   async onAddToShoppingList(missingIngredients: string[]) {
-    this.mergeShoppingItems(missingIngredients);
+    try {
+      this.mergeShoppingItems(missingIngredients);
 
-    await this.awardPoints(
-      10 * missingIngredients.length,
-      "shopping_items",
-      missingIngredients.length,
-    );
+      await this.awardPoints(
+        10 * missingIngredients.length,
+        "shopping_items",
+        missingIngredients.length,
+      );
 
-    this.changeView("shopping");
+      this.changeView("shopping");
+    } catch (error) {
+      console.error("Failed to add items to shopping list:", error);
+    }
   }
 
   async onConfirmCooked(recipe: Recipe) {
-    await this.awardPoints(25, "recipes_cooked", 1);
-    this.cookingRecipe.set(null);
+    try {
+      await this.awardPoints(25, "recipes_cooked", 1);
+      this.cookingRecipe.set(null);
+    } catch (error) {
+      console.error("Failed to confirm recipe cooked:", error);
+      this.cookingRecipe.set(null);
+    }
   }
 
   onStartCooking(recipe: Recipe) {
@@ -1093,20 +1102,24 @@ export class AppComponent {
   }
 
   async assignRecipeToDay(day: string) {
-    const recipe = this.planningRecipe();
-    if (!recipe) return;
+    try {
+      const recipe = this.planningRecipe();
+      if (!recipe) return;
 
-    const plan = this.mealPlan();
-    const dayKey = day as keyof MealPlan;
+      const plan = this.mealPlan();
+      const dayKey = day as keyof MealPlan;
 
-    this.mealPlan.set({
-      ...plan,
-      [dayKey]: [...plan[dayKey], recipe.title],
-    });
+      this.mealPlan.set({
+        ...plan,
+        [dayKey]: [...plan[dayKey], recipe.title],
+      });
 
-    await this.awardPoints(20, "meal_plans", 1);
+      await this.awardPoints(20, "meal_plans", 1);
 
-    this.planningRecipe.set(null);
+      this.planningRecipe.set(null);
+    } catch (error) {
+      console.error("Failed to assign recipe to day:", error);
+    }
   }
 
   cancelPlanning() {
@@ -1143,53 +1156,58 @@ export class AppComponent {
   }
 
   async onPurchaseSuccess() {
-    this.showPaywall.set(false);
+    try {
+      this.showPaywall.set(false);
 
-    await this.awardPremiumAchievement();
+      await this.awardPremiumAchievement();
 
-    // Update subscription status after successful purchase
-    this.subscriptionService.isSubscribed.set(true);
+      // Update subscription status after successful purchase
+      this.subscriptionService.isSubscribed.set(true);
 
-    const pending = this.pendingIngredients();
-    if (pending) {
-      this.onFindRecipes(pending);
-      this.pendingIngredients.set(null);
+      const pending = this.pendingIngredients();
+      if (pending) {
+        this.onFindRecipes(pending);
+        this.pendingIngredients.set(null);
+      }
+    } catch (error) {
+      console.error("Failed to process purchase success:", error);
     }
   }
 
   private async awardPremiumAchievement() {
-    if (this.guestMode()) {
-      this.guestPoints.update((p) => p + 200);
-      this.notificationService.showAchievementUnlocked(
-        "Premium Chef",
-        "👑",
-        200,
+    try {
+      if (this.guestMode()) {
+        this.guestPoints.update((p) => p + 200);
+        this.notificationService.showAchievementUnlocked(
+          "Premium Chef",
+          "👑",
+          200,
+        );
+        console.log(
+          "✅ Premium Chef achievement awarded in guest mode! +200 points",
+        );
+        return;
+      }
+
+      const userData = this.firestoreService.currentUserData();
+      if (!userData || !userData.achievements) {
+        return;
+      }
+
+      if (userData.achievements.premiumSubscribed === 1) {
+        return;
+      }
+
+      userData.achievements.premiumSubscribed = 1;
+
+      const newAchievements = this.gamificationService.checkAchievements(
+        userData.achievements,
       );
-      console.log(
-        "✅ Premium Chef achievement awarded in guest mode! +200 points",
-      );
-      return;
-    }
 
-    const userData = this.firestoreService.currentUserData();
-    if (!userData || !userData.achievements) {
-      return;
-    }
-
-    if (userData.achievements.premiumSubscribed === 1) {
-      return;
-    }
-
-    userData.achievements.premiumSubscribed = 1;
-
-    const newAchievements = this.gamificationService.checkAchievements(
-      userData.achievements,
-    );
-
-    let bonusPoints = 0;
-    for (const achievement of newAchievements) {
-      userData.achievements.unlockedAchievements.push(achievement.id);
-      bonusPoints += achievement.points;
+      let bonusPoints = 0;
+      for (const achievement of newAchievements) {
+        userData.achievements.unlockedAchievements.push(achievement.id);
+        bonusPoints += achievement.points;
 
       this.notificationService.showAchievementUnlocked(
         this.translationService.translate(achievement.titleKey),
@@ -1208,15 +1226,18 @@ export class AppComponent {
       achievements: userData.achievements,
     });
 
-    if (userData.level > oldLevel) {
-      const levelInfo = this.gamificationService.getLevelInfo(userData.points);
-      this.notificationService.showLevelUp(
-        userData.level,
-        this.translationService.translate(levelInfo.titleKey),
-      );
-    }
+      if (userData.level > oldLevel) {
+        const levelInfo = this.gamificationService.getLevelInfo(userData.points);
+        this.notificationService.showLevelUp(
+          userData.level,
+          this.translationService.translate(levelInfo.titleKey),
+        );
+      }
 
-    console.log(`✅ Premium Chef achievement awarded! +${bonusPoints} points`);
+      console.log(`✅ Premium Chef achievement awarded! +${bonusPoints} points`);
+    } catch (error) {
+      console.error("Failed to award premium achievement:", error);
+    }
   }
 
   private async awardPoints(points: number, statType: string, amount: number) {

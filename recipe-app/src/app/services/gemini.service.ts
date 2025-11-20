@@ -33,7 +33,10 @@ export class GeminiService {
     if (apiKey && apiKey.startsWith('AIza')) {
       try {
         this.genAI = new GoogleGenerativeAI(apiKey);
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        // Use gemini-1.5-flash with correct v1 API version
+        this.model = this.genAI.getGenerativeModel({ 
+          model: 'gemini-1.5-flash',
+        });
         console.log('✅ Gemini model ready!');
       } catch (error) {
         console.error('Failed to init Gemini:', error);
@@ -379,7 +382,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Quick ${mainIngredient} Stir-Fry`,
         description: `A fast Asian-style stir-fry with ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 cup ${i}, cut into bite-sized pieces`), '2 tbsp soy sauce', '1 tbsp sesame oil', '2 cloves garlic, minced', '1 inch fresh ginger, minced'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '30ml soy sauce', '15ml sesame oil', '2 garlic cloves', '10g ginger'],
         instructions: [
           'Prepare all ingredients first (mise en place). Cut all vegetables and proteins into uniform, bite-sized pieces so they cook evenly. Mince the garlic and ginger finely.',
           'Heat a large wok or heavy skillet over high heat for 2-3 minutes until very hot. You\'ll know it\'s ready when a drop of water sizzles and evaporates immediately.',
@@ -403,7 +406,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Baked ${mainIngredient} Casserole`,
         description: `Comfort food casserole with ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 cups ${i}, chopped`), '1 cup shredded cheese (cheddar or mozzarella)', '1/2 cup heavy cream', '1 tsp dried herbs (thyme or rosemary)', 'Salt and pepper to taste', 'Cooking spray'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), '200g cheese', '125ml cream', '5ml herbs', 'Salt', 'Pepper'],
         instructions: [
           'Preheat your oven to 375°F (190°C). Position the oven rack in the middle. This temperature ensures the casserole cooks through without burning the top.',
           'While the oven heats, prepare all your ingredients. Chop all vegetables and proteins into uniform pieces, about 1-inch cubes, so everything cooks evenly.',
@@ -429,7 +432,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Hearty ${mainIngredient} Soup`,
         description: `Warming soup with ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 cup ${i}, diced`), '4 cups chicken or vegetable broth', '1 large onion, finely chopped', '2 cloves garlic, minced', '2 tbsp olive oil', '1 bay leaf', '1 tsp dried thyme', 'Salt and pepper to taste', 'Fresh parsley for garnish'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '1L broth', '1 onion', '2 garlic cloves', '30ml olive oil', '1 bay leaf', '5ml thyme', 'Salt', 'Pepper'],
         instructions: [
           'Prepare all your ingredients before you start cooking (this is called mise en place). Dice all vegetables into similar-sized pieces (about 1/2 inch) so they cook evenly.',
           'In a large pot or Dutch oven, heat 2 tablespoons of olive oil over medium heat for about 1 minute. The oil should flow easily but not smoke.',
@@ -455,7 +458,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Grilled ${mainIngredient} Skewers`,
         description: `BBQ-style grilled ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1.5 lbs ${i}`), 'BBQ marinade', 'Skewers', 'Olive oil'],
+        ingredients: [...ingredientList.map(i => `675g ${i}`), 'BBQ marinade', 'Skewers', '30ml olive oil'],
         instructions: ['Marinate 1 hour', 'Thread onto skewers', 'Grill 6-8 minutes', 'Turn and cook until done'],
         prepTime: '20 mins',
         servings: 4,
@@ -470,7 +473,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Mediterranean ${mainIngredient} Salad`,
         description: `Fresh salad featuring ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 cups ${i}`), 'Lettuce', 'Feta cheese', 'Olives', 'Lemon dressing'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Lettuce', '100g feta cheese', 'Olives', 'Lemon dressing'],
         instructions: ['Chop all ingredients', 'Toss in large bowl', 'Add dressing', 'Top with feta and serve'],
         prepTime: '15 mins',
         servings: 3,
@@ -485,7 +488,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `${mainIngredient} Pasta Primavera`,
         description: `Italian pasta with ${ingredients}`,
-        ingredients: ['1 lb pasta', ...ingredientList.map(i => `1 cup ${i}`), 'Parmesan', 'Olive oil', 'Garlic'],
+        ingredients: ['450g pasta', ...ingredientList.map(i => `200g ${i}`), '50g Parmesan', '30ml olive oil', '2 garlic cloves'],
         instructions: ['Boil pasta al dente', 'Sauté vegetables', 'Combine with pasta', 'Top with parmesan'],
         prepTime: '25 mins',
         servings: 4
@@ -493,7 +496,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Indian ${mainIngredient} Curry`,
         description: `Spicy curry with ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 cups ${i}`), 'Curry paste', 'Coconut milk', 'Rice', 'Spices'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Curry paste', '400ml coconut milk', '300g rice', 'Spices'],
         instructions: ['Toast spices', 'Add curry paste and coconut milk', 'Simmer ingredients 20 mins', 'Serve over rice'],
         prepTime: '40 mins',
         servings: 4
@@ -501,7 +504,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Mexican ${mainIngredient} Tacos`,
         description: `Street-style tacos with ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 lb ${i}`), 'Tortillas', 'Salsa', 'Cilantro', 'Lime'],
+        ingredients: [...ingredientList.map(i => `450g ${i}`), 'Tortillas', 'Salsa', 'Cilantro', 'Lime'],
         instructions: ['Season and cook filling', 'Warm tortillas', 'Assemble tacos', 'Top with salsa and cilantro'],
         prepTime: '20 mins',
         servings: 4
@@ -509,7 +512,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Asian ${mainIngredient} Rice Bowl`,
         description: `Healthy bowl with ${ingredients}`,
-        ingredients: ['2 cups rice', ...ingredientList.map(i => `1 cup ${i}`), 'Soy sauce', 'Sesame seeds', 'Vegetables'],
+        ingredients: ['400g rice', ...ingredientList.map(i => `200g ${i}`), '30ml soy sauce', 'Sesame seeds', 'Vegetables'],
         instructions: ['Cook rice', 'Prepare toppings', 'Layer in bowl', 'Drizzle with sauce and seeds'],
         prepTime: '30 mins',
         servings: 2
@@ -517,7 +520,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `${mainIngredient} Flatbread Pizza`,
         description: `Gourmet flatbread with ${ingredients}`,
-        ingredients: ['2 flatbreads', ...ingredientList.map(i => `1/2 cup ${i}`), 'Mozzarella', 'Olive oil', 'Herbs'],
+        ingredients: ['2 flatbreads', ...ingredientList.map(i => `100g ${i}`), '150g mozzarella', '15ml olive oil', 'Herbs'],
         instructions: ['Preheat oven to 425°F', 'Top flatbreads', 'Bake 12-15 minutes', 'Slice and serve hot'],
         prepTime: '25 mins',
         servings: 2
@@ -530,7 +533,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Salteado Rápido de ${mainIngredient}`,
         description: `Un salteado asiático rápido con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 taza de ${i}, cortado en trozos del tamaño de un bocado`), '2 cdas de salsa de soya', '1 cda de aceite de sésamo', '2 dientes de ajo picados finamente', '1 pulgada de jengibre fresco picado finamente', '2 cdas de aceite vegetal para cocinar'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '30ml salsa de soya', '15ml aceite de sésamo', '2 dientes ajo', '10g jengibre'],
         instructions: [
           'Prepara todos los ingredientes primero (esto se llama "mise en place"). Corta todos los vegetales y proteínas en trozos uniformes del tamaño de un bocado para que se cocinen de manera pareja. Pica el ajo y jengibre finamente.',
           'Calienta un wok grande o sartén pesada a fuego alto durante 2-3 minutos hasta que esté muy caliente. Sabrás que está listo cuando una gota de agua chisporrotee y se evapore inmediatamente.',
@@ -554,7 +557,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Cazuela de ${mainIngredient} al Horno`,
         description: `Cazuela reconfortante con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tazas de ${i}, picado`), '1 taza de queso rallado (cheddar o mozzarella)', '1/2 taza de crema espesa', '1 cdta de hierbas secas (tomillo o romero)', 'Sal y pimienta al gusto', 'Aceite en aerosol para cocinar'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), '200g queso rallado', '125ml crema', '5ml hierbas', 'Sal', 'Pimienta'],
         instructions: [
           'Precalienta tu horno a 375°F (190°C). Coloca la rejilla del horno en la posición central. Esta temperatura asegura que la cazuela se cocine por completo sin quemar la parte superior.',
           'Mientras el horno se calienta, prepara todos tus ingredientes. Pica todos los vegetales y proteínas en cubos uniformes de aproximadamente 1 pulgada para que todo se cocine de manera pareja.',
@@ -580,7 +583,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Sopa Abundante de ${mainIngredient}`,
         description: `Sopa reconfortante con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 taza de ${i}, cortado en cubos`), '4 tazas de caldo de pollo o vegetales', '1 cebolla grande picada finamente', '2 dientes de ajo picados', '2 cdas de aceite de oliva', '1 hoja de laurel', '1 cdta de tomillo seco', 'Sal y pimienta al gusto', 'Perejil fresco picado para decorar'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '1L caldo', '1 cebolla', '2 dientes ajo', '30ml aceite oliva', '1 hoja laurel', '5ml tomillo', 'Sal', 'Pimienta'],
         instructions: [
           'Prepara todos tus ingredientes antes de comenzar a cocinar (esto se llama mise en place). Corta todos los vegetales en cubos de tamaño similar (aproximadamente 1/2 pulgada) para que se cocinen de manera uniforme.',
           'En una olla grande u olla holandesa, calienta 2 cucharadas de aceite de oliva a fuego medio durante aproximadamente 1 minuto. El aceite debe fluir fácilmente pero no humear.',
@@ -606,7 +609,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Brochetas de ${mainIngredient} a la Parrilla`,
         description: `Brochetas estilo BBQ con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `700g de ${i}, cortado en cubos de 1.5 pulgadas`), '1/2 taza de marinada BBQ comprada o casera', '8-10 palitos de bambú para brochetas', '2 cdas de aceite de oliva', 'Sal y pimienta', '1 pimiento morrón cortado en trozos'],
+        ingredients: [...ingredientList.map(i => `675g ${i}`), 'Marinada BBQ', 'Palitos brochetas', '30ml aceite oliva', 'Sal', 'Pimienta'],
         instructions: [
           'Si usas palitos de bambú, sumérgelos en agua fría durante al menos 30 minutos antes de usar. Esto evita que se quemen en la parrilla.',
           `En un tazón grande, coloca los cubos de ${mainIngredient}. Añade la marinada BBQ, sal y pimienta. Mezcla bien para cubrir todas las piezas uniformemente. Cubre y refrigera durante al menos 1 hora (o hasta 4 horas para más sabor).`,
@@ -632,7 +635,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Ensalada Mediterránea de ${mainIngredient}`,
         description: `Ensalada fresca con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tazas de ${i}, cocido y enfriado`), '4 tazas de lechuga mixta lavada', '1/2 taza de queso feta desmenuzado', '1/2 taza de aceitunas kalamata sin hueso', '1 pepino cortado en rodajas', '1 tomate cortado en cubos', '3 cdas de aceite de oliva extra virgen', '2 cdas de jugo de limón fresco', '1 cdta de orégano seco', 'Sal y pimienta al gusto'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Lechuga', '100g queso feta', 'Aceitunas', '1 pepino', '1 tomate', '45ml aceite oliva', '30ml jugo limón', '5ml orégano', 'Sal', 'Pimienta'],
         instructions: [
           'Comienza lavando toda la verdura fresca. Lava la lechuga hoja por hoja bajo agua fría, luego sécala completamente con un centrifugador de ensaladas o toallas de papel. La lechuga mojada diluirá el aderezo.',
           `Si tu ${mainIngredient} necesita cocinarse, hazlo primero y déjalo enfriar completamente. Puedes asar, hervir o saltear - solo asegúrate de que esté a temperatura ambiente antes de añadirlo a la ensalada.`,
@@ -658,7 +661,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Pasta Primavera con ${mainIngredient}`,
         description: `Pasta italiana con ${ingredients}`,
-        ingredients: ['500g de pasta (penne, fusilli o farfalle)', ...ingredientList.map(i => `1 taza de ${i}, picado`), '1/2 taza de queso parmesano recién rallado', '3 cdas de aceite de oliva extra virgen', '4 dientes de ajo picados finamente', '1/4 cdta de hojuelas de chile (opcional)', 'Sal para el agua de la pasta', 'Pimienta negra recién molida', 'Albahaca fresca picada para decorar'],
+        ingredients: ['500g pasta', ...ingredientList.map(i => `200g ${i}`), '50g parmesano', '45ml aceite oliva', '4 dientes ajo', 'Hojuelas chile', 'Sal', 'Pimienta', 'Albahaca'],
         instructions: [
           'Llena una olla grande (al menos 6 cuartos) con agua hasta 3/4 de su capacidad. Añade 2 cucharadas de sal - el agua debe saber como el mar. Esto sazona la pasta desde adentro.',
           'Tapa la olla y lleva a ebullición completa a fuego alto. Sabrás que está lista cuando veas grandes burbujas rodantes en toda la superficie. Esto puede tomar 10-15 minutos.',
@@ -678,7 +681,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Curry Indio de ${mainIngredient}`,
         description: `Curry picante con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tazas de ${i}, cortado en trozos`), '2 cdas de pasta de curry (roja, verde o amarilla)', '1 lata (400ml) de leche de coco', '2 tazas de arroz basmati', '2 cdas de aceite vegetal', '1 cebolla picada', '2 dientes de ajo picados', '1 cdta de jengibre fresco rallado', '1 taza de caldo de vegetales', 'Cilantro fresco picado', 'Sal al gusto'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Pasta curry', '400ml leche coco', '400g arroz', '30ml aceite', '1 cebolla', '2 dientes ajo', '5g jengibre', '250ml caldo', 'Cilantro', 'Sal'],
         instructions: [
           'Primero prepara el arroz: enjuaga 2 tazas de arroz basmati bajo agua fría hasta que el agua salga clara (esto elimina el exceso de almidón). Escurre bien.',
           'En una olla mediana, combina el arroz enjuagado con 3 tazas de agua y una pizca de sal. Lleva a ebullición a fuego alto, luego reduce a fuego lento, tapa y cocina durante 15-18 minutos sin destapar.',
@@ -699,7 +702,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Tacos Mexicanos de ${mainIngredient}`,
         description: `Tacos estilo callejero con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `500g de ${i}, picado o desmenuzado`), '8-10 tortillas de maíz pequeñas', '1 taza de salsa fresca (pico de gallo o salsa verde)', '1/2 taza de cilantro fresco picado', '1 cebolla pequeña picada finamente', '2 limas cortadas en gajos', '2 cdtas de comino molido', '1 cdta de pimentón', '2 cdas de aceite vegetal', 'Sal y pimienta al gusto'],
+        ingredients: [...ingredientList.map(i => `500g ${i}`), '8-10 tortillas', 'Salsa', 'Cilantro', '1 cebolla', '2 limas', '10ml comino', '5ml pimentón', '30ml aceite', 'Sal', 'Pimienta'],
         instructions: [
           `En un tazón, sazona el ${mainIngredient} picado con comino molido, pimentón, sal y pimienta. Mezcla bien para cubrir uniformemente. Esta mezcla de especias le da el auténtico sabor mexicano.`,
           'Calienta 2 cucharadas de aceite en una sartén grande a fuego medio-alto durante 1-2 minutos hasta que el aceite brille. El aceite debe estar caliente pero no humeando.',
@@ -719,7 +722,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Bowl Asiático de ${mainIngredient} con Arroz`,
         description: `Bowl saludable con ${ingredients}`,
-        ingredients: ['2 tazas de arroz (blanco, integral o jazmín)', ...ingredientList.map(i => `1 taza de ${i}, cortado`), '3 cdas de salsa de soya baja en sodio', '1 cda de aceite de sésamo', '2 cdtas de semillas de sésamo tostadas', '2 cebollines picados finamente', '1 aguacate en rodajas', '1 huevo cocido por porción (opcional)', 'Sriracha o salsa picante al gusto'],
+        ingredients: ['400g arroz', ...ingredientList.map(i => `200g ${i}`), '45ml salsa soya', '15ml aceite sésamo', 'Semillas sésamo', '2 cebollines', '1 aguacate', '1 huevo', 'Sriracha'],
         instructions: [
           'Cocina el arroz según las instrucciones del paquete. Para arroz blanco: 2 tazas de arroz + 3 tazas de agua, hierve, luego reduce a fuego lento durante 15-18 minutos tapado. No destapes mientras cocina.',
           'Cuando el arroz esté listo, quita del fuego y deja reposar tapado durante 5 minutos. Esto permite que el vapor termine la cocción y el arroz quede esponjoso. Luego destapa y esponja con un tenedor.',
@@ -740,7 +743,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Pizza Flatbread de ${mainIngredient}`,
         description: `Flatbread gourmet con ${ingredients}`,
-        ingredients: ['2 panes flatbread o pan pita grande', ...ingredientList.map(i => `1/2 taza de ${i}, cortado fino`), '1 taza de queso mozzarella rallado', '1/2 taza de salsa marinara o salsa de tomate', '2 cdas de aceite de oliva extra virgen', '1 cdta de hierbas italianas secas (orégano, albahaca)', 'Hojuelas de chile rojo (opcional)', 'Hojas de albahaca fresca'],
+        ingredients: ['2 flatbreads', ...ingredientList.map(i => `100g ${i}`), '200g mozzarella', '125ml salsa marinara', '30ml aceite oliva', '5ml hierbas italianas', 'Chile', 'Albahaca'],
         instructions: [
           'Precalienta tu horno a 425°F (220°C). Coloca una rejilla del horno en la posición más alta - esto asegura que la parte superior se dore bien. Deja que el horno se caliente completamente durante al menos 10 minutos.',
           'Prepara una bandeja para hornear grande cubriéndola con papel pergamino. Esto evita que los flatbreads se peguen y facilita la limpieza.',
@@ -766,7 +769,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Sauté Rapide de ${mainIngredient}`,
         description: `Un sauté asiatique rapide avec ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 tasse de ${i}`), '2 c. à soupe de sauce soja', '1 c. à soupe d\'huile de sésame', 'Ail, gingembre'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '30ml sauce soja', '15ml huile sésame', 'Ail', 'Gingembre'],
         instructions: ['Chauffer le wok à feu vif', `Faire sauter ${mainIngredient} 3-4 minutes`, 'Ajouter légumes et sauce', 'Mélanger 2 minutes et servir'],
         prepTime: '15 min',
         servings: 2
@@ -774,7 +777,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Casserole de ${mainIngredient} au Four`,
         description: `Casserole réconfortante avec ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tasses de ${i}`), '1 tasse de fromage', '1/2 tasse de crème', 'Herbes'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), '200g fromage', '125ml crème', 'Herbes'],
         instructions: ['Préchauffer le four à 190°C', 'Disposer les ingrédients en couches', 'Ajouter crème et fromage', 'Cuire 35 minutes'],
         prepTime: '45 min',
         servings: 4
@@ -782,7 +785,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Soupe Copieuse de ${mainIngredient}`,
         description: `Soupe réconfortante avec ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 tasse de ${i}`), '4 tasses de bouillon', '1 oignon', 'Assaisonnements'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '1L bouillon', '1 oignon', 'Assaisonnements'],
         instructions: ['Faire revenir l\'oignon', 'Ajouter ingrédients et bouillon', 'Mijoter 20 minutes', 'Assaisonner et servir'],
         prepTime: '30 min',
         servings: 4
@@ -798,7 +801,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Salade Méditerranéenne de ${mainIngredient}`,
         description: `Salade fraîche avec ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tasses de ${i}`), 'Laitue', 'Fromage feta', 'Olives', 'Vinaigrette au citron'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Laitue', '100g fromage feta', 'Olives', 'Vinaigrette citron'],
         instructions: ['Hacher tous les ingrédients', 'Mélanger dans un grand bol', 'Ajouter la vinaigrette', 'Garnir de feta et servir'],
         prepTime: '15 min',
         servings: 3
@@ -806,7 +809,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Pâtes Primavera au ${mainIngredient}`,
         description: `Pâtes italiennes avec ${ingredients}`,
-        ingredients: ['500g de pâtes', ...ingredientList.map(i => `1 tasse de ${i}`), 'Parmesan', 'Huile d\'olive', 'Ail'],
+        ingredients: ['500g pâtes', ...ingredientList.map(i => `200g ${i}`), '50g Parmesan', '30ml huile olive', '2 gousses ail'],
         instructions: ['Cuire les pâtes al dente', 'Faire revenir les légumes', 'Mélanger avec les pâtes', 'Garnir de parmesan'],
         prepTime: '25 min',
         servings: 4
@@ -814,7 +817,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Curry Indien au ${mainIngredient}`,
         description: `Curry épicé avec ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tasses de ${i}`), 'Pâte de curry', 'Lait de coco', 'Riz', 'Épices'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Pâte curry', '400ml lait coco', '300g riz', 'Épices'],
         instructions: ['Torréfier les épices', 'Ajouter pâte de curry et lait de coco', 'Mijoter 20 min', 'Servir avec du riz'],
         prepTime: '40 min',
         servings: 4
@@ -830,7 +833,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Bol de Riz Asiatique au ${mainIngredient}`,
         description: `Bol santé avec ${ingredients}`,
-        ingredients: ['2 tasses de riz', ...ingredientList.map(i => `1 tasse de ${i}`), 'Sauce soja', 'Graines de sésame', 'Légumes'],
+        ingredients: ['400g riz', ...ingredientList.map(i => `200g ${i}`), '30ml sauce soja', 'Graines sésame', 'Légumes'],
         instructions: ['Cuire le riz', 'Préparer les garnitures', 'Disposer en couches', 'Arroser de sauce et graines'],
         prepTime: '30 min',
         servings: 2
@@ -838,7 +841,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Pizza Flatbread au ${mainIngredient}`,
         description: `Flatbread gourmet avec ${ingredients}`,
-        ingredients: ['2 flatbreads', ...ingredientList.map(i => `1/2 tasse de ${i}`), 'Mozzarella', 'Huile d\'olive', 'Herbes'],
+        ingredients: ['2 flatbreads', ...ingredientList.map(i => `100g ${i}`), '200g Mozzarella', '30ml huile olive', 'Herbes'],
         instructions: ['Préchauffer le four à 220°C', 'Garnir les flatbreads', 'Cuire 12-15 minutes', 'Trancher et servir chaud'],
         prepTime: '25 min',
         servings: 2
@@ -851,7 +854,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Schnelles ${mainIngredient} Pfannengericht`,
         description: `Ein schnelles asiatisches Pfannengericht mit ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 Tasse ${i}`), '2 EL Sojasoße', '1 EL Sesamöl', 'Knoblauch, Ingwer'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '30ml Sojasoße', '15ml Sesamöl', 'Knoblauch', 'Ingwer'],
         instructions: ['Wok stark erhitzen', `${mainIngredient} 3-4 Minuten anbraten`, 'Gemüse und Soße hinzufügen', '2 Minuten schwenken und servieren'],
         prepTime: '15 Min',
         servings: 2
@@ -859,7 +862,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `${mainIngredient} Auflauf`,
         description: `Herzhafter Auflauf mit ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 Tassen ${i}`), '1 Tasse Käse', '1/2 Tasse Sahne', 'Kräuter'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), '200g Käse', '125ml Sahne', 'Kräuter'],
         instructions: ['Ofen auf 190°C vorheizen', 'Zutaten schichten', 'Sahne und Käse hinzufügen', '35 Minuten backen'],
         prepTime: '45 Min',
         servings: 4
@@ -867,7 +870,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Herzhafte ${mainIngredient} Suppe`,
         description: `Wärmende Suppe mit ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 Tasse ${i}`), '4 Tassen Brühe', '1 Zwiebel', 'Gewürze'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '1L Brühe', '1 Zwiebel', 'Gewürze'],
         instructions: ['Zwiebel anschwitzen', 'Zutaten und Brühe hinzufügen', '20 Minuten köcheln', 'Würzen und servieren'],
         prepTime: '30 Min',
         servings: 4
@@ -883,7 +886,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Mediterraner ${mainIngredient} Salat`,
         description: `Frischer Salat mit ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 Tassen ${i}`), 'Salat', 'Feta-Käse', 'Oliven', 'Zitronen-Dressing'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Salat', '100g Feta-Käse', 'Oliven', 'Zitronen-Dressing'],
         instructions: ['Alle Zutaten hacken', 'In großer Schüssel mischen', 'Dressing hinzufügen', 'Mit Feta garnieren'],
         prepTime: '15 Min',
         servings: 3
@@ -891,7 +894,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `${mainIngredient} Pasta Primavera`,
         description: `Italienische Pasta mit ${ingredients}`,
-        ingredients: ['500g Pasta', ...ingredientList.map(i => `1 Tasse ${i}`), 'Parmesan', 'Olivenöl', 'Knoblauch'],
+        ingredients: ['500g Pasta', ...ingredientList.map(i => `200g ${i}`), '50g Parmesan', '30ml Olivenöl', '2 Knoblauch'],
         instructions: ['Pasta al dente kochen', 'Gemüse anbraten', 'Mit Pasta vermengen', 'Mit Parmesan bestreuen'],
         prepTime: '25 Min',
         servings: 4
@@ -899,7 +902,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Indisches ${mainIngredient} Curry`,
         description: `Würziges Curry mit ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 Tassen ${i}`), 'Currypaste', 'Kokosmilch', 'Reis', 'Gewürze'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Currypaste', '400ml Kokosmilch', '300g Reis', 'Gewürze'],
         instructions: ['Gewürze rösten', 'Currypaste und Kokosmilch hinzufügen', '20 Min köcheln', 'Mit Reis servieren'],
         prepTime: '40 Min',
         servings: 4
@@ -915,7 +918,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Asiatische ${mainIngredient} Reisschale`,
         description: `Gesunde Schale mit ${ingredients}`,
-        ingredients: ['2 Tassen Reis', ...ingredientList.map(i => `1 Tasse ${i}`), 'Sojasoße', 'Sesam', 'Gemüse'],
+        ingredients: ['400g Reis', ...ingredientList.map(i => `200g ${i}`), '30ml Sojasoße', 'Sesam', 'Gemüse'],
         instructions: ['Reis kochen', 'Toppings vorbereiten', 'In Schale schichten', 'Mit Soße und Sesam beträufeln'],
         prepTime: '30 Min',
         servings: 2
@@ -923,7 +926,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `${mainIngredient} Flatbread Pizza`,
         description: `Gourmet-Flatbread mit ${ingredients}`,
-        ingredients: ['2 Flatbreads', ...ingredientList.map(i => `1/2 Tasse ${i}`), 'Mozzarella', 'Olivenöl', 'Kräuter'],
+        ingredients: ['2 Flatbreads', ...ingredientList.map(i => `100g ${i}`), '200g Mozzarella', '30ml Olivenöl', 'Kräuter'],
         instructions: ['Ofen auf 220°C vorheizen', 'Flatbreads belegen', '12-15 Minuten backen', 'Schneiden und heiß servieren'],
         prepTime: '25 Min',
         servings: 2
@@ -936,7 +939,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Saltato Veloce di ${mainIngredient}`,
         description: `Un saltato asiatico veloce con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 tazza di ${i}`), '2 cucchiai di salsa di soia', '1 cucchiaio di olio di sesamo', 'Aglio, zenzero'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '30ml salsa soia', '15ml olio sesamo', 'Aglio', 'Zenzero'],
         instructions: ['Scaldare il wok a fuoco alto', `Saltare ${mainIngredient} 3-4 minuti`, 'Aggiungere verdure e salsa', 'Mescolare 2 minuti e servire'],
         prepTime: '15 min',
         servings: 2
@@ -944,7 +947,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Casseruola di ${mainIngredient} al Forno`,
         description: `Casseruola confortante con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tazze di ${i}`), '1 tazza di formaggio', '1/2 tazza di panna', 'Erbe'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), '200g formaggio', '125ml panna', 'Erbe'],
         instructions: ['Preriscaldare il forno a 190°C', 'Disporre gli ingredienti a strati', 'Aggiungere panna e formaggio', 'Cuocere 35 minuti'],
         prepTime: '45 min',
         servings: 4
@@ -952,7 +955,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Zuppa Abbondante di ${mainIngredient}`,
         description: `Zuppa calda con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `1 tazza di ${i}`), '4 tazze di brodo', '1 cipolla', 'Condimenti'],
+        ingredients: [...ingredientList.map(i => `200g ${i}`), '1L brodo', '1 cipolla', 'Condimenti'],
         instructions: ['Rosolare la cipolla', 'Aggiungere ingredienti e brodo', 'Cuocere a fuoco lento 20 minuti', 'Condire e servire'],
         prepTime: '30 min',
         servings: 4
@@ -968,7 +971,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Insalata Mediterranea di ${mainIngredient}`,
         description: `Insalata fresca con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tazze di ${i}`), 'Lattuga', 'Formaggio feta', 'Olive', 'Condimento al limone'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Lattuga', '100g formaggio feta', 'Olive', 'Condimento limone'],
         instructions: ['Tritare tutti gli ingredienti', 'Mescolare in una ciotola grande', 'Aggiungere il condimento', 'Guarnire con feta e servire'],
         prepTime: '15 min',
         servings: 3
@@ -976,7 +979,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Pasta Primavera con ${mainIngredient}`,
         description: `Pasta italiana con ${ingredients}`,
-        ingredients: ['500g di pasta', ...ingredientList.map(i => `1 tazza di ${i}`), 'Parmigiano', 'Olio d\'oliva', 'Aglio'],
+        ingredients: ['500g pasta', ...ingredientList.map(i => `200g ${i}`), '50g Parmigiano', '30ml olio oliva', '2 spicchi aglio'],
         instructions: ['Cuocere la pasta al dente', 'Saltare le verdure', 'Unire alla pasta', 'Guarnire con parmigiano'],
         prepTime: '25 min',
         servings: 4
@@ -984,7 +987,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Curry Indiano di ${mainIngredient}`,
         description: `Curry piccante con ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `2 tazze di ${i}`), 'Pasta di curry', 'Latte di cocco', 'Riso', 'Spezie'],
+        ingredients: [...ingredientList.map(i => `400g ${i}`), 'Pasta curry', '400ml latte cocco', '300g riso', 'Spezie'],
         instructions: ['Tostare le spezie', 'Aggiungere pasta di curry e latte di cocco', 'Cuocere 20 min', 'Servire con riso'],
         prepTime: '40 min',
         servings: 4
@@ -1000,7 +1003,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Bowl di Riso Asiatico con ${mainIngredient}`,
         description: `Bowl salutare con ${ingredients}`,
-        ingredients: ['2 tazze di riso', ...ingredientList.map(i => `1 tazza di ${i}`), 'Salsa di soia', 'Semi di sesamo', 'Verdure'],
+        ingredients: ['400g riso', ...ingredientList.map(i => `200g ${i}`), '30ml salsa soia', 'Semi sesamo', 'Verdure'],
         instructions: ['Cuocere il riso', 'Preparare i condimenti', 'Disporre a strati nella bowl', 'Condire con salsa e semi'],
         prepTime: '30 min',
         servings: 2
@@ -1008,7 +1011,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
       {
         title: `Pizza Flatbread con ${mainIngredient}`,
         description: `Flatbread gourmet con ${ingredients}`,
-        ingredients: ['2 flatbreads', ...ingredientList.map(i => `1/2 tazza di ${i}`), 'Mozzarella', 'Olio d\'oliva', 'Erbe'],
+        ingredients: ['2 flatbreads', ...ingredientList.map(i => `100g ${i}`), '200g Mozzarella', '30ml olio oliva', 'Erbe'],
         instructions: ['Preriscaldare il forno a 220°C', 'Condire i flatbreads', 'Cuocere 12-15 minuti', 'Tagliare e servire caldo'],
         prepTime: '25 min',
         servings: 2
