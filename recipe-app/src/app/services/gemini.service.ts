@@ -100,6 +100,20 @@ Important rules:
 - Include cooking methods like: stir-fry, baked, grilled, soup, salad, pasta, rice bowl, curry, etc.
 - Include real measurements and cooking times
 
+INGREDIENT FORMATTING RULES (CRITICAL):
+- Ingredient names: ONLY base name + MAXIMUM 1 adjective (e.g., "tomate", "pollo troceado", "queso rallado")
+- NEVER use long phrases like "fresh ripe tomatoes" or "boneless chicken breast pieces"
+- Use STANDARDIZED UNITS by category:
+  * Vegetables/Fruits: grams (100g, 200g, 250g, 500g) or pieces (1, 2, 3)
+  * Meats/Fish: grams (200g, 300g, 400g, 500g, 750g, 1kg)
+  * Liquids: milliliters (100ml, 200ml, 250ml, 500ml, 1L)
+  * Spices/Seasonings: teaspoons (1 tsp, 2 tsp) or tablespoons (1 tbsp, 2 tbsp)
+  * Eggs/Units: pieces (1, 2, 3, 4)
+  * Oil/Fat: tablespoons (1 tbsp, 2 tbsp, 3 tbsp)
+  * Pasta/Rice/Grains: grams (100g, 200g, 250g, 300g, 500g)
+- NEVER use: lbs, oz, cups, inches, or any imperial units
+- Format: "quantity unit ingredient" (e.g., "200g pollo", "2 huevos", "1 tsp sal")
+
 NUTRITIONAL INFORMATION REQUIREMENTS:
 - Add "tags" array with 2-4 classification tags ALWAYS IN ENGLISH based on the recipe characteristics
 - Possible tag categories (use these exact English terms): High Protein, Low Calorie, Low Carb, Vegetarian, Vegan, Gluten Free, Dairy Free, Spicy, Quick, Healthy, No Salt, Keto
@@ -129,7 +143,7 @@ Return ONLY a JSON array with 10 recipes, no other text, in this exact format:
   {
     "title": "Very Specific Recipe Name with Cuisine Style",
     "description": "One appetizing sentence description",
-    "ingredients": ["2 lbs chicken breast, cut into 1-inch cubes", "3 cups basmati rice", "exact amounts with units and prep notes"],
+    "ingredients": ["400g pollo troceado", "250g arroz", "2 huevos", "1 tbsp aceite de oliva"],
     "instructions": [
       "Preheat your oven to 375°F (190°C). Place the rack in the middle position. This ensures even cooking throughout the dish.",
       "In a large skillet, heat 2 tablespoons of olive oil over medium-high heat for about 2 minutes until the oil shimmers but doesn't smoke. This is the right temperature for searing.",
