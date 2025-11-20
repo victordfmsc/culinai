@@ -33,7 +33,7 @@ export class GeminiService {
     if (apiKey && apiKey.startsWith('AIza')) {
       try {
         this.genAI = new GoogleGenerativeAI(apiKey);
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
         console.log('✅ Gemini model ready!');
       } catch (error) {
         console.error('Failed to init Gemini:', error);
@@ -46,29 +46,83 @@ export class GeminiService {
   /**
    * POST-PROCESSING: Force correct ingredient format
    * Eliminates invalid formats and converts units to metric standard
+   * Supports both English and Spanish
    */
   private cleanIngredient(ingredient: string): string {
     let clean = ingredient.trim();
     
-    // Remove the "×" character that Gemini adds (e.g., "2× cup" → "2 cup")
-    clean = clean.replace(/×\s*/g, '');
+    // STEP 1: Remove the "×" character that Gemini adds (e.g., "2× cup" → "2 cup")
+    clean = clean.replace(/×/g, '');
     
-    // Remove forbidden adjectives and descriptions
-    const forbiddenWords = ['fresh', 'ripe', 'chopped', 'diced', 'minced', 'sliced', 
-                            'cut', 'peeled', 'boneless', 'skinless', 'trimmed',
-                            'medium', 'large', 'small', 'finely', 'coarsely', 
-                            'into', 'pieces', 'inch', 'inches'];
+    // STEP 2: Handle truncated ingredients (e.g., "1 taza de" → "1 taza")
+    clean = clean.replace(/\s+de\s*$/i, '');
+    clean = clean.replace(/\s+of\s*$/i, '');
+    
+    // STEP 3: Remove forbidden adjectives and descriptions (English & Spanish)
+    const forbiddenWords = [
+      // English
+      'fresh', 'ripe', 'chopped', 'diced', 'minced', 'sliced', 
+      'cut', 'peeled', 'boneless', 'skinless', 'trimmed',
+      'medium', 'large', 'small', 'finely', 'coarsely', 
+      'into', 'pieces', 'inch', 'inches',
+      // Spanish
+      'fresco', 'fresca', 'maduro', 'madura', 'picado', 'picada',
+      'cortado', 'cortada', 'pelado', 'pelada', 'troceado', 'troceada',
+      'mediano', 'mediana', 'grande', 'pequeño', 'pequeña',
+      'finamente', 'en', 'trozos', 'pedazos', 'pulgada', 'pulgadas'
+    ];
     
     forbiddenWords.forEach(word => {
       const regex = new RegExp(`\\b${word}\\b,?\\s*`, 'gi');
       clean = clean.replace(regex, ' ');
     });
     
-    // Convert cups to metric
-    // Liquid cups (water, milk, broth, oil) → 250ml
-    const liquidKeywords = ['water', 'milk', 'broth', 'stock', 'juice', 'oil', 'cream', 'wine', 'vinegar', 'sauce'];
+    // STEP 4: Detect if ingredient is liquid (for cup/taza conversions)
+    const liquidKeywords = [
+      // English
+      'water', 'milk', 'broth', 'stock', 'juice', 'oil', 'cream', 'wine', 'vinegar', 'sauce',
+      // Spanish
+      'agua', 'leche', 'caldo', 'jugo', 'zumo', 'aceite', 'crema', 'nata', 'vino', 'vinagre', 'salsa'
+    ];
     const isLiquid = liquidKeywords.some(keyword => clean.toLowerCase().includes(keyword));
     
+    // STEP 5: Convert SPANISH units to metric
+    
+    // Taza/Tazas → ml or g
+    clean = clean.replace(/(\d+(?:\/\d+)?)\s*tazas?\b/gi, (match, num) => {
+      const quantity = this.parseFraction(num);
+      if (isLiquid) {
+        return `${Math.round(quantity * 250)}ml`;
+      } else {
+        return `${Math.round(quantity * 200)}g`;
+      }
+    });
+    
+    // Cucharada/Cucharadas → ml (1 tbsp = 15ml)
+    clean = clean.replace(/(\d+(?:\/\d+)?)\s*cucharadas?\b/gi, (match, num) => {
+      const quantity = this.parseFraction(num);
+      return `${Math.round(quantity * 15)}ml`;
+    });
+    
+    // Cucharadita/Cucharaditas → ml (1 tsp = 5ml)
+    clean = clean.replace(/(\d+(?:\/\d+)?)\s*cucharaditas?\b/gi, (match, num) => {
+      const quantity = this.parseFraction(num);
+      return `${Math.round(quantity * 5)}ml`;
+    });
+    
+    // Libra/Libras → g
+    clean = clean.replace(/(\d+(?:\.\d+)?)\s*libras?\b/gi, (match, num) => {
+      return `${Math.round(parseFloat(num) * 450)}g`;
+    });
+    
+    // Onza/Onzas → g
+    clean = clean.replace(/(\d+(?:\.\d+)?)\s*onzas?\b/gi, (match, num) => {
+      return `${Math.round(parseFloat(num) * 30)}g`;
+    });
+    
+    // STEP 6: Convert ENGLISH units to metric
+    
+    // Cups → ml or g
     clean = clean.replace(/(\d+(?:\/\d+)?)\s*cups?\b/gi, (match, num) => {
       const quantity = this.parseFraction(num);
       if (isLiquid) {
@@ -78,33 +132,31 @@ export class GeminiService {
       }
     });
     
-    // Convert pounds (lbs) to grams
+    // Pounds (lbs) → g
     clean = clean.replace(/(\d+(?:\.\d+)?)\s*(?:lbs?|pounds?)\b/gi, (match, num) => {
       return `${Math.round(parseFloat(num) * 450)}g`;
     });
     
-    // Convert ounces (oz) to grams
+    // Ounces (oz) → g
     clean = clean.replace(/(\d+(?:\.\d+)?)\s*oz\b/gi, (match, num) => {
       return `${Math.round(parseFloat(num) * 30)}g`;
     });
     
-    // Normalize spaces and remove extra commas
+    // STEP 7: Normalize spaces and remove extra commas
     clean = clean.replace(/\s+/g, ' ').replace(/,+/g, ',').trim();
     clean = clean.replace(/,\s*$/, ''); // Remove trailing comma
     
-    // Simplify to maximum 2 words for ingredient name
-    // Extract quantity + unit first, then limit the rest
+    // STEP 8: Simplify to maximum 2-3 words for ingredient name
     const parts = clean.split(' ');
     if (parts.length > 4) {
-      // Keep first 2-3 parts (quantity + unit or quantity + unit + word) and last 1-2 words
-      const quantity = parts[0];
-      const hasUnit = /\d+(?:g|kg|ml|L|tsp|tbsp)$/.test(parts[1]);
+      // Keep first 2-3 parts (quantity + unit or quantity + unit + word)
+      const hasUnit = parts[1] && /\d+(?:g|kg|ml|L|tsp|tbsp)$/.test(parts[1]);
       
       if (hasUnit) {
-        // Format: "200g chicken breast" → "200g chicken"
+        // Format: "200g pollo troceado sin piel" → "200g pollo"
         clean = `${parts[0]} ${parts[1]} ${parts[2] || ''}`.trim();
       } else {
-        // Format: "2 large onions" → "2 onions"
+        // Format: "2 cebollas grandes rojas" → "2 cebollas"
         clean = `${parts[0]} ${parts[parts.length - 1]}`;
       }
     }
