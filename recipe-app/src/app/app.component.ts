@@ -1372,26 +1372,35 @@ export class AppComponent {
     for (const newItemText of newItems) {
       const parsed = this.parseIngredient(newItemText);
 
-      // Use base ingredient only if we have a numeric quantity, otherwise use full text
-      const displayText = parsed.hasNumericQuantity
-        ? parsed.baseIngredient
-        : parsed.ingredient;
+      // Normalize ingredient name for comparison (remove plurals, lowercase, etc.)
+      const normalizedName = this.normalizeIngredientName(parsed.baseIngredient);
 
-      // Try to find existing item with same ingredient name
+      // Try to find existing item with same normalized ingredient name
       const existingIndex = currentList.findIndex((item) => {
-        return item.text.toLowerCase() === displayText.toLowerCase();
+        const existingNormalized = this.normalizeIngredientName(item.text);
+        return existingNormalized === normalizedName;
       });
 
       if (existingIndex >= 0 && parsed.hasNumericQuantity) {
-        // Item exists and has numeric quantity - sum quantities
+        // Item exists and has numeric quantity - sum quantities with unit conversion if needed
         const existingItem = currentList[existingIndex];
-        const newTotal = (existingItem.quantity || 1) + (parsed.quantity || 1);
+        const existingQty = existingItem.quantity || 1;
+        const existingUnit = existingItem.unit || '';
+        const newQty = parsed.quantity || 1;
+        const newUnit = parsed.unit || '';
 
-        // Update with combined quantity, keep the unit
+        // Convert and sum quantities
+        const combined = this.combineQuantities(
+          existingQty,
+          existingUnit,
+          newQty,
+          newUnit
+        );
+
         currentList[existingIndex] = {
           ...existingItem,
-          quantity: newTotal,
-          unit: parsed.unit || existingItem.unit,
+          quantity: combined.quantity,
+          unit: combined.unit,
         };
       } else if (existingIndex >= 0) {
         // Item exists but no numeric quantity - just skip to avoid duplicates
@@ -1399,7 +1408,7 @@ export class AppComponent {
       } else {
         // New item - add to list
         currentList.push({
-          text: displayText,
+          text: parsed.baseIngredient,
           checked: false,
           quantity: parsed.hasNumericQuantity
             ? parsed.quantity || 1
@@ -1412,6 +1421,88 @@ export class AppComponent {
     this.shoppingList.set(currentList);
   }
 
+  private normalizeIngredientName(name: string): string {
+    let normalized = name.toLowerCase().trim();
+    
+    // Remove common plural endings in multiple languages
+    const pluralPatterns = [
+      { pattern: /s$/, singular: '' },           // English/Spanish: tomatoes -> tomate
+      { pattern: /es$/, singular: '' },          // Spanish: tomates -> tomat
+      { pattern: /en$/, singular: '' },          // German: Tomaten -> Tomat
+      { pattern: /i$/, singular: 'o' },          // Italian: pomodori -> pomodoro
+    ];
+
+    for (const { pattern, singular } of pluralPatterns) {
+      if (pattern.test(normalized)) {
+        const candidate = normalized.replace(pattern, singular);
+        // Only apply if it results in a reasonable length (avoid over-trimming)
+        if (candidate.length >= 3) {
+          normalized = candidate;
+          break;
+        }
+      }
+    }
+
+    return normalized;
+  }
+
+  private combineQuantities(
+    qty1: number,
+    unit1: string,
+    qty2: number,
+    unit2: string
+  ): { quantity: number; unit: string } {
+    const u1 = unit1.toLowerCase();
+    const u2 = unit2.toLowerCase();
+
+    // If units are the same, just add
+    if (u1 === u2) {
+      return { quantity: qty1 + qty2, unit: unit1 };
+    }
+
+    // Convert grams/kg
+    if ((u1 === 'g' || u1 === 'kg') && (u2 === 'g' || u2 === 'kg')) {
+      const grams1 = u1 === 'kg' ? qty1 * 1000 : qty1;
+      const grams2 = u2 === 'kg' ? qty2 * 1000 : qty2;
+      const totalGrams = grams1 + grams2;
+      
+      // Return in kg if >= 1000g, otherwise in g
+      if (totalGrams >= 1000) {
+        return { quantity: totalGrams / 1000, unit: 'kg' };
+      }
+      return { quantity: totalGrams, unit: 'g' };
+    }
+
+    // Convert ml/L
+    if ((u1 === 'ml' || u1 === 'l') && (u2 === 'ml' || u2 === 'l')) {
+      const ml1 = u1 === 'l' ? qty1 * 1000 : qty1;
+      const ml2 = u2 === 'l' ? qty2 * 1000 : qty2;
+      const totalMl = ml1 + ml2;
+      
+      // Return in L if >= 1000ml, otherwise in ml
+      if (totalMl >= 1000) {
+        return { quantity: totalMl / 1000, unit: 'L' };
+      }
+      return { quantity: totalMl, unit: 'ml' };
+    }
+
+    // Convert tsp/tbsp (1 tbsp = 3 tsp)
+    if ((u1 === 'tsp' || u1 === 'tbsp') && (u2 === 'tsp' || u2 === 'tbsp')) {
+      const tsp1 = u1 === 'tbsp' ? qty1 * 3 : qty1;
+      const tsp2 = u2 === 'tbsp' ? qty2 * 3 : qty2;
+      const totalTsp = tsp1 + tsp2;
+      
+      // Return in tbsp if >= 3 tsp, otherwise in tsp
+      if (totalTsp >= 3) {
+        return { quantity: totalTsp / 3, unit: 'tbsp' };
+      }
+      return { quantity: totalTsp, unit: 'tsp' };
+    }
+
+    // Units don't match and can't be converted - keep first unit and just add quantities
+    return { quantity: qty1 + qty2, unit: unit1 };
+  }
+
   private parseIngredient(text: string): {
     quantity: number | null;
     unit: string | null;
@@ -1419,6 +1510,125 @@ export class AppComponent {
     baseIngredient: string;
     hasNumericQuantity: boolean;
   } {
+    // Simplified parser optimized for standardized format: "quantity unit ingredient"
+    // Example: "200g pollo troceado", "2 huevos", "1 tbsp aceite"
+    
+    let remaining = text.trim();
+    let quantity: number | null = null;
+    let unit: string | null = null;
+    let baseIngredient = remaining;
+
+    // Standard units to recognize (from the new standardized format)
+    const standardUnits = [
+      'g', 'kg', 'ml', 'l', 'tsp', 'tbsp',
+      // Also support common variations
+      'gram', 'grams', 'gramo', 'gramos',
+      'kilogram', 'kilograms', 'kilo', 'kilos',
+      'milliliter', 'milliliters', 
+      'liter', 'liters', 'litro', 'litros',
+      'teaspoon', 'teaspoons', 'tablespoon', 'tablespoons',
+      'cda', 'cdas', 'cdta', 'cdtas', // Spanish abbreviations
+    ];
+
+    // Try to match: "number unit ingredient" (e.g., "200g pollo")
+    const withUnitRegex = /^(\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)\s+(.+)$/i;
+    const withUnitMatch = remaining.match(withUnitRegex);
+
+    if (withUnitMatch) {
+      const possibleQty = withUnitMatch[1];
+      const possibleUnit = withUnitMatch[2];
+      const rest = withUnitMatch[3];
+
+      // Check if the second group is a recognized unit
+      if (standardUnits.some(u => u.toLowerCase() === possibleUnit.toLowerCase())) {
+        quantity = parseFloat(possibleQty.replace(',', '.'));
+        unit = this.normalizeUnit(possibleUnit);
+        baseIngredient = rest.trim();
+      } else {
+        // Not a unit, might be part of ingredient name
+        // Try "number ingredient" (e.g., "2 huevos")
+        const justNumberRegex = /^(\d+(?:[.,]\d+)?)\s+(.+)$/i;
+        const justNumberMatch = remaining.match(justNumberRegex);
+        if (justNumberMatch) {
+          quantity = parseFloat(justNumberMatch[1].replace(',', '.'));
+          unit = null;
+          baseIngredient = justNumberMatch[2].trim();
+        }
+      }
+    } else {
+      // Try just "number ingredient" (e.g., "3 tomates")
+      const justNumberRegex = /^(\d+(?:[.,]\d+)?)\s+(.+)$/i;
+      const justNumberMatch = remaining.match(justNumberRegex);
+      if (justNumberMatch) {
+        quantity = parseFloat(justNumberMatch[1].replace(',', '.'));
+        unit = null;
+        baseIngredient = justNumberMatch[2].trim();
+      }
+    }
+
+    // Clean up base ingredient: remove descriptors after commas
+    baseIngredient = baseIngredient.split(',')[0].trim();
+
+    // Remove common descriptive words (keep it simple, just the essential ones)
+    const descriptors = [
+      'troceado', 'rallado', 'picado', 'cortado',
+      'chopped', 'diced', 'sliced', 'shredded', 'grated',
+      'haché', 'émincé', 'râpé',
+      'gehackt', 'gewürfelt', 'gerieben',
+      'tritato', 'grattugiato',
+    ];
+
+    for (const descriptor of descriptors) {
+      // Remove descriptor if it appears as a separate word
+      const regex = new RegExp(`\\s+${descriptor}\\b`, 'i');
+      baseIngredient = baseIngredient.replace(regex, '');
+    }
+
+    // Remove parenthetical descriptions
+    baseIngredient = baseIngredient.replace(/\s*\([^)]*\)/g, '').trim();
+
+    // Limit to first 2-3 words max (ingredient name + max 1 adjective)
+    const words = baseIngredient.split(/\s+/);
+    if (words.length > 3) {
+      baseIngredient = words.slice(0, 2).join(' ');
+    }
+
+    baseIngredient = baseIngredient.trim();
+
+    // Determine if we have a meaningful numeric quantity
+    const hasNumericQuantity = quantity !== null && quantity >= 0.1;
+
+    return {
+      quantity,
+      unit,
+      ingredient: remaining,
+      baseIngredient: baseIngredient,
+      hasNumericQuantity: hasNumericQuantity,
+    };
+  }
+
+  private normalizeUnit(unit: string): string {
+    const u = unit.toLowerCase();
+    
+    // Normalize to standard abbreviations
+    if (u === 'gram' || u === 'grams' || u === 'gramo' || u === 'gramos') return 'g';
+    if (u === 'kilogram' || u === 'kilograms' || u === 'kilo' || u === 'kilos') return 'kg';
+    if (u === 'milliliter' || u === 'milliliters') return 'ml';
+    if (u === 'liter' || u === 'liters' || u === 'litro' || u === 'litros') return 'L';
+    if (u === 'teaspoon' || u === 'teaspoons' || u === 'cdta' || u === 'cdtas') return 'tsp';
+    if (u === 'tablespoon' || u === 'tablespoons' || u === 'cda' || u === 'cdas') return 'tbsp';
+    
+    return unit; // Return original if no normalization needed
+  }
+
+  private parseIngredientOLD(text: string): {
+    quantity: number | null;
+    unit: string | null;
+    ingredient: string;
+    baseIngredient: string;
+    hasNumericQuantity: boolean;
+  } {
+    // OLD VERSION - KEPT FOR REFERENCE ONLY, NOT USED
     // Ingredient categories (multilingual)
     const proteinKeywords = [
       // English
