@@ -48,6 +48,45 @@ A dedicated, localized Privacy Policy page is accessible from the Profile sectio
 
 A first-time user onboarding flow introduces core features before authentication. It includes a language selector (5 options), followed by 4 informational slides covering app introduction, fridge management, planning & organization, and gamification. Onboarding state is persisted in localStorage.
 
+### Weekly Meal Planner with Drag & Drop (MealPlanV2)
+
+Implemented on 2025-11-21, the new meal planner provides an intuitive drag-and-drop interface for organizing weekly meals:
+
+**Features:**
+- **7x3 Grid Layout**: Visual grid showing 7 days (Monday-Sunday) × 3 meal types (Breakfast, Lunch, Dinner)
+- **HTML5 Drag & Drop**: Users can drag recipes from their available recipes directly into specific meal slots
+- **Quick Add Modal**: Click on any empty slot to open a searchable modal with all available recipes
+- **Inline Servings Adjustment**: Each planned meal includes +/- buttons to adjust servings (1-12) in real-time
+- **Visual Feedback**: Smooth animations, drag-over states, and color-coded drop zones
+- **Responsive Design**: Grid adapts to mobile, tablet, and desktop screens
+
+**Data Model (MealPlanV2):**
+```typescript
+interface PlannedMeal {
+  recipeName: string;
+  servings: number;
+  recipeData?: Recipe;
+}
+
+interface DayMeals {
+  breakfast: PlannedMeal | null;
+  lunch: PlannedMeal | null;
+  dinner: PlannedMeal | null;
+}
+
+interface MealPlanV2 {
+  monday: DayMeals;
+  tuesday: DayMeals;
+  // ... (all 7 days)
+}
+```
+
+**Backward Compatibility**: The legacy `MealPlan` structure is maintained alongside `MealPlanV2` in `UserData` for gradual migration.
+
+**Translations**: 9 new translation keys added (`meal_breakfast`, `meal_lunch`, `meal_dinner`, `meal_servings`, `meal_drop_here`, `meal_add_recipe`, `meal_search_placeholder`, `meal_select_recipe`, `meal_no_recipes`) in all 5 languages.
+
+**Persistence**: Automatic Firestore sync via Angular effects - any change to `mealPlanV2` triggers database update.
+
 ## Backend Architecture
 
 Firebase serves as the core backend, providing:
