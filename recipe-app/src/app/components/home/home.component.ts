@@ -85,6 +85,10 @@ export class HomeComponent {
     this.mealRemoved.emit({ day, recipeName });
   }
 
+  getMealsForDay(day: string): string[] {
+    return this.mealPlan[day as keyof MealPlan] || [];
+  }
+
   hasMealsInPlan(): boolean {
     return DAYS_OF_WEEK_KEYS.some(day => {
       const dayMeals = this.mealPlan[day as keyof MealPlan];
