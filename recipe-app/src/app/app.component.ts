@@ -1259,59 +1259,12 @@ export class AppComponent {
     });
   }
 
-  onMealPlanV2Changed(updatedPlan: MealPlanV2) {
-    this.mealPlanV2.set(updatedPlan);
-    
-    if (this.guestMode()) return;
-
-    const userData = this.firestoreService.currentUserData();
-    if (userData && userData.achievements) {
-      this.checkAndAwardMealPlanAchievements(userData, updatedPlan);
-    }
+  onMealPlanChanged(updatedPlan: MealPlan) {
+    this.mealPlan.set(updatedPlan);
   }
 
-  onMealRemovedV2(event: { day: string; mealType: MealType }) {
-    console.log('Meal removed:', event);
-  }
-
-  private checkAndAwardMealPlanAchievements(userData: any, plan: MealPlanV2) {
-    const mealCount = this.countMealsInPlanV2(plan);
-    
-    if (mealCount === 1 && userData.achievements.mealPlansCreated === 0) {
-      userData.achievements.mealPlansCreated = 1;
-      const newAchievements = this.gamificationService.checkAchievements(
-        userData.achievements,
-      );
-      
-      for (const achievement of newAchievements) {
-        if (!userData.achievements.unlockedAchievements.includes(achievement.id)) {
-          userData.achievements.unlockedAchievements.push(achievement.id);
-          userData.points += achievement.points;
-          
-          this.notificationService.showAchievementUnlocked(
-            this.translationService.translate(achievement.titleKey),
-            achievement.icon,
-            achievement.points,
-          );
-        }
-      }
-      
-      this.firestoreService.updateUser(userData.uid, {
-        achievements: userData.achievements,
-        points: userData.points,
-      });
-    }
-  }
-
-  private countMealsInPlanV2(plan: MealPlanV2): number {
-    let count = 0;
-    for (const day of DAYS_OF_WEEK_KEYS) {
-      const dayMeals = plan[day];
-      if (dayMeals.breakfast) count++;
-      if (dayMeals.lunch) count++;
-      if (dayMeals.dinner) count++;
-    }
-    return count;
+  onMealRemoved(event: { day: string; recipeName: string }) {
+    this.mealRemoved.next(event);
   }
 
   async onPurchaseSuccess() {

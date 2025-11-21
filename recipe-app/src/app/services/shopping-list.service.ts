@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ShoppingItem, ItemCategory, MealPlanV2, DAYS_OF_WEEK_KEYS } from '../models/user.model';
+import { ShoppingItem, ItemCategory, MealPlan, DAYS_OF_WEEK_KEYS } from '../models/user.model';
 import { Recipe } from './gemini.service';
 
 interface IngredientData {
@@ -14,21 +14,18 @@ interface IngredientData {
 })
 export class ShoppingListService {
   
-  generateFromMealPlan(mealPlan: MealPlanV2, globalMultiplier: number = 1): ShoppingItem[] {
+  generateFromMealPlan(mealPlan: MealPlan, globalMultiplier: number = 1, allRecipes: Recipe[] = []): ShoppingItem[] {
     const ingredientsMap = new Map<string, IngredientData>();
 
     DAYS_OF_WEEK_KEYS.forEach(day => {
-      const dayMeals = mealPlan[day];
+      const dayRecipes = mealPlan[day as keyof MealPlan];
       
-      ['breakfast', 'lunch', 'dinner'].forEach(mealType => {
-        const meal = dayMeals[mealType as keyof typeof dayMeals];
+      dayRecipes.forEach(recipeName => {
+        const recipe = allRecipes.find(r => r.title === recipeName);
         
-        if (meal && meal.recipeData) {
-          const recipe = meal.recipeData as Recipe;
-          const servingsMultiplier = (meal.servings || recipe.servings) / recipe.servings;
-          
+        if (recipe) {
           recipe.ingredients.forEach(ingredient => {
-            this.processIngredient(ingredient, servingsMultiplier * globalMultiplier, ingredientsMap);
+            this.processIngredient(ingredient, globalMultiplier, ingredientsMap);
           });
         }
       });
