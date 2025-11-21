@@ -986,7 +986,8 @@ export class AppComponent {
     try {
       const generatedItems = this.shoppingListService.generateFromMealPlan(
         this.mealPlan(),
-        multiplier
+        multiplier,
+        this.recipes()
       );
 
       const sortedItems = this.shoppingListService.sortByCategory(generatedItems);
@@ -1264,7 +1265,8 @@ export class AppComponent {
   }
 
   onMealRemoved(event: { day: string; recipeName: string }) {
-    this.mealRemoved.next(event);
+    // Meal removed from plan
+    console.log('Meal removed from plan:', event);
   }
 
   async onPurchaseSuccess() {
