@@ -35,12 +35,9 @@ import { ShoppingListService } from "./services/shopping-list.service";
 import { PantryService } from "./services/pantry.service";
 import {
   MealPlan,
-  MealPlanV2,
-  MealType,
   ShoppingItem,
   PantryItem,
   EMPTY_MEAL_PLAN,
-  EMPTY_MEAL_PLAN_V2,
   DAYS_OF_WEEK_KEYS,
   EMPTY_ACHIEVEMENTS,
 } from "./models/user.model";
@@ -139,10 +136,10 @@ type View =
                 [level]="level()"
                 [levelProgress]="levelProgress()"
                 [nextLevelPoints]="pointsForNextLevel()"
-                [mealPlanV2]="mealPlanV2()"
+                [mealPlan]="mealPlan()"
                 [availableRecipes]="recipes()"
-                (mealPlanChanged)="onMealPlanV2Changed($event)"
-                (mealRemoved)="onMealRemovedV2($event)"
+                (mealPlanChanged)="onMealPlanChanged($event)"
+                (mealRemoved)="onMealRemoved($event)"
                 (generateShoppingListRequest)="generateShoppingListFromMealPlan()"
               />
             }
@@ -779,7 +776,6 @@ export class AppComponent {
   levelProgress = computed(() => (this.points() % 500) / 5);
 
   mealPlan = signal<MealPlan>(EMPTY_MEAL_PLAN);
-  mealPlanV2 = signal<MealPlanV2>(EMPTY_MEAL_PLAN_V2);
   shoppingList = signal<ShoppingItem[]>([]);
   pantryItems = signal<PantryItem[]>([]);
 
@@ -808,12 +804,6 @@ export class AppComponent {
         ) {
           this.mealPlan.set(remoteUser.mealPlan);
         }
-        if (remoteUser.mealPlanV2 && 
-          JSON.stringify(this.mealPlanV2()) !==
-          JSON.stringify(remoteUser.mealPlanV2)
-        ) {
-          this.mealPlanV2.set(remoteUser.mealPlanV2);
-        }
         if (
           JSON.stringify(this.shoppingList()) !==
           JSON.stringify(remoteUser.shoppingList)
@@ -834,7 +824,6 @@ export class AppComponent {
       } else if (!isGuest) {
         // Only reset if not in guest mode
         this.mealPlan.set(EMPTY_MEAL_PLAN);
-        this.mealPlanV2.set(EMPTY_MEAL_PLAN_V2);
         this.shoppingList.set([]);
         this.pantryItems.set([]);
         this.subscriptionService.setRecipesGenerated(0);
@@ -854,18 +843,6 @@ export class AppComponent {
       }
     });
 
-    effect(() => {
-      const localPlanV2 = this.mealPlanV2();
-      const remoteUser = untracked(this.firestoreService.currentUserData);
-      if (
-        remoteUser &&
-        JSON.stringify(localPlanV2) !== JSON.stringify(remoteUser.mealPlanV2)
-      ) {
-        this.firestoreService.updateUser(remoteUser.uid, {
-          mealPlanV2: localPlanV2,
-        });
-      }
-    });
 
     effect(() => {
       const localList = this.shoppingList();
@@ -1008,7 +985,7 @@ export class AppComponent {
   async generateShoppingListFromMealPlan(multiplier: number = 1) {
     try {
       const generatedItems = this.shoppingListService.generateFromMealPlan(
-        this.mealPlanV2(),
+        this.mealPlan(),
         multiplier
       );
 

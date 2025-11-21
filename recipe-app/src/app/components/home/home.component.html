@@ -15,7 +15,7 @@
     </div>
   </div>
 
-  <!-- Meal Plan Grid -->
+  <!-- Meal Plan Card -->
   <div class="meal-plan-card">
     <div class="meal-plan-header">
       <h3 class="meal-plan-title">{{ 'home_meal_plan' | translate }}</h3>
@@ -28,61 +28,33 @@
       }
     </div>
     
-    <!-- Grid Header (Days of Week) -->
-    <div class="grid-container">
-      <!-- Empty corner cell for meal type labels -->
-      <div class="grid-header corner-cell"></div>
-      
-      <!-- Day Headers -->
+    <!-- Days List -->
+    <div class="days-container">
       @for (day of daysOfWeek; track day) {
-        <div class="grid-header day-header">
-          {{ 'day_' + day | translate }}
-        </div>
-      }
-      
-      <!-- Grid Rows (Breakfast, Lunch, Dinner) -->
-      @for (mealType of mealTypes; track mealType) {
-        <!-- Meal Type Label -->
-        <div class="grid-header meal-type-label">
-          {{ 'meal_' + mealType | translate }}
-        </div>
-        
-        <!-- Meal Cells for each day -->
-        @for (day of daysOfWeek; track day) {
-          @let meal = getMeal(day, mealType);
+        <div class="day-section">
+          <div class="day-title">{{ 'day_' + day | translate }}</div>
           
-          <div 
-            class="meal-cell"
-            #dropZone
-            [class.has-meal]="meal"
-            (dragover)="onDragOver($event)"
-            (dragenter)="onDragEnter($event, dropZone)"
-            (dragleave)="onDragLeave($event, dropZone)"
-            (drop)="onDrop($event, day, mealType, dropZone)">
-            
-            @if (meal) {
-              <!-- Meal Card -->
-              <div class="meal-card">
-                <button class="remove-btn" (click)="removeMeal($event, day, mealType)">×</button>
-                
-                <div class="meal-name">{{ meal.recipeName }}</div>
-                
-                <!-- Servings Control -->
-                <div class="servings-control">
-                  <button class="servings-btn" (click)="decrementServings($event, day, mealType)">-</button>
-                  <span class="servings-count">{{ meal.servings }} {{ 'meal_servings' | translate }}</span>
-                  <button class="servings-btn" (click)="incrementServings($event, day, mealType)">+</button>
+          <!-- Meals List for the day -->
+          <div class="meals-list">
+            @if (mealPlan[day as keyof typeof mealPlan].length > 0) {
+              @for (meal of mealPlan[day as keyof typeof mealPlan]; track meal) {
+                <div class="meal-item">
+                  <span class="meal-name">{{ meal }}</span>
+                  <button class="remove-meal-btn" (click)="removeMeal($event, day, meal)">×</button>
                 </div>
-              </div>
+              }
             } @else {
-              <!-- Empty Drop Zone -->
-              <div class="empty-zone" (click)="openAddModal(day, mealType)">
-                <div class="drop-text">{{ 'meal_drop_here' | translate }}</div>
-                <button class="add-btn">+</button>
+              <div class="empty-day">
+                {{ 'no_meals_planned' | translate }}
               </div>
             }
           </div>
-        }
+          
+          <!-- Add Meal Button -->
+          <button class="add-meal-btn" (click)="openAddModal(day)">
+            + {{ 'add_meal' | translate }}
+          </button>
+        </div>
       }
     </div>
   </div>
