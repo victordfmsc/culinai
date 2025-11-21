@@ -31,6 +31,7 @@ import { FirestoreService } from "./services/firestore.service";
 import { AuthService } from "./services/auth.service";
 import { TranslationService } from "./services/translation.service";
 import { GamificationService } from "./services/gamification.service";
+import { ShoppingListService } from "./services/shopping-list.service";
 import {
   MealPlan,
   MealPlanV2,
@@ -139,6 +140,7 @@ type View =
                 [availableRecipes]="recipes()"
                 (mealPlanChanged)="onMealPlanV2Changed($event)"
                 (mealRemoved)="onMealRemovedV2($event)"
+                (generateShoppingListRequest)="generateShoppingListFromMealPlan()"
               />
             }
             @case ("fridge") {
@@ -735,6 +737,7 @@ export class AppComponent {
   private translationService = inject(TranslationService);
   private gamificationService = inject(GamificationService);
   private notificationService = inject(NotificationService);
+  private shoppingListService = inject(ShoppingListService);
 
   // Expose Math to template
   Math = Math;
@@ -970,6 +973,36 @@ export class AppComponent {
       this.changeView("shopping");
     } catch (error) {
       console.error("Failed to add items to shopping list:", error);
+    }
+  }
+
+  async generateShoppingListFromMealPlan(multiplier: number = 1) {
+    try {
+      const generatedItems = this.shoppingListService.generateFromMealPlan(
+        this.mealPlanV2(),
+        multiplier
+      );
+
+      const sortedItems = this.shoppingListService.sortByCategory(generatedItems);
+      this.shoppingList.set(sortedItems);
+
+      await this.awardPoints(
+        20,
+        "shopping_items",
+        generatedItems.length,
+      );
+
+      this.notificationService.showNotification({
+        type: 'points',
+        title: this.translationService.translate('shopping_list_generated'),
+        message: `${generatedItems.length} ${this.translationService.translate('items_added')}`,
+        icon: '🛒',
+        duration: 3000
+      });
+
+      this.changeView("shopping");
+    } catch (error) {
+      console.error("Failed to generate shopping list:", error);
     }
   }
 

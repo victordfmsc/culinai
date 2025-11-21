@@ -17,7 +17,16 @@
 
   <!-- Meal Plan Grid -->
   <div class="meal-plan-card">
-    <h3 class="meal-plan-title">{{ 'home_meal_plan' | translate }}</h3>
+    <div class="meal-plan-header">
+      <h3 class="meal-plan-title">{{ 'home_meal_plan' | translate }}</h3>
+      
+      @if (hasMealsInPlan()) {
+        <button class="generate-list-btn" (click)="requestGenerateShoppingList()">
+          <span class="btn-icon">🛒</span>
+          <span>{{ 'generate_shopping_list' | translate }}</span>
+        </button>
+      }
+    </div>
     
     <!-- Grid Header (Days of Week) -->
     <div class="grid-container">

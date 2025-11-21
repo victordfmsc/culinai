@@ -22,6 +22,7 @@ export class HomeComponent {
   
   @Output() mealPlanChanged = new EventEmitter<MealPlanV2>();
   @Output() mealRemoved = new EventEmitter<{ day: string; mealType: MealType }>();
+  @Output() generateShoppingListRequest = new EventEmitter<void>();
 
   daysOfWeek = DAYS_OF_WEEK_KEYS;
   mealTypes = MEAL_TYPES;
@@ -163,5 +164,16 @@ export class HomeComponent {
   getMeal(day: string, mealType: MealType): PlannedMeal | null {
     const dayKey = day as keyof MealPlanV2;
     return this.mealPlanV2[dayKey][mealType];
+  }
+
+  hasMealsInPlan(): boolean {
+    return DAYS_OF_WEEK_KEYS.some(day => {
+      const dayMeals = this.mealPlanV2[day];
+      return MEAL_TYPES.some(mealType => dayMeals[mealType] !== null);
+    });
+  }
+
+  requestGenerateShoppingList() {
+    this.generateShoppingListRequest.emit();
   }
 }
