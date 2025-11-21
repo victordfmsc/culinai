@@ -32,17 +32,20 @@ import { AuthService } from "./services/auth.service";
 import { TranslationService } from "./services/translation.service";
 import { GamificationService } from "./services/gamification.service";
 import { ShoppingListService } from "./services/shopping-list.service";
+import { PantryService } from "./services/pantry.service";
 import {
   MealPlan,
   MealPlanV2,
   MealType,
   ShoppingItem,
+  PantryItem,
   EMPTY_MEAL_PLAN,
   EMPTY_MEAL_PLAN_V2,
   DAYS_OF_WEEK_KEYS,
   EMPTY_ACHIEVEMENTS,
 } from "./models/user.model";
 import { TranslatePipe } from "./pipes/translate.pipe";
+import { PantryItemUpdate } from "./components/fridge/fridge.component";
 
 type View =
   | "home"
@@ -144,7 +147,11 @@ type View =
               />
             }
             @case ("fridge") {
-              <app-fridge (findRecipes)="handleFindRecipesRequest($event)" />
+              <app-fridge 
+                (findRecipes)="handleFindRecipesRequest($event)"
+                [pantryItemsInput]="pantryItems"
+                (pantryUpdated)="handlePantryUpdate($event)"
+              />
             }
             @case ("suggestions") {
               <app-suggestions
@@ -738,6 +745,7 @@ export class AppComponent {
   private gamificationService = inject(GamificationService);
   private notificationService = inject(NotificationService);
   private shoppingListService = inject(ShoppingListService);
+  private pantryService = inject(PantryService);
 
   // Expose Math to template
   Math = Math;
@@ -773,6 +781,7 @@ export class AppComponent {
   mealPlan = signal<MealPlan>(EMPTY_MEAL_PLAN);
   mealPlanV2 = signal<MealPlanV2>(EMPTY_MEAL_PLAN_V2);
   shoppingList = signal<ShoppingItem[]>([]);
+  pantryItems = signal<PantryItem[]>([]);
 
   planningRecipe = signal<Recipe | null>(null);
   isSelectingForDay = signal<{ day: string; slotIndex: number } | null>(null);
@@ -811,6 +820,12 @@ export class AppComponent {
         ) {
           this.shoppingList.set(remoteUser.shoppingList);
         }
+        if (remoteUser.pantryItems &&
+          JSON.stringify(this.pantryItems()) !==
+          JSON.stringify(remoteUser.pantryItems)
+        ) {
+          this.pantryItems.set(remoteUser.pantryItems);
+        }
         if (remoteUser.achievements) {
           this.subscriptionService.setRecipesGenerated(
             remoteUser.achievements.recipesGenerated,
@@ -821,6 +836,7 @@ export class AppComponent {
         this.mealPlan.set(EMPTY_MEAL_PLAN);
         this.mealPlanV2.set(EMPTY_MEAL_PLAN_V2);
         this.shoppingList.set([]);
+        this.pantryItems.set([]);
         this.subscriptionService.setRecipesGenerated(0);
       }
     });
@@ -860,6 +876,19 @@ export class AppComponent {
       ) {
         this.firestoreService.updateUser(remoteUser.uid, {
           shoppingList: localList,
+        });
+      }
+    });
+
+    effect(() => {
+      const localPantry = this.pantryItems();
+      const remoteUser = untracked(this.firestoreService.currentUserData);
+      if (
+        remoteUser &&
+        JSON.stringify(localPantry) !== JSON.stringify(remoteUser.pantryItems || [])
+      ) {
+        this.firestoreService.updateUser(remoteUser.uid, {
+          pantryItems: localPantry,
         });
       }
     });
@@ -1003,6 +1032,38 @@ export class AppComponent {
       this.changeView("shopping");
     } catch (error) {
       console.error("Failed to generate shopping list:", error);
+    }
+  }
+
+  async handlePantryUpdate(update: PantryItemUpdate) {
+    try {
+      this.pantryItems.set(update.pantryItems);
+
+      if (update.pointsAwarded) {
+        await this.awardPoints(
+          update.pointsAwarded,
+          "pantry_item",
+          1
+        );
+
+        this.notificationService.showNotification({
+          type: 'success',
+          title: this.translationService.translate('pantry_item_added'),
+          message: `+${update.pointsAwarded} pts`,
+          icon: '🏪',
+          duration: 2000
+        });
+      } else {
+        this.notificationService.showNotification({
+          type: 'info',
+          title: this.translationService.translate('pantry_item_removed'),
+          message: '',
+          icon: '🗑️',
+          duration: 2000
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update pantry:", error);
     }
   }
 
