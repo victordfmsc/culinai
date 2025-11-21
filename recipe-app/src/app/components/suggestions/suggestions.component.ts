@@ -3,15 +3,25 @@ import { CommonModule } from '@angular/common';
 import { Recipe } from '../../services/gemini.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { TranslationService } from '../../services/translation.service';
+import { RecipeImportComponent } from '../recipe-import/recipe-import.component';
 
 @Component({
   selector: 'app-suggestions',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslatePipe, RecipeImportComponent],
   template: `
     <div class="space-y-6">
-      <div class="bg-white rounded-xl shadow-md p-6">
+      <div class="bg-white rounded-xl shadow-md p-6 relative">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ 'suggestions_title' | translate }}</h2>
+        
+        <button
+          (click)="showImportModal.set(true)"
+          class="absolute top-6 right-6 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
+        >
+          <span class="text-lg">📥</span>
+          <span class="hidden sm:inline">{{ 'import_recipe_title' | translate }}</span>
+          <span class="sm:hidden">{{ 'import_manual' | translate }}</span>
+        </button>
         
         @if (isLoading) {
           <div class="flex justify-center items-center py-12">
@@ -100,6 +110,13 @@ import { TranslationService } from '../../services/translation.service';
           </div>
         }
       </div>
+      
+      @if (showImportModal()) {
+        <app-recipe-import 
+          (recipeImported)="onRecipeImported($event)"
+          (close)="showImportModal.set(false)"
+        />
+      }
     </div>
   `
 })
@@ -109,9 +126,16 @@ export class SuggestionsComponent {
   @Output() cookRecipe = new EventEmitter<Recipe>();
   @Output() planRecipeRequest = new EventEmitter<Recipe>();
   @Output() addToShoppingList = new EventEmitter<string[]>();
+  @Output() recipeImported = new EventEmitter<Recipe>();
   
   Math = Math;
+  showImportModal = signal(false);
   private translationService = inject(TranslationService);
+
+  onRecipeImported(recipe: Recipe) {
+    this.recipeImported.emit(recipe);
+    this.showImportModal.set(false);
+  }
   
   adjustServings(recipe: Recipe, newServings: number) {
     recipe.adjustedServings = newServings;

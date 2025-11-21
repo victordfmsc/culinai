@@ -87,6 +87,53 @@ interface MealPlanV2 {
 
 **Persistence**: Automatic Firestore sync via Angular effects - any change to `mealPlanV2` triggers database update.
 
+### Smart Recipe Import System
+
+Implemented on 2025-11-21, the recipe import system enables users to add recipes from multiple sources with maximum 3 taps:
+
+**Import Methods:**
+1. **URL Web Scraping**: Automatically extracts recipes from popular cooking websites (Cookpad, Recetas Gratis, Directo al Paladar) and recipe blogs
+2. **Social Media Parsing**: Imports recipes shared on Instagram, TikTok, and Pinterest with intelligent content detection
+3. **OCR Scanning**: Uses device camera to scan and digitize recipes from physical cookbooks and magazines using Gemini AI vision capabilities
+4. **Manual Creation**: Simplified form for quick manual recipe entry with auto-formatting
+5. **Ingredient Search**: Find recipes based on available ingredients
+
+**AI-Powered Features:**
+- **Automatic Metadata Generation**: Uses Gemini AI to analyze imported recipes and extract:
+  - Recipe category (Breakfast, Lunch, Dinner, Dessert)
+  - Dietary tags (vegan, gluten-free, high-protein, low-carb, etc.)
+  - Approximate nutritional values (calories, protein, carbs, fats)
+  - Cooking time estimation
+- **Content Enhancement**: Improves recipe formatting, standardizes measurements, and adds missing information
+- **Quality Confidence**: Assigns confidence levels (high/medium/low) to imported recipes with warnings for manual review
+
+**User Experience:**
+- **Tabbed Interface**: Clean UI with tabs for different import methods
+- **Live Preview**: Editable preview before saving with ingredient/instruction management
+- **Instant Feedback**: Color-coded confidence badges and warning messages
+- **Mobile Optimized**: Native camera integration for OCR on mobile devices
+
+**Data Model Extensions:**
+```typescript
+interface Recipe {
+  // ... existing fields
+  source?: string;          // Import source (URL, 'manual', 'ocr', 'social')
+  imageUrl?: string;        // Optional recipe image URL
+  category?: string;        // Breakfast, Lunch, Dinner, Dessert
+  importedAt?: Date;        // Import timestamp
+}
+
+interface ImportPreview {
+  recipe: Recipe;
+  confidence: 'high' | 'medium' | 'low';
+  warnings: string[];
+}
+```
+
+**Gamification Integration**: Users receive +15 points for successfully importing a recipe, encouraging recipe collection.
+
+**Translations**: 30+ new translation keys added for import functionality across all 5 supported languages (English, Spanish, French, German, Italian).
+
 ## Backend Architecture
 
 Firebase serves as the core backend, providing:

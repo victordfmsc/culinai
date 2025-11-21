@@ -151,6 +151,7 @@ type View =
                 (cookRecipe)="onStartCooking($event)"
                 (planRecipeRequest)="onPlanRecipeRequest($event)"
                 (addToShoppingList)="onAddToShoppingList($event)"
+                (recipeImported)="onRecipeImported($event)"
               />
             }
             @case ("shopping") {
@@ -990,6 +991,19 @@ export class AppComponent {
   onCancelCooking() {
     this.cookingRecipe.set(null);
     this.adjustedServings.set(4);
+  }
+
+  async onRecipeImported(recipe: Recipe) {
+    const currentRecipes = this.recipes();
+    this.recipes.set([...currentRecipes, recipe]);
+    
+    this.notificationService.showSuccess(
+      this.translationService.translate('recipe_imported_success'),
+      10,
+      'green'
+    );
+    
+    await this.awardPoints(15, 'recipe_imported', 1);
   }
 
   scaleIngredient(
