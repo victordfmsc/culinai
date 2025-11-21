@@ -36,8 +36,8 @@
           
           <!-- Meals List for the day -->
           <div class="meals-list">
-            @if (mealPlan[day as keyof typeof mealPlan].length > 0) {
-              @for (meal of mealPlan[day as keyof typeof mealPlan]; track meal) {
+            @if (getMealsForDay(day).length > 0) {
+              @for (meal of getMealsForDay(day); track meal) {
                 <div class="meal-item">
                   <span class="meal-name">{{ meal }}</span>
                   <button class="remove-meal-btn" (click)="removeMeal($event, day, meal)">×</button>
