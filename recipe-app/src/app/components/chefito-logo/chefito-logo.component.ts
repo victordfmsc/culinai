@@ -21,7 +21,7 @@ import { CommonModule } from '@angular/common';
     .chefito-container {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       cursor: pointer;
       transition: transform 0.2s ease;
     }
@@ -33,61 +33,64 @@ import { CommonModule } from '@angular/common';
     .chefito-wrapper {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
     }
 
     .chefito-image {
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
       object-fit: contain;
-      animation: cooking-motion 2s ease-in-out infinite;
+      animation: chef-dance 1.5s ease-in-out infinite;
+      flex-shrink: 0;
     }
 
-    @keyframes cooking-motion {
+    @keyframes chef-dance {
       0% {
-        transform: translateY(0px) rotate(0deg);
+        transform: translateY(0px) rotate(0deg) scaleX(1);
       }
-      25% {
-        transform: translateY(-3px) rotate(-2deg);
+      15% {
+        transform: translateY(-6px) rotate(-3deg) scaleX(0.95);
+      }
+      30% {
+        transform: translateY(0px) rotate(0deg) scaleX(1);
+      }
+      40% {
+        transform: translateY(-4px) rotate(3deg) scaleX(1.05);
       }
       50% {
-        transform: translateY(0px) rotate(0deg);
+        transform: translateY(0px) rotate(0deg) scaleX(1);
+      }
+      60% {
+        transform: translateY(-5px) rotate(-2deg) scaleX(0.98);
       }
       75% {
-        transform: translateY(-3px) rotate(2deg);
+        transform: translateY(0px) rotate(0deg) scaleX(1);
       }
       100% {
-        transform: translateY(0px) rotate(0deg);
+        transform: translateY(0px) rotate(0deg) scaleX(1);
       }
     }
 
     .chefito-text {
       font-size: 1.5rem;
       font-weight: bold;
-      color: #ff6b35;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-      letter-spacing: 1px;
+      color: #000000;
       white-space: nowrap;
-      animation: text-pop 2s ease-in-out infinite;
-    }
-
-    @keyframes text-pop {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.05);
-      }
+      letter-spacing: 0.5px;
     }
 
     @media (max-width: 600px) {
       .chefito-image {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
       }
 
       .chefito-text {
         font-size: 1.25rem;
+      }
+
+      .chefito-wrapper {
+        gap: 0.5rem;
       }
     }
   `]
