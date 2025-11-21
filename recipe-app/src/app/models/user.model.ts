@@ -32,6 +32,56 @@ export interface ShoppingItem {
   fromRecipe?: boolean;
 }
 
+export type PantryCategory = 
+  | 'fresh'
+  | 'frozen'
+  | 'pantry'
+  | 'dairy'
+  | 'spices'
+  | 'beverages'
+  | 'other';
+
+export const PANTRY_CATEGORIES: PantryCategory[] = [
+  'fresh',
+  'frozen',
+  'pantry',
+  'dairy',
+  'spices',
+  'beverages',
+  'other'
+];
+
+export interface PantryItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  category: PantryCategory;
+  purchaseDate: Date;
+  expiryDate?: Date;
+  location?: string;
+  notes?: string;
+  barcode?: string;
+  addedAt: Date;
+  lastUsed?: Date;
+  timesUsed: number;
+}
+
+export interface ExpiryAlert {
+  itemId: string;
+  itemName: string;
+  daysUntilExpiry: number;
+  urgency: 'critical' | 'warning' | 'normal';
+}
+
+export interface PantryStats {
+  totalItems: number;
+  expiringItems: number;
+  unusedItems: number;
+  estimatedSavings: number;
+  averageShelfLife: Map<string, number>;
+}
+
 export interface PlannedMeal {
   recipeName: string;
   servings: number;
@@ -109,6 +159,7 @@ export interface UserData {
   mealPlan: MealPlan;
   mealPlanV2?: MealPlanV2;
   shoppingList: ShoppingItem[];
+  pantryItems?: PantryItem[];
   createdAt: Date;
   achievements?: UserAchievements;
   subscription?: SubscriptionData;
