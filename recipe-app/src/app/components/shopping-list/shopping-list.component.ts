@@ -25,6 +25,9 @@ export class ShoppingListComponent {
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
 
+  // Expose Math to template
+  Math = Math;
+
   viewMode = signal<ViewMode>('category');
   sortMode = signal<SortMode>('category');
   showAddModal = signal(false);

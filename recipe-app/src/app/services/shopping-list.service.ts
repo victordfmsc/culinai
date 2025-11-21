@@ -178,7 +178,7 @@ export class ShoppingListService {
     return quantity;
   }
 
-  private categorizeIngredient(ingredient: string): ItemCategory {
+  categorizeIngredient(ingredient: string): ItemCategory {
     const categoryKeywords: { [key in ItemCategory]: string[] } = {
       dairy: ['leche', 'queso', 'yogur', 'mantequilla', 'nata', 'crema', 'butter', 'milk', 'cheese', 'cream', 'yogurt', 'mozzarella', 'parmesano', 'feta'],
       fruits_vegetables: ['tomate', 'cebolla', 'ajo', 'zanahoria', 'lechuga', 'pimiento', 'patata', 'papa', 'manzana', 'plátano', 'naranja', 'limón', 'aguacate', 'tomato', 'onion', 'garlic', 'carrot', 'lettuce', 'pepper', 'potato', 'apple', 'banana', 'orange', 'lemon', 'avocado', 'espinaca', 'brócoli', 'calabacín', 'pepino', 'guisantes'],

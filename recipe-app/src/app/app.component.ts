@@ -1047,18 +1047,10 @@ export class AppComponent {
         );
 
         this.notificationService.showNotification({
-          type: 'success',
+          type: 'points',
           title: this.translationService.translate('pantry_item_added'),
           message: `+${update.pointsAwarded} pts`,
           icon: '🏪',
-          duration: 2000
-        });
-      } else {
-        this.notificationService.showNotification({
-          type: 'info',
-          title: this.translationService.translate('pantry_item_removed'),
-          message: '',
-          icon: '🗑️',
           duration: 2000
         });
       }
@@ -1091,11 +1083,13 @@ export class AppComponent {
     const currentRecipes = this.recipes();
     this.recipes.set([...currentRecipes, recipe]);
     
-    this.notificationService.showSuccess(
-      this.translationService.translate('recipe_imported_success'),
-      10,
-      'green'
-    );
+    this.notificationService.showNotification({
+      type: 'points',
+      title: this.translationService.translate('recipe_imported_success'),
+      message: '+15 pts',
+      icon: '📋',
+      duration: 3000
+    });
     
     await this.awardPoints(15, 'recipe_imported', 1);
   }
@@ -1616,13 +1610,16 @@ export class AppComponent {
         continue;
       } else {
         // New item - add to list
+        const category = this.shoppingListService.categorizeIngredient(parsed.baseIngredient);
         currentList.push({
+          id: Date.now().toString() + Math.random(),
           text: parsed.baseIngredient,
           checked: false,
           quantity: parsed.hasNumericQuantity
             ? parsed.quantity || 1
             : undefined,
           unit: parsed.unit || undefined,
+          category: category,
         });
       }
     }
