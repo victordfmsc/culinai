@@ -82,7 +82,6 @@ type View =
             class="container mx-auto px-4 py-3 flex justify-between items-center"
           >
             <app-chefito-logo />
-            </div>
             <div class="flex items-center space-x-2">
               <div class="text-sm text-gray-600 text-right hidden sm:block">
                 <span class="font-semibold"
