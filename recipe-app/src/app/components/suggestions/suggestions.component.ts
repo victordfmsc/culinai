@@ -98,12 +98,6 @@ import { RecipeImportComponent } from '../recipe-import/recipe-import.component'
                   >
                     {{ 'suggestions_plan' | translate }}
                   </button>
-                  <button
-                    (click)="addToShoppingList.emit(getScaledIngredients(recipe))"
-                    class="w-full py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    {{ 'suggestions_add_shopping' | translate }}
-                  </button>
                 </div>
               </div>
             }
