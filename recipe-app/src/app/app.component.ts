@@ -33,8 +33,11 @@ import { TranslationService } from "./services/translation.service";
 import { GamificationService } from "./services/gamification.service";
 import {
   MealPlan,
+  MealPlanV2,
+  MealType,
   ShoppingItem,
   EMPTY_MEAL_PLAN,
+  EMPTY_MEAL_PLAN_V2,
   DAYS_OF_WEEK_KEYS,
   EMPTY_ACHIEVEMENTS,
 } from "./models/user.model";
@@ -132,9 +135,10 @@ type View =
                 [level]="level()"
                 [levelProgress]="levelProgress()"
                 [nextLevelPoints]="pointsForNextLevel()"
-                [mealPlan]="mealPlan()"
-                (dayClicked)="onCalendarDaySelected($event)"
-                (recipeRemoved)="onRemoveRecipeFromPlan($event)"
+                [mealPlanV2]="mealPlanV2()"
+                [availableRecipes]="recipes()"
+                (mealPlanChanged)="onMealPlanV2Changed($event)"
+                (mealRemoved)="onMealRemovedV2($event)"
               />
             }
             @case ("fridge") {
@@ -763,6 +767,7 @@ export class AppComponent {
   levelProgress = computed(() => (this.points() % 500) / 5);
 
   mealPlan = signal<MealPlan>(EMPTY_MEAL_PLAN);
+  mealPlanV2 = signal<MealPlanV2>(EMPTY_MEAL_PLAN_V2);
   shoppingList = signal<ShoppingItem[]>([]);
 
   planningRecipe = signal<Recipe | null>(null);
@@ -790,6 +795,12 @@ export class AppComponent {
         ) {
           this.mealPlan.set(remoteUser.mealPlan);
         }
+        if (remoteUser.mealPlanV2 && 
+          JSON.stringify(this.mealPlanV2()) !==
+          JSON.stringify(remoteUser.mealPlanV2)
+        ) {
+          this.mealPlanV2.set(remoteUser.mealPlanV2);
+        }
         if (
           JSON.stringify(this.shoppingList()) !==
           JSON.stringify(remoteUser.shoppingList)
@@ -804,6 +815,7 @@ export class AppComponent {
       } else if (!isGuest) {
         // Only reset if not in guest mode
         this.mealPlan.set(EMPTY_MEAL_PLAN);
+        this.mealPlanV2.set(EMPTY_MEAL_PLAN_V2);
         this.shoppingList.set([]);
         this.subscriptionService.setRecipesGenerated(0);
       }
@@ -818,6 +830,19 @@ export class AppComponent {
       ) {
         this.firestoreService.updateUser(remoteUser.uid, {
           mealPlan: localPlan,
+        });
+      }
+    });
+
+    effect(() => {
+      const localPlanV2 = this.mealPlanV2();
+      const remoteUser = untracked(this.firestoreService.currentUserData);
+      if (
+        remoteUser &&
+        JSON.stringify(localPlanV2) !== JSON.stringify(remoteUser.mealPlanV2)
+      ) {
+        this.firestoreService.updateUser(remoteUser.uid, {
+          mealPlanV2: localPlanV2,
         });
       }
     });
@@ -1153,6 +1178,61 @@ export class AppComponent {
       ...plan,
       [dayKey]: plan[dayKey].filter((name) => name !== event.recipeName),
     });
+  }
+
+  onMealPlanV2Changed(updatedPlan: MealPlanV2) {
+    this.mealPlanV2.set(updatedPlan);
+    
+    if (this.guestMode()) return;
+
+    const userData = this.firestoreService.currentUserData();
+    if (userData && userData.achievements) {
+      this.checkAndAwardMealPlanAchievements(userData, updatedPlan);
+    }
+  }
+
+  onMealRemovedV2(event: { day: string; mealType: MealType }) {
+    console.log('Meal removed:', event);
+  }
+
+  private checkAndAwardMealPlanAchievements(userData: any, plan: MealPlanV2) {
+    const mealCount = this.countMealsInPlanV2(plan);
+    
+    if (mealCount === 1 && userData.achievements.mealPlansCreated === 0) {
+      userData.achievements.mealPlansCreated = 1;
+      const newAchievements = this.gamificationService.checkAchievements(
+        userData.achievements,
+      );
+      
+      for (const achievement of newAchievements) {
+        if (!userData.achievements.unlockedAchievements.includes(achievement.id)) {
+          userData.achievements.unlockedAchievements.push(achievement.id);
+          userData.points += achievement.points;
+          
+          this.notificationService.showAchievementUnlocked(
+            this.translationService.translate(achievement.titleKey),
+            achievement.icon,
+            achievement.points,
+          );
+        }
+      }
+      
+      this.firestoreService.updateUser(userData.uid, {
+        achievements: userData.achievements,
+        points: userData.points,
+      });
+    }
+  }
+
+  private countMealsInPlanV2(plan: MealPlanV2): number {
+    let count = 0;
+    for (const day of DAYS_OF_WEEK_KEYS) {
+      const dayMeals = plan[day];
+      if (dayMeals.breakfast) count++;
+      if (dayMeals.lunch) count++;
+      if (dayMeals.dinner) count++;
+    }
+    return count;
   }
 
   async onPurchaseSuccess() {
