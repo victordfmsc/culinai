@@ -91,7 +91,7 @@
                           </span>
                         }
                         <span class="item-text" [class.checked-text]="item.checked">
-                          {{ item.text }}
+                          {{ getTranslatedItemText(item.text) }}
                         </span>
                         @if (item.fromRecipe) {
                           <span class="recipe-badge" [title]="'from_recipe' | translate">🍳</span>

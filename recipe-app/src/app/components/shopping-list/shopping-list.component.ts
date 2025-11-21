@@ -6,6 +6,7 @@ import { ShoppingListService } from '../../services/shopping-list.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
+import { AutoTranslateService } from '../../services/auto-translate.service';
 
 type ViewMode = 'list' | 'category';
 type SortMode = 'category' | 'checked';
@@ -24,6 +25,10 @@ export class ShoppingListComponent {
   private shoppingService = inject(ShoppingListService);
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
+  private autoTranslateService = inject(AutoTranslateService);
+  
+  // Cache for translated item names to avoid repeated API calls
+  private translatedTexts = new Map<string, string>();
 
   // Expose Math to template
   Math = Math;
@@ -167,6 +172,30 @@ export class ShoppingListComponent {
     `);
     printWindow.document.close();
     printWindow.print();
+  }
+
+  getTranslatedItemText(text: string): string {
+    if (!text) return text;
+    
+    const currentLang = this.translationService.currentLanguage();
+    const cacheKey = `${text}|${currentLang}`;
+    
+    // Return cached translation if available
+    if (this.translatedTexts.has(cacheKey)) {
+      return this.translatedTexts.get(cacheKey) || text;
+    }
+    
+    // Trigger auto-translation asynchronously and update cache
+    this.autoTranslateService.translate(text, currentLang).then((translated) => {
+      if (translated && translated !== text) {
+        this.translatedTexts.set(cacheKey, translated);
+      }
+    }).catch(() => {
+      // If translation fails, keep original text
+    });
+    
+    // Return original text immediately while translation is in progress
+    return text;
   }
 
   getCategoryIcon(category: ItemCategory): string {
