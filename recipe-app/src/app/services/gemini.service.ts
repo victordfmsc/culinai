@@ -184,7 +184,15 @@ export class GeminiService {
   }
 
   async generateRecipes(ingredients: string, language: string = 'en', dietaryGoals: string[] = []): Promise<Recipe[]> {
-    console.log('Generating 10 recipes for:', ingredients, 'in language:', language, 'with dietary goals:', dietaryGoals);
+    // CRITICAL: Never generate generic recipes - replace empty/generic ingredients with specific defaults
+    let finalIngredients = ingredients.trim();
+    
+    // If ingredients is empty, generic, or contains "any", use diverse common ingredients instead
+    if (!finalIngredients || finalIngredients.toLowerCase() === 'any ingredients' || finalIngredients.toLowerCase().includes('any')) {
+      finalIngredients = 'chicken, rice, tomato, onion, garlic, olive oil, bell pepper, egg, pasta, herbs';
+    }
+    
+    console.log('Generating 10 recipes for:', finalIngredients, 'in language:', language, 'with dietary goals:', dietaryGoals);
     
     // Language name mapping for better prompts
     const languageNames: { [key: string]: string } = {
@@ -230,7 +238,7 @@ export class GeminiService {
     // Always try Gemini first if available
     if (this.model) {
       try {
-        const prompt = `You are a professional chef teaching someone who has NEVER cooked this dish before. Create exactly 10 unique and diverse recipes using these ingredients: ${ingredients}.${dietaryRequirements}
+        const prompt = `You are a professional chef teaching someone who has NEVER cooked this dish before. Create exactly 10 unique and diverse recipes using these ingredients: ${finalIngredients}.${dietaryRequirements}
         
 Important rules:
 - WRITE EVERYTHING IN ${languageName.toUpperCase()} (recipe titles, descriptions, ingredients, instructions, tags - ALL TEXT)
@@ -363,7 +371,7 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
     
     // Fallback recipes in the selected language
     console.log('Using fallback recipes in', languageName);
-    return this.getFallbackRecipes(ingredients, language);
+    return this.getFallbackRecipes(finalIngredients, language);
   }
 
   private getFallbackRecipes(ingredients: string, language: string): Recipe[] {
@@ -385,9 +393,9 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
   private getEnglishFallbackRecipes(mainIngredient: string, ingredientList: string[], ingredients: string): Recipe[] {
     return [
       {
-        title: `Quick ${mainIngredient} Stir-Fry`,
-        description: `A fast Asian-style stir-fry with ${ingredients}`,
-        ingredients: [...ingredientList.map(i => `200g ${i}`), '30ml soy sauce', '15ml sesame oil', '2 garlic cloves', '10g ginger'],
+        title: `Asian Chicken Stir-Fry with Rice`,
+        description: `A fast Asian-style stir-fry with chicken, vegetables, and aromatic garlic-ginger sauce`,
+        ingredients: ['200g chicken', '100g bell pepper', '100g onion', '30ml soy sauce', '15ml sesame oil', '2 garlic cloves', '10g ginger', '250g rice'],
         instructions: [
           'Prepare all ingredients first (mise en place). Cut all vegetables and proteins into uniform, bite-sized pieces so they cook evenly. Mince the garlic and ginger finely.',
           'Heat a large wok or heavy skillet over high heat for 2-3 minutes until very hot. You\'ll know it\'s ready when a drop of water sizzles and evaporates immediately.',
