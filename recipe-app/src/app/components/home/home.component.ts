@@ -1,68 +1,167 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MealPlan, DAYS_OF_WEEK_KEYS } from '../../models/user.model';
+import { FormsModule } from '@angular/forms';
+import { MealPlanV2, DAYS_OF_WEEK_KEYS, MEAL_TYPES, MealType, PlannedMeal, EMPTY_MEAL_PLAN_V2 } from '../../models/user.model';
 import { Recipe } from '../../services/gemini.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
-  template: `
-    <div class="space-y-6">
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ 'nav_home' | translate }}</h2>
-        
-        <div class="mb-6">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-sm font-semibold text-gray-700">{{ 'level' | translate }} {{ level }}</span>
-            <span class="text-sm text-gray-600">{{ points }} / {{ nextLevelPoints }} {{ 'points' | translate }}</span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-3">
-            <div class="bg-green-500 h-3 rounded-full transition-all duration-300" [style.width.%]="levelProgress"></div>
-          </div>
-        </div>
-
-        <h3 class="text-lg font-semibold text-gray-700 mb-3">{{ 'home_meal_plan' | translate }}</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          @for (day of daysOfWeek; track day) {
-            <div class="border border-gray-200 rounded-lg p-3 hover:border-indigo-300 transition-colors cursor-pointer" (click)="dayClicked.emit(day)">
-              <div class="font-semibold text-sm text-gray-700 mb-2">{{ 'day_' + day | translate }}</div>
-              @if (mealPlan[day] && mealPlan[day].length > 0) {
-                <div class="space-y-1">
-                  @for (recipeName of mealPlan[day]; track recipeName) {
-                    <div class="text-xs bg-indigo-50 text-indigo-700 rounded px-2 py-1 flex justify-between items-center">
-                      <span class="truncate flex-1">{{ recipeName }}</span>
-                      <button (click)="removeRecipe($event, day, recipeName)" class="ml-1 text-red-500 hover:text-red-700">×</button>
-                    </div>
-                  }
-                </div>
-              } @else {
-                <div class="text-xs text-gray-400">{{ 'home_no_meals' | translate }}</div>
-              }
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-  `
+  imports: [CommonModule, TranslatePipe, FormsModule],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
   @Input() points: number = 0;
   @Input() level: number = 1;
   @Input() levelProgress: number = 0;
   @Input() nextLevelPoints: number = 500;
-  @Input() mealPlan: MealPlan = {
-    monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []
-  };
+  @Input() mealPlanV2: MealPlanV2 = { ...EMPTY_MEAL_PLAN_V2 };
+  @Input() availableRecipes: Recipe[] = [];
   
-  @Output() dayClicked = new EventEmitter<string>();
-  @Output() recipeRemoved = new EventEmitter<{ day: string; recipeName: string }>();
+  @Output() mealPlanChanged = new EventEmitter<MealPlanV2>();
+  @Output() mealRemoved = new EventEmitter<{ day: string; mealType: MealType }>();
 
   daysOfWeek = DAYS_OF_WEEK_KEYS;
+  mealTypes = MEAL_TYPES;
+  
+  showModal = signal(false);
+  selectedCell = signal<{ day: string; mealType: MealType } | null>(null);
+  searchQuery = signal('');
+  draggedRecipe = signal<Recipe | null>(null);
 
-  removeRecipe(event: Event, day: string, recipeName: string) {
+  get filteredRecipes(): Recipe[] {
+    const query = this.searchQuery().toLowerCase();
+    if (!query) return this.availableRecipes;
+    
+    return this.availableRecipes.filter(recipe => 
+      recipe.title.toLowerCase().includes(query) ||
+      recipe.description?.toLowerCase().includes(query)
+    );
+  }
+
+  onDragStart(event: DragEvent, recipe: Recipe) {
+    this.draggedRecipe.set(recipe);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'copy';
+      event.dataTransfer.setData('text/plain', recipe.title);
+    }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+  }
+
+  onDragEnter(event: DragEvent, element: HTMLElement) {
+    event.preventDefault();
+    element.classList.add('drag-over');
+  }
+
+  onDragLeave(event: DragEvent, element: HTMLElement) {
+    element.classList.remove('drag-over');
+  }
+
+  onDrop(event: DragEvent, day: string, mealType: MealType, element: HTMLElement) {
+    event.preventDefault();
+    element.classList.remove('drag-over');
+    
+    const recipe = this.draggedRecipe();
+    if (recipe) {
+      this.addMealToSlot(day, mealType, recipe);
+      this.draggedRecipe.set(null);
+    }
+  }
+
+  openAddModal(day: string, mealType: MealType) {
+    this.selectedCell.set({ day, mealType });
+    this.searchQuery.set('');
+    this.showModal.set(true);
+  }
+
+  closeModal() {
+    this.showModal.set(false);
+    this.selectedCell.set(null);
+    this.searchQuery.set('');
+  }
+
+  selectRecipeFromModal(recipe: Recipe) {
+    const cell = this.selectedCell();
+    if (cell) {
+      this.addMealToSlot(cell.day, cell.mealType, recipe);
+      this.closeModal();
+    }
+  }
+
+  addMealToSlot(day: string, mealType: MealType, recipe: Recipe) {
+    const updatedPlan = { ...this.mealPlanV2 };
+    const dayKey = day as keyof MealPlanV2;
+    
+    updatedPlan[dayKey] = {
+      ...updatedPlan[dayKey],
+      [mealType]: {
+        recipeName: recipe.title,
+        servings: recipe.servings || 4,
+        recipeData: recipe
+      }
+    };
+    
+    this.mealPlanV2 = updatedPlan;
+    this.mealPlanChanged.emit(updatedPlan);
+  }
+
+  removeMeal(event: Event, day: string, mealType: MealType) {
     event.stopPropagation();
-    this.recipeRemoved.emit({ day, recipeName });
+    
+    const updatedPlan = { ...this.mealPlanV2 };
+    const dayKey = day as keyof MealPlanV2;
+    
+    updatedPlan[dayKey] = {
+      ...updatedPlan[dayKey],
+      [mealType]: null
+    };
+    
+    this.mealPlanV2 = updatedPlan;
+    this.mealPlanChanged.emit(updatedPlan);
+    this.mealRemoved.emit({ day, mealType });
+  }
+
+  incrementServings(event: Event, day: string, mealType: MealType) {
+    event.stopPropagation();
+    this.updateServings(day, mealType, 1);
+  }
+
+  decrementServings(event: Event, day: string, mealType: MealType) {
+    event.stopPropagation();
+    this.updateServings(day, mealType, -1);
+  }
+
+  private updateServings(day: string, mealType: MealType, delta: number) {
+    const dayKey = day as keyof MealPlanV2;
+    const meal = this.mealPlanV2[dayKey][mealType];
+    
+    if (!meal) return;
+    
+    const newServings = Math.max(1, Math.min(12, meal.servings + delta));
+    
+    const updatedPlan = { ...this.mealPlanV2 };
+    updatedPlan[dayKey] = {
+      ...updatedPlan[dayKey],
+      [mealType]: {
+        ...meal,
+        servings: newServings
+      }
+    };
+    
+    this.mealPlanV2 = updatedPlan;
+    this.mealPlanChanged.emit(updatedPlan);
+  }
+
+  getMeal(day: string, mealType: MealType): PlannedMeal | null {
+    const dayKey = day as keyof MealPlanV2;
+    return this.mealPlanV2[dayKey][mealType];
   }
 }
