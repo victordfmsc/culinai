@@ -1,0 +1,277 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">{{ 'import_recipe_title' | translate }}</h2>
+      <button class="close-btn" (click)="closeModal()">×</button>
+    </div>
+
+    @if (!preview()) {
+      <!-- Import Mode Tabs -->
+      <div class="tabs">
+        <button 
+          class="tab" 
+          [class.active]="currentMode() === 'url'"
+          (click)="currentMode.set('url')">
+          <span class="tab-icon">🔗</span>
+          <span>{{ 'import_from_url' | translate }}</span>
+        </button>
+        <button 
+          class="tab" 
+          [class.active]="currentMode() === 'manual'"
+          (click)="currentMode.set('manual')">
+          <span class="tab-icon">✏️</span>
+          <span>{{ 'import_manual' | translate }}</span>
+        </button>
+        <button 
+          class="tab" 
+          [class.active]="currentMode() === 'ocr'"
+          (click)="currentMode.set('ocr')">
+          <span class="tab-icon">📷</span>
+          <span>{{ 'import_scan' | translate }}</span>
+        </button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="modal-body">
+        @if (error()) {
+          <div class="error-message">
+            ⚠️ {{ error() }}
+          </div>
+        }
+
+        <!-- URL Import -->
+        @if (currentMode() === 'url') {
+          <div class="import-section">
+            <label class="input-label">{{ 'import_url_label' | translate }}</label>
+            <p class="input-hint">{{ 'import_url_hint' | translate }}</p>
+            
+            <input 
+              type="url" 
+              class="url-input"
+              [placeholder]="'import_url_placeholder' | translate"
+              [(ngModel)]="urlInput"
+              (ngModelChange)="urlInput.set($event)">
+
+            <button 
+              class="primary-btn"
+              [disabled]="isLoading() || !urlInput().trim()"
+              (click)="importFromUrl()">
+              @if (isLoading()) {
+                <span class="spinner"></span> {{ 'importing' | translate }}
+              } @else {
+                {{ 'import_button' | translate }}
+              }
+            </button>
+
+            <div class="popular-sites">
+              <p class="sites-title">{{ 'supported_sites' | translate }}</p>
+              <div class="site-tags">
+                <span class="site-tag">Cookpad</span>
+                <span class="site-tag">Recetas Gratis</span>
+                <span class="site-tag">Directo al Paladar</span>
+                <span class="site-tag">Instagram</span>
+                <span class="site-tag">Pinterest</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Manual Creation -->
+        @if (currentMode() === 'manual') {
+          <div class="import-section">
+            <label class="input-label">{{ 'recipe_title' | translate }} *</label>
+            <input 
+              type="text" 
+              class="text-input"
+              [placeholder]="'recipe_title_placeholder' | translate"
+              [(ngModel)]="manualTitle"
+              (ngModelChange)="manualTitle.set($event)">
+
+            <label class="input-label">{{ 'recipe_ingredients' | translate }} *</label>
+            <p class="input-hint">{{ 'ingredients_hint' | translate }}</p>
+            <textarea 
+              class="textarea-input"
+              rows="6"
+              [placeholder]="'ingredients_placeholder' | translate"
+              [(ngModel)]="manualIngredients"
+              (ngModelChange)="manualIngredients.set($event)"></textarea>
+
+            <label class="input-label">{{ 'recipe_instructions' | translate }} *</label>
+            <p class="input-hint">{{ 'instructions_hint' | translate }}</p>
+            <textarea 
+              class="textarea-input"
+              rows="8"
+              [placeholder]="'instructions_placeholder' | translate"
+              [(ngModel)]="manualInstructions"
+              (ngModelChange)="manualInstructions.set($event)"></textarea>
+
+            <button 
+              class="primary-btn"
+              [disabled]="!manualTitle().trim() || !manualIngredients().trim() || !manualInstructions().trim()"
+              (click)="createManualRecipe()">
+              {{ 'create_recipe' | translate }}
+            </button>
+          </div>
+        }
+
+        <!-- OCR Scan -->
+        @if (currentMode() === 'ocr') {
+          <div class="import-section">
+            <label class="input-label">{{ 'import_scan_label' | translate }}</label>
+            <p class="input-hint">{{ 'import_scan_hint' | translate }}</p>
+
+            <div class="upload-area">
+              <input 
+                type="file" 
+                accept="image/*" 
+                capture="environment"
+                id="imageUpload"
+                class="file-input"
+                (change)="handleImageUpload($event)">
+              
+              <label for="imageUpload" class="upload-label">
+                <span class="upload-icon">📸</span>
+                <span class="upload-text">{{ 'tap_to_scan' | translate }}</span>
+              </label>
+            </div>
+
+            @if (isLoading()) {
+              <div class="loading-state">
+                <span class="spinner"></span>
+                <p>{{ 'analyzing_image' | translate }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Preview Mode -->
+      <div class="preview-container">
+        <div class="preview-header">
+          <h3 class="preview-title">{{ 'preview_recipe' | translate }}</h3>
+          
+          @if (preview()?.confidence) {
+            <span 
+              class="confidence-badge"
+              [class.high]="preview()?.confidence === 'high'"
+              [class.medium]="preview()?.confidence === 'medium'"
+              [class.low]="preview()?.confidence === 'low'">
+              @if (preview()?.confidence === 'high') {
+                ✓ {{ 'high_confidence' | translate }}
+              } @else if (preview()?.confidence === 'medium') {
+                ~ {{ 'medium_confidence' | translate }}
+              } @else {
+                ! {{ 'low_confidence' | translate }}
+              }
+            </span>
+          }
+        </div>
+
+        @if (preview()?.warnings && preview()!.warnings.length > 0) {
+          <div class="warnings">
+            @for (warning of preview()!.warnings; track warning) {
+              <div class="warning-item">⚠️ {{ warning }}</div>
+            }
+          </div>
+        }
+
+        <div class="preview-body">
+          <!-- Title -->
+          <div class="field-group">
+            <label class="field-label">{{ 'recipe_title' | translate }}</label>
+            <input 
+              type="text" 
+              class="edit-input"
+              [(ngModel)]="preview()!.recipe.title">
+          </div>
+
+          <!-- Description -->
+          <div class="field-group">
+            <label class="field-label">{{ 'recipe_description' | translate }}</label>
+            <textarea 
+              class="edit-textarea"
+              rows="2"
+              [(ngModel)]="preview()!.recipe.description"></textarea>
+          </div>
+
+          <!-- Time & Servings -->
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">{{ 'recipe_time' | translate }}</label>
+              <input 
+                type="text" 
+                class="edit-input"
+                [(ngModel)]="preview()!.recipe.prepTime">
+            </div>
+            <div class="field-group">
+              <label class="field-label">{{ 'recipe_servings' | translate }}</label>
+              <input 
+                type="number" 
+                class="edit-input"
+                [(ngModel)]="preview()!.recipe.servings">
+            </div>
+          </div>
+
+          <!-- Ingredients -->
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">{{ 'recipe_ingredients' | translate }}</label>
+              <button class="add-btn" (click)="addIngredient()">+ Agregar</button>
+            </div>
+            <div class="list-items">
+              @for (ingredient of preview()!.recipe.ingredients; track $index; let i = $index) {
+                <div class="list-item">
+                  <input 
+                    type="text" 
+                    class="list-input"
+                    [value]="ingredient"
+                    (input)="updateIngredient(i, $any($event.target).value)">
+                  <button class="remove-btn" (click)="removeIngredient(i)">×</button>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Instructions -->
+          <div class="field-group">
+            <div class="field-header">
+              <label class="field-label">{{ 'recipe_instructions' | translate }}</label>
+              <button class="add-btn" (click)="addInstruction()">+ Agregar</button>
+            </div>
+            <div class="list-items">
+              @for (instruction of preview()!.recipe.instructions; track $index; let i = $index) {
+                <div class="list-item">
+                  <span class="step-number">{{ i + 1 }}.</span>
+                  <input 
+                    type="text" 
+                    class="list-input"
+                    [value]="instruction"
+                    (input)="updateInstruction(i, $any($event.target).value)">
+                  <button class="remove-btn" (click)="removeInstruction(i)">×</button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview Actions -->
+        <div class="preview-actions">
+          <button class="secondary-btn" (click)="editPreview()">
+            {{ 'back' | translate }}
+          </button>
+          <button 
+            class="primary-btn"
+            [disabled]="isLoading()"
+            (click)="saveRecipe()">
+            @if (isLoading()) {
+              <span class="spinner"></span> {{ 'saving' | translate }}
+            } @else {
+              {{ 'save_recipe' | translate }}
+            }
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
