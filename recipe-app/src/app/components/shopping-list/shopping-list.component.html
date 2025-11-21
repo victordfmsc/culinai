@@ -1,0 +1,231 @@
+<div class="shopping-container" [class.dark-mode]="darkMode()">
+  <div class="header-card">
+    <div class="header-top">
+      <h2 class="title">🛒 {{ 'shopping_title' | translate }}</h2>
+      
+      <div class="header-actions">
+        <button class="icon-btn" (click)="toggleDarkMode()" [title]="'dark_mode' | translate">
+          @if (darkMode()) {
+            ☀️
+          } @else {
+            🌙
+          }
+        </button>
+        
+        <button class="icon-btn" (click)="showMultiplierModal.set(true)" [title]="'adjust_servings_global' | translate">
+          👥
+        </button>
+      </div>
+    </div>
+
+    @if (listItems.length > 0) {
+      <div class="progress-bar-container">
+        <div class="progress-info">
+          <span class="progress-text">
+            {{ progress().checked }}/{{ progress().total }} {{ 'items_completed' | translate }}
+          </span>
+          <span class="progress-percentage">{{ progress().percentage }}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progress().percentage"></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="view-toggles">
+          <button 
+            class="toggle-btn" 
+            [class.active]="viewMode() === 'category'"
+            (click)="viewMode.set('category')">
+            📋 {{ 'view_by_category' | translate }}
+          </button>
+          <button 
+            class="toggle-btn" 
+            [class.active]="viewMode() === 'list'"
+            (click)="viewMode.set('list')">
+            📝 {{ 'view_list' | translate }}
+          </button>
+        </div>
+
+        <label class="checkbox-label">
+          <input type="checkbox" [checked]="hideChecked()" (change)="hideChecked.set(!hideChecked())">
+          <span>{{ 'hide_checked' | translate }}</span>
+        </label>
+      </div>
+    }
+  </div>
+
+  @if (listItems.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🛒</div>
+      <p class="empty-text">{{ 'shopping_empty' | translate }}</p>
+      <p class="empty-hint">{{ 'shopping_empty_hint' | translate }}</p>
+    </div>
+  } @else {
+    <div class="items-container">
+      @for (category of allCategories; track category) {
+        @if (getItemsByCategory(category).length > 0) {
+          <div class="category-section">
+            <div class="category-header">
+              <span class="category-icon">{{ getCategoryIcon(category) }}</span>
+              <h3 class="category-name">{{ getCategoryName(category) }}</h3>
+              <span class="category-count">{{ getItemsByCategory(category).length }}</span>
+            </div>
+
+            <div class="items-list">
+              @for (item of getItemsByCategory(category); track item.id) {
+                <div class="item-card" [class.checked]="item.checked">
+                  <div class="item-main">
+                    <input
+                      type="checkbox"
+                      [checked]="item.checked"
+                      (change)="toggleItem(item.id)"
+                      class="item-checkbox"
+                    />
+
+                    <div class="item-content">
+                      <div class="item-text-row">
+                        @if (item.quantity && item.unit) {
+                          <span class="item-quantity">
+                            {{ item.quantity }}{{ item.unit }}
+                          </span>
+                        }
+                        <span class="item-text" [class.checked-text]="item.checked">
+                          {{ item.text }}
+                        </span>
+                        @if (item.fromRecipe) {
+                          <span class="recipe-badge" [title]="'from_recipe' | translate">🍳</span>
+                        }
+                      </div>
+
+                      @if (item.note) {
+                        <div class="item-note">💭 {{ item.note }}</div>
+                      }
+                    </div>
+
+                    <button 
+                      class="remove-btn"
+                      (click)="removeItem(item.id)"
+                      [title]="'remove' | translate">
+                      ×
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="action-bar">
+      <button class="action-btn primary" (click)="showAddModal.set(true)">
+        <span class="btn-icon">➕</span>
+        <span>{{ 'add_item' | translate }}</span>
+      </button>
+
+      <button class="action-btn secondary" (click)="clearCheckedItems()">
+        <span class="btn-icon">🗑️</span>
+        <span>{{ 'clear_checked' | translate }}</span>
+      </button>
+
+      <div class="share-buttons">
+        <button class="share-btn" (click)="copyToClipboard()" [title]="'copy' | translate">
+          📋
+        </button>
+        <button class="share-btn" (click)="shareViaWhatsApp()" [title]="'share_whatsapp' | translate">
+          💬
+        </button>
+        <button class="share-btn" (click)="shareViaEmail()" [title]="'share_email' | translate">
+          ✉️
+        </button>
+        <button class="share-btn" (click)="printList()" [title]="'print' | translate">
+          🖨️
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (showAddModal()) {
+    <div class="modal-overlay" (click)="showAddModal.set(false)">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">{{ 'add_item' | translate }}</h3>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'item_name' | translate }}</label>
+          <input
+            type="text"
+            class="form-input"
+            [(ngModel)]="newItemText"
+            (ngModelChange)="newItemText.set($event)"
+            [placeholder]="'item_name_placeholder' | translate"
+            (keyup.enter)="addManualItem()"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'category' | translate }}</label>
+          <select 
+            class="form-select"
+            [(ngModel)]="newItemCategory"
+            (ngModelChange)="newItemCategory.set($event)">
+            @for (category of allCategories; track category) {
+              <option [value]="category">
+                {{ getCategoryIcon(category) }} {{ getCategoryName(category) }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="showAddModal.set(false)">
+            {{ 'cancel' | translate }}
+          </button>
+          <button class="btn-confirm" (click)="addManualItem()" [disabled]="!newItemText().trim()">
+            {{ 'add' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showMultiplierModal()) {
+    <div class="modal-overlay" (click)="showMultiplierModal.set(false)">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3 class="modal-title">{{ 'adjust_servings_global' | translate }}</h3>
+        <p class="modal-description">{{ 'multiplier_description' | translate }}</p>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'number_of_people' | translate }}</label>
+          <div class="multiplier-controls">
+            <button class="multiplier-btn" (click)="globalMultiplier.set(Math.max(0.5, globalMultiplier() - 0.5))">
+              −
+            </button>
+            <input
+              type="number"
+              class="multiplier-input"
+              [(ngModel)]="globalMultiplier"
+              (ngModelChange)="globalMultiplier.set($event)"
+              min="0.5"
+              max="10"
+              step="0.5"
+            />
+            <button class="multiplier-btn" (click)="globalMultiplier.set(Math.min(10, globalMultiplier() + 0.5))">
+              +
+            </button>
+          </div>
+          <p class="multiplier-hint">{{ 'multiplier_hint' | translate }}</p>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="showMultiplierModal.set(false)">
+            {{ 'cancel' | translate }}
+          </button>
+          <button class="btn-confirm" (click)="applyGlobalMultiplier()">
+            {{ 'apply' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

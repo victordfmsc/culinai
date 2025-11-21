@@ -1,10 +1,35 @@
 import { UserAchievements, WeeklyChallenge } from './gamification.model';
 
+export type ItemCategory = 
+  | 'dairy'
+  | 'fruits_vegetables'
+  | 'meat_fish'
+  | 'pantry'
+  | 'spices'
+  | 'frozen'
+  | 'bakery'
+  | 'other';
+
+export const ITEM_CATEGORIES: ItemCategory[] = [
+  'dairy',
+  'fruits_vegetables',
+  'meat_fish',
+  'pantry',
+  'spices',
+  'frozen',
+  'bakery',
+  'other'
+];
+
 export interface ShoppingItem {
+  id: string;
   text: string;
   checked: boolean;
   quantity?: number;
   unit?: string;
+  category: ItemCategory;
+  note?: string;
+  fromRecipe?: boolean;
 }
 
 export interface PlannedMeal {

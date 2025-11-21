@@ -1,82 +1,205 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ShoppingItem } from '../../models/user.model';
+import { ShoppingItem, ItemCategory, ITEM_CATEGORIES } from '../../models/user.model';
+import { ShoppingListService } from '../../services/shopping-list.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { NotificationService } from '../../services/notification.service';
+import { TranslationService } from '../../services/translation.service';
+
+type ViewMode = 'list' | 'category';
+type SortMode = 'category' | 'checked';
 
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
   imports: [CommonModule, FormsModule, TranslatePipe],
-  template: `
-    <div class="space-y-6">
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ 'shopping_title' | translate }}</h2>
-        
-        @if (listItems.length === 0) {
-          <div class="text-center py-12 text-gray-500">
-            <p>{{ 'shopping_empty' | translate }}</p>
-          </div>
-        } @else {
-          <div class="space-y-2">
-            @for (item of listItems; track $index; let i = $index) {
-              <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <input
-                  type="checkbox"
-                  [checked]="item.checked"
-                  (change)="toggleItem(i)"
-                  class="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
-                />
-                @if (item.quantity && item.quantity >= 1) {
-                  <span class="px-2 py-1 bg-indigo-100 text-indigo-700 font-bold text-sm rounded-full whitespace-nowrap">
-                    @if (item.unit) {
-                      {{ item.quantity }} {{ item.unit }}
-                    } @else {
-                      {{ item.quantity }}×
-                    }
-                  </span>
-                }
-                <span [class.line-through]="item.checked" [class.text-gray-400]="item.checked" class="flex-1">
-                  {{ item.text }}
-                </span>
-                <button
-                  (click)="removeItem(i)"
-                  class="text-red-500 hover:text-red-700 font-bold"
-                >
-                  ×
-                </button>
-              </div>
-            }
-          </div>
-
-          <button
-            (click)="clearChecked()"
-            class="w-full mt-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
-          >
-            {{ 'shopping_clear' | translate }}
-          </button>
-        }
-      </div>
-    </div>
-  `
+  templateUrl: './shopping-list.component.html',
+  styleUrls: ['./shopping-list.component.css']
 })
 export class ShoppingListComponent {
   @Input() listItems: ShoppingItem[] = [];
   @Output() listChanged = new EventEmitter<ShoppingItem[]>();
 
-  toggleItem(index: number) {
-    const updated = [...this.listItems];
-    updated[index] = { ...updated[index], checked: !updated[index].checked };
+  private shoppingService = inject(ShoppingListService);
+  private notificationService = inject(NotificationService);
+  private translationService = inject(TranslationService);
+
+  viewMode = signal<ViewMode>('category');
+  sortMode = signal<SortMode>('category');
+  showAddModal = signal(false);
+  showMultiplierModal = signal(false);
+  hideChecked = signal(false);
+  darkMode = signal(false);
+
+  globalMultiplier = signal(1);
+  newItemText = signal('');
+  newItemCategory = signal<ItemCategory>('other');
+
+  progress = computed(() => this.shoppingService.getProgress(this.listItems));
+  
+  groupedItems = computed(() => {
+    const filtered = this.hideChecked() 
+      ? this.listItems.filter(item => !item.checked)
+      : this.listItems;
+    
+    if (this.sortMode() === 'checked') {
+      return this.sortByCheckedStatus(filtered);
+    }
+    
+    return this.shoppingService.groupByCategory(filtered);
+  });
+
+  allCategories = ITEM_CATEGORIES;
+
+  private sortByCheckedStatus(items: ShoppingItem[]): Map<ItemCategory, ShoppingItem[]> {
+    const unchecked = items.filter(item => !item.checked);
+    const checked = items.filter(item => item.checked);
+    return this.shoppingService.groupByCategory([...unchecked, ...checked]);
+  }
+
+  toggleItem(itemId: string) {
+    const updated = this.shoppingService.toggleItem(this.listItems, itemId);
     this.listChanged.emit(updated);
   }
 
-  removeItem(index: number) {
-    const updated = this.listItems.filter((_, i) => i !== index);
+  removeItem(itemId: string) {
+    const updated = this.shoppingService.removeItem(this.listItems, itemId);
     this.listChanged.emit(updated);
   }
 
-  clearChecked() {
-    const updated = this.listItems.filter(item => !item.checked);
+  updateItemQuantity(itemId: string, quantity: number) {
+    const updated = this.shoppingService.updateItem(this.listItems, itemId, { quantity });
     this.listChanged.emit(updated);
+  }
+
+  updateItemNote(itemId: string, note: string) {
+    const updated = this.shoppingService.updateItem(this.listItems, itemId, { note });
+    this.listChanged.emit(updated);
+  }
+
+  addManualItem() {
+    const text = this.newItemText().trim();
+    if (!text) return;
+
+    const updated = this.shoppingService.addManualItem(
+      this.listItems,
+      text,
+      this.newItemCategory()
+    );
+    this.listChanged.emit(updated);
+    
+    this.newItemText.set('');
+    this.newItemCategory.set('other');
+    this.showAddModal.set(false);
+  }
+
+  clearCheckedItems() {
+    const updated = this.shoppingService.clearCheckedItems(this.listItems);
+    this.listChanged.emit(updated);
+  }
+
+  applyGlobalMultiplier() {
+    const multiplier = this.globalMultiplier();
+    if (multiplier <= 0 || multiplier > 10) return;
+
+    const updated = this.shoppingService.applyGlobalMultiplier(this.listItems, multiplier);
+    this.listChanged.emit(updated);
+    this.showMultiplierModal.set(false);
+  }
+
+  copyToClipboard() {
+    const success = this.shoppingService.copyToClipboard(this.listItems);
+    
+    if (success) {
+      this.notificationService.showNotification({
+        type: 'points',
+        title: this.translationService.translate('copied_to_clipboard'),
+        message: '',
+        icon: '📋',
+        duration: 2000
+      });
+    }
+  }
+
+  shareViaWhatsApp() {
+    this.shoppingService.shareViaWhatsApp(this.listItems);
+  }
+
+  shareViaEmail() {
+    this.shoppingService.shareViaEmail(this.listItems);
+  }
+
+  printList() {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const content = this.shoppingService.exportToText(this.listItems);
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Lista de Compra</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          pre {
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.6;
+          }
+          @media print {
+            body { margin: 0; padding: 10mm; }
+          }
+        </style>
+      </head>
+      <body>
+        <pre>${content}</pre>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  }
+
+  getCategoryIcon(category: ItemCategory): string {
+    const icons: { [key in ItemCategory]: string } = {
+      dairy: '🥛',
+      fruits_vegetables: '🥬',
+      meat_fish: '🥩',
+      pantry: '🌾',
+      spices: '🧂',
+      frozen: '❄️',
+      bakery: '🍞',
+      other: '📦'
+    };
+    return icons[category];
+  }
+
+  getCategoryName(category: ItemCategory): string {
+    const translationKeys: { [key in ItemCategory]: string } = {
+      dairy: 'category_dairy',
+      fruits_vegetables: 'category_fruits_vegetables',
+      meat_fish: 'category_meat_fish',
+      pantry: 'category_pantry',
+      spices: 'category_spices',
+      frozen: 'category_frozen',
+      bakery: 'category_bakery',
+      other: 'category_other'
+    };
+    
+    return this.translationService.translate(translationKeys[category]);
+  }
+
+  toggleDarkMode() {
+    this.darkMode.set(!this.darkMode());
+  }
+
+  getItemsByCategory(category: ItemCategory): ShoppingItem[] {
+    return this.groupedItems().get(category) || [];
   }
 }
