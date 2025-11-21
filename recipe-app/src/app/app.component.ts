@@ -43,6 +43,7 @@ import {
 } from "./models/user.model";
 import { TranslatePipe } from "./pipes/translate.pipe";
 import { PantryItemUpdate } from "./components/fridge/fridge.component";
+import { ChefitLogoComponent } from "./components/chefito-logo/chefito-logo.component";
 
 type View =
   | "home"
@@ -69,6 +70,7 @@ type View =
     PaywallComponent,
     LanguageSelectorComponent,
     TranslatePipe,
+    ChefitLogoComponent,
   ],
   template: `
     <app-onboarding />
@@ -79,24 +81,7 @@ type View =
           <div
             class="container mx-auto px-4 py-3 flex justify-between items-center"
           >
-            <div class="flex items-center space-x-2">
-              <svg
-                class="h-8 w-8 text-green-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"
-                />
-              </svg>
-              <h1 class="text-2xl font-bold text-gray-800">
-                {{ "app_title" | translate }}
-              </h1>
+            <app-chefito-logo />
             </div>
             <div class="flex items-center space-x-2">
               <div class="text-sm text-gray-600 text-right hidden sm:block">
