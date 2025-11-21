@@ -17,6 +17,11 @@ export interface Recipe {
     carbs?: number;
     fat?: number;
   };
+  imageUrl?: string;
+  sourceUrl?: string;
+  sourceType?: 'ai-generated' | 'web-scraped' | 'manual' | 'ocr' | 'social-media';
+  category?: 'breakfast' | 'lunch' | 'dinner' | 'dessert' | 'snack';
+  createdAt?: Date;
 }
 
 @Injectable({
@@ -1017,5 +1022,44 @@ Make sure all 10 recipes are VERY different from each other, instructions are be
         servings: 2
       }
     ];
+  }
+
+  async analyzeWithAI(prompt: string): Promise<string> {
+    if (!this.model) {
+      throw new Error('Gemini model not initialized');
+    }
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      const response = result.response;
+      return response.text();
+    } catch (error) {
+      console.error('Error in analyzeWithAI:', error);
+      throw new Error('Failed to analyze with AI');
+    }
+  }
+
+  async analyzeImageWithAI(imageDataUrl: string, prompt: string): Promise<string> {
+    if (!this.model) {
+      throw new Error('Gemini model not initialized');
+    }
+
+    try {
+      const base64Data = imageDataUrl.split(',')[1];
+      
+      const imagePart = {
+        inlineData: {
+          data: base64Data,
+          mimeType: 'image/jpeg'
+        }
+      };
+
+      const result = await this.model.generateContent([prompt, imagePart]);
+      const response = result.response;
+      return response.text();
+    } catch (error) {
+      console.error('Error in analyzeImageWithAI:', error);
+      throw new Error('Failed to analyze image with AI');
+    }
   }
 }
