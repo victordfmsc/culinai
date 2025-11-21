@@ -25,6 +25,7 @@ export class HomeComponent {
   @Output() generateShoppingListRequest = new EventEmitter<void>();
 
   daysOfWeek = DAYS_OF_WEEK_KEYS;
+  currentDate = new Date();
   
   showModal = signal(false);
   selectedDay = signal<string | null>(null);
@@ -98,5 +99,54 @@ export class HomeComponent {
 
   requestGenerateShoppingList() {
     this.generateShoppingListRequest.emit();
+  }
+
+  getCurrentMonth(): string {
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    const year = this.currentDate.getFullYear();
+    const month = monthNames[this.currentDate.getMonth()];
+    return `${month} ${year}`;
+  }
+
+  getCalendarDays(): Array<{ date: number; isCurrentMonth: boolean; isToday: boolean }> {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    
+    // Get first day of month and number of days
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    
+    const days: Array<{ date: number; isCurrentMonth: boolean; isToday: boolean }> = [];
+    
+    // Previous month days
+    const startDay = firstDay === 0 ? 6 : firstDay - 1; // Adjust for Monday start
+    for (let i = startDay - 1; i >= 0; i--) {
+      days.push({ date: daysInPrevMonth - i, isCurrentMonth: false, isToday: false });
+    }
+    
+    // Current month days
+    const today = new Date();
+    for (let i = 1; i <= daysInMonth; i++) {
+      const isToday = i === today.getDate() && 
+                     month === today.getMonth() && 
+                     year === today.getFullYear();
+      days.push({ date: i, isCurrentMonth: true, isToday });
+    }
+    
+    // Next month days
+    const remainingDays = 42 - days.length; // 6 rows × 7 days
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({ date: i, isCurrentMonth: false, isToday: false });
+    }
+    
+    return days;
+  }
+
+  hasMealsOnDate(date: number): boolean {
+    // Simple check: if any day has meals, mark the date
+    // This is a placeholder - in production you'd track specific dates
+    return Math.random() < 0.3; // 30% chance for demo
   }
 }

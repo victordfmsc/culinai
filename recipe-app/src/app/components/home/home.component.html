@@ -15,47 +15,104 @@
     </div>
   </div>
 
-  <!-- Meal Plan Card -->
-  <div class="meal-plan-card">
-    <div class="meal-plan-header">
-      <h3 class="meal-plan-title">{{ 'home_meal_plan' | translate }}</h3>
+  <!-- Main Layout: Weekly Plan + Calendar -->
+  <div class="main-layout">
+    <!-- Weekly Meal Plan -->
+    <div class="meal-plan-card">
+      <div class="meal-plan-header">
+        <h3 class="meal-plan-title">{{ 'home_meal_plan' | translate }}</h3>
+        
+        @if (hasMealsInPlan()) {
+          <button class="generate-list-btn" (click)="requestGenerateShoppingList()">
+            <span class="btn-icon">🛒</span>
+            <span>{{ 'generate_shopping_list' | translate }}</span>
+          </button>
+        }
+      </div>
       
-      @if (hasMealsInPlan()) {
-        <button class="generate-list-btn" (click)="requestGenerateShoppingList()">
-          <span class="btn-icon">🛒</span>
-          <span>{{ 'generate_shopping_list' | translate }}</span>
-        </button>
-      }
-    </div>
-    
-    <!-- Days List -->
-    <div class="days-container">
-      @for (day of daysOfWeek; track day) {
-        <div class="day-section">
-          <div class="day-title">{{ 'day_' + day | translate }}</div>
-          
-          <!-- Meals List for the day -->
-          <div class="meals-list">
-            @if (getMealsForDay(day).length > 0) {
-              @for (meal of getMealsForDay(day); track meal) {
-                <div class="meal-item">
-                  <span class="meal-name">{{ meal }}</span>
-                  <button class="remove-meal-btn" (click)="removeMeal($event, day, meal)">×</button>
+      <!-- Weekly Days Grid -->
+      <div class="week-grid">
+        @for (day of daysOfWeek; track day) {
+          <div class="day-card">
+            <!-- Day Header -->
+            <div class="day-header">
+              <div class="day-name">{{ 'day_' + day | translate }}</div>
+              <div class="day-meals-count">{{ getMealsForDay(day).length }} {{ getMealsForDay(day).length === 1 ? 'meal' : 'meals' }}</div>
+            </div>
+            
+            <!-- Meals List for the day -->
+            <div class="meals-list">
+              @if (getMealsForDay(day).length > 0) {
+                @for (meal of getMealsForDay(day); track meal) {
+                  <div class="meal-item">
+                    <span class="meal-name">{{ meal }}</span>
+                    <button class="remove-meal-btn" (click)="removeMeal($event, day, meal)">✕</button>
+                  </div>
+                }
+              } @else {
+                <div class="empty-day">
+                  <div class="empty-icon">📭</div>
+                  <div class="empty-text">{{ 'no_meals_planned' | translate }}</div>
                 </div>
               }
-            } @else {
-              <div class="empty-day">
-                {{ 'no_meals_planned' | translate }}
-              </div>
-            }
+            </div>
+            
+            <!-- Add Meal Button -->
+            <button class="add-meal-btn" (click)="openAddModal(day)">
+              <span class="plus-icon">+</span> {{ 'add_meal' | translate }}
+            </button>
           </div>
-          
-          <!-- Add Meal Button -->
-          <button class="add-meal-btn" (click)="openAddModal(day)">
-            + {{ 'add_meal' | translate }}
-          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Month Calendar -->
+    <div class="calendar-card">
+      <div class="calendar-header">
+        <h3 class="calendar-title">{{ getCurrentMonth() }}</h3>
+      </div>
+      
+      <!-- Calendar Grid -->
+      <div class="calendar-container">
+        <!-- Weekday Headers -->
+        <div class="calendar-weekdays">
+          <div class="weekday-header">Mon</div>
+          <div class="weekday-header">Tue</div>
+          <div class="weekday-header">Wed</div>
+          <div class="weekday-header">Thu</div>
+          <div class="weekday-header">Fri</div>
+          <div class="weekday-header">Sat</div>
+          <div class="weekday-header">Sun</div>
         </div>
-      }
+        
+        <!-- Calendar Days -->
+        <div class="calendar-grid">
+          @for (day of getCalendarDays(); track day.date) {
+            <div 
+              class="calendar-day"
+              [class.other-month]="!day.isCurrentMonth"
+              [class.today]="day.isToday"
+              [class.has-meals]="hasMealsOnDate(day.date)">
+              <div class="date-number">{{ day.date }}</div>
+              @if (day.isCurrentMonth && hasMealsOnDate(day.date)) {
+                <div class="meal-dot">●</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Legend -->
+      <div class="calendar-legend">
+        <div class="legend-item">
+          <span class="legend-dot today">●</span>
+          <span class="legend-text">Today</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot has-meals">●</span>
+          <span class="legend-text">Has meals</span>
+        </div>
+      </div>
     </div>
   </div>
 
